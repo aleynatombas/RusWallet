@@ -1,0 +1,19 @@
+➢ Category DTOs
+
+Amaç:
+Gelir ve gider kategorilerinin frontend ile güvenli şekilde paylaşılmasını sağlamak.
+
+Kapsam:
+
+Yeni kategori oluşturma
+
+Kullanıcıya ait kategori listesini döndürme
+
+Örnek DTO’lar:
+
+CategoryCreateDto
+
+CategoryResponseDto
+
+📌 Kategoriler kullanıcıya özel olduğu için DTO’lar userId bilgisiyle
+ilişkili şekilde tasarlanmıştır.

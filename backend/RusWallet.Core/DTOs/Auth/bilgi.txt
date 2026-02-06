@@ -1,0 +1,23 @@
+➢ Auth DTOs
+
+Amaç:
+Kullanıcı kayıt (register) ve giriş (login) işlemlerinde kullanılan veri modellerini
+tanımlamak.
+
+Kapsam:
+
+Kullanıcıdan gelen giriş bilgileri
+
+Kayıt sırasında alınan kullanıcı bilgileri
+
+Login sonrası dönen token bilgileri
+
+Örnek DTO’lar:
+
+RegisterRequestDto
+
+LoginRequestDto
+
+AuthResponseDto
+
+📌 Bu DTO’lar AuthController tarafından kullanılmaktadır.

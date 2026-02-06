@@ -1,0 +1,20 @@
+Prediction DTOs
+
+Amaç:
+Yapay zekâ destekli harcama tahmin sonuçlarını frontend katmanına
+düzenli ve sade bir şekilde aktarmak.
+
+Kapsam:
+
+Tahmin edilen harcama tutarı
+
+Tahmin edilen ay
+
+Tahminin oluşturulma tarihi
+
+Örnek DTO’lar:
+
+PredictionResponseDto
+
+📌 Prediction Entity’si doğrudan frontend’e gönderilmemiş,
+yalnızca özet bilgiler DTO üzerinden paylaşılmıştır.

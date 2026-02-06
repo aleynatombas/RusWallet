@@ -1,0 +1,21 @@
+Finance DTOs
+
+Amaç:
+Kullanıcının ana ekranda gördüğü finansal özet ve analiz verilerini frontend’e
+aktarabilmek.
+
+Kapsam:
+
+Toplam gelir
+
+Toplam gider
+
+Bakiye bilgisi
+
+Seçilen tarih aralığına ait özetler
+
+Örnek DTO’lar:
+
+FinanceSummaryResponseDto
+
+📌 Bu DTO’lar AnalysisController tarafından kullanılmaktadır.

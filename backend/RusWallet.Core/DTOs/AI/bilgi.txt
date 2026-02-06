@@ -1,0 +1,28 @@
+➢ AI DTOs
+
+Amaç:
+Yapay zekâ modülleri ile frontend arasındaki veri iletişimini sağlamak.
+
+1️⃣ Transaction Categorization DTO’ları
+
+Kullanıcının işlem açıklamasına göre otomatik kategori belirlenmesi için kullanılır.
+
+Örnek DTO’lar:
+
+CategoryPredictionRequestDto
+
+CategoryPredictionResponseDto
+
+2️⃣ Chatbot DTO’ları
+
+Chatbot modülünde kullanıcıdan gelen sorular ve üretilen yanıtların
+aktarılması için kullanılır.
+
+Örnek DTO’lar:
+
+ChatRequestDto
+
+ChatResponseDto
+
+📌 Chatbot verileri veri tabanında tutulmadığı için yalnızca DTO
+üzerinden yönetilmektedir.

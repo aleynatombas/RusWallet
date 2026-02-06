@@ -1,0 +1,22 @@
+➢ Transaction DTOs
+
+Amaç:
+Kullanıcının gelir ve gider işlemlerini eklerken, listelerken ve analiz ederken
+kullanılan veri modellerini yönetmek.
+
+Kapsam:
+
+Yeni işlem ekleme
+
+İşlem listeleme
+
+Frontend’e dönen işlem bilgileri
+
+Örnek DTO’lar:
+
+TransactionCreateDto
+
+TransactionResponseDto
+
+📌 Entity olan Transaction sınıfı doğrudan API’ye açılmamış,
+yalnızca DTO’lar kullanılmıştır.

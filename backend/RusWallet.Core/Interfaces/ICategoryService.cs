@@ -1,4 +1,5 @@
 using RusWallet.Core.DTOs.Category;
+using RusWallet.Core.DTOs.Prediction;
 
 namespace RusWallet.Core.Interfaces
 {

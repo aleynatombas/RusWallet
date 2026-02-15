@@ -15,5 +15,6 @@ namespace RusWallet.Core.DTOs.Transaction
         public int CategoryId { get; set; }
 
         public string CategoryName { get; set; }
+
     }
 }

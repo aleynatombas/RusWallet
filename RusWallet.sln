@@ -1,0 +1,43 @@
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.5.2.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "backend", "backend", "{1AE8ACA6-933B-BF2A-3671-3E2EAC007D16}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RusWallet.API", "backend\RusWallet.API\RusWallet.API.csproj", "{6489B150-1543-EC02-55A9-05E8E08EDBC9}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RusWallet.Core", "backend\RusWallet.Core\RusWallet.Core.csproj", "{ABEA32C7-D0C5-23FD-5EFE-C57768FC810C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RusWallet.Infrastructure", "backend\RusWallet.Infrastructure\RusWallet.Infrastructure.csproj", "{60C2D9D0-D66F-F6B3-65DD-65D99D9A01B0}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{6489B150-1543-EC02-55A9-05E8E08EDBC9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6489B150-1543-EC02-55A9-05E8E08EDBC9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6489B150-1543-EC02-55A9-05E8E08EDBC9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6489B150-1543-EC02-55A9-05E8E08EDBC9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{ABEA32C7-D0C5-23FD-5EFE-C57768FC810C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{ABEA32C7-D0C5-23FD-5EFE-C57768FC810C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{ABEA32C7-D0C5-23FD-5EFE-C57768FC810C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{ABEA32C7-D0C5-23FD-5EFE-C57768FC810C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{60C2D9D0-D66F-F6B3-65DD-65D99D9A01B0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{60C2D9D0-D66F-F6B3-65DD-65D99D9A01B0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{60C2D9D0-D66F-F6B3-65DD-65D99D9A01B0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{60C2D9D0-D66F-F6B3-65DD-65D99D9A01B0}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{6489B150-1543-EC02-55A9-05E8E08EDBC9} = {1AE8ACA6-933B-BF2A-3671-3E2EAC007D16}
+		{ABEA32C7-D0C5-23FD-5EFE-C57768FC810C} = {1AE8ACA6-933B-BF2A-3671-3E2EAC007D16}
+		{60C2D9D0-D66F-F6B3-65DD-65D99D9A01B0} = {1AE8ACA6-933B-BF2A-3671-3E2EAC007D16}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {484B0CAB-2C2E-4BBA-9F24-FC314933E6CC}
+	EndGlobalSection
+EndGlobal

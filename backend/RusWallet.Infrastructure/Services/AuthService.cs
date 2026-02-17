@@ -6,10 +6,13 @@ using Microsoft.EntityFrameworkCore;
 
 public class AuthService : IAuthService
 {
-     private readonly AppDbContext _context;
-      public AuthService(AppDbContext context)
+    private readonly AppDbContext _context;
+    private readonly JwtService _jwtService;
+
+      public AuthService(AppDbContext context, JwtService jwtService)
     {
         _context = context;
+        _jwtService = jwtService;
     }
 
      public async Task<AuthResponseDto> RegisterAsync(RegisterRequestDto dto)
@@ -20,7 +23,7 @@ public class AuthService : IAuthService
     .FirstOrDefaultAsync(x => x.Email == dto.Email);
 
     if (existingUser != null)
-    throw new Exception("Email already exists");
+    throw new Exception("Bu e-posta adresi zaten kayıtlı");
 
         
         var user = new User
@@ -48,21 +51,24 @@ public class AuthService : IAuthService
 
     public async Task<AuthResponseDto> LoginAsync(LoginRequestDto dto)
     {
-        var user = await _context.Users
-            .FirstOrDefaultAsync(x => x.Email == dto.Email);
+         var user = await _context.Users
+        .FirstOrDefaultAsync(x => x.Email == dto.Email);
 
-        if (user == null)
-            return null;
+    if (user == null)
+        throw new Exception("Kullanıcı bulunamadı");
 
-        if (user.PasswordHash != dto.Password)
-            return null;
+    if (user.PasswordHash != dto.Password)
+        throw new Exception("Şifre yanlış");
+
+    var token = _jwtService.GenerateToken(user);
 
         return new AuthResponseDto
         {
             UserId = user.UserId,
             FirstName = user.FirstName,
             LastName = user.LastName,
-            Email = user.Email
+            Email = user.Email,
+            Token = token  
         };
     }
 }

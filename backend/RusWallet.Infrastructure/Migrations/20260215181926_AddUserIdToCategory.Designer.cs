@@ -12,8 +12,8 @@ using RusWallet.Infrastructure.Data;
 namespace RusWallet.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260209134051_InitialCreate")]
-    partial class InitialCreate
+    [Migration("20260215181926_AddUserIdToCategory")]
+    partial class AddUserIdToCategory
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -40,7 +40,12 @@ namespace RusWallet.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
                     b.HasKey("CategoryId");
+
+                    b.HasIndex("UserId");
 
                     b.ToTable("Categories");
                 });
@@ -177,6 +182,17 @@ namespace RusWallet.Infrastructure.Migrations
                     b.ToTable("Users");
                 });
 
+            modelBuilder.Entity("RusWallet.Core.Entities.Category", b =>
+                {
+                    b.HasOne("RusWallet.Core.Entities.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("RusWallet.Core.Entities.FinanceSummary", b =>
                 {
                     b.HasOne("RusWallet.Core.Entities.User", "User")
@@ -202,7 +218,7 @@ namespace RusWallet.Infrastructure.Migrations
             modelBuilder.Entity("RusWallet.Core.Entities.Transaction", b =>
                 {
                     b.HasOne("RusWallet.Core.Entities.Category", "Category")
-                        .WithMany()
+                        .WithMany("Transactions")
                         .HasForeignKey("CategoryId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -216,6 +232,11 @@ namespace RusWallet.Infrastructure.Migrations
                     b.Navigation("Category");
 
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("RusWallet.Core.Entities.Category", b =>
+                {
+                    b.Navigation("Transactions");
                 });
 #pragma warning restore 612, 618
         }

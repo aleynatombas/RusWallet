@@ -1,14 +1,15 @@
-namespace RusWallet.Infrastructure.Services;
 using RusWallet.Core.Interfaces;
 using RusWallet.Infrastructure.Data;
 using RusWallet.Core.Entities;
 using Microsoft.EntityFrameworkCore;
 using RusWallet.Core.DTOs.Category;
 
+
+namespace RusWallet.Infrastructure.Services{
 public class CategoryService : ICategoryService
 {
      private readonly AppDbContext _context;
-      public CategoryService(AppDbContext context)
+    public CategoryService(AppDbContext context)
     {
     _context = context;
     }
@@ -53,4 +54,5 @@ public class CategoryService : ICategoryService
     await _context.SaveChangesAsync();
     }
 
+}
 }

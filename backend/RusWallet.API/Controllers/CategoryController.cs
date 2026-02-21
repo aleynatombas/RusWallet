@@ -6,7 +6,6 @@ using Microsoft.AspNetCore.Authorization;
 using System.Security.Claims;
 
 
-
 [ApiController]
 [Route("api/[controller]")]
 [Authorize]
@@ -18,7 +17,7 @@ public class CategoryController : ControllerBase
     {
          _categoryService = categoryService;
     }
-
+ 
     [HttpPost("add")]
     public async Task<IActionResult> Add( CategoryCreateDto dto)
     {

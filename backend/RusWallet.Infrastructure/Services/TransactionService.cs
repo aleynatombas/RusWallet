@@ -5,7 +5,6 @@ using RusWallet.Core.Entities;
 using Microsoft.EntityFrameworkCore;
 
 namespace RusWallet.Infrastructure.Services;
-
  public class TransactionService : ITransactionService
 {
     private readonly AppDbContext _context;

@@ -3,7 +3,9 @@ using RusWallet.Infrastructure.Data;
 using RusWallet.Core.Entities;
 using RusWallet.Core.DTOs.Auth;
 using Microsoft.EntityFrameworkCore;
+using RusWallet.Infrastructure.Security;
 
+namespace RusWallet.Infrastructure.Services{
 public class AuthService : IAuthService
 {
     private readonly AppDbContext _context;
@@ -71,4 +73,5 @@ public class AuthService : IAuthService
             Token = token  
         };
     }
+}
 }

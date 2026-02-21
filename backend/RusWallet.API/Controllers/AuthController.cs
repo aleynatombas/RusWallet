@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using RusWallet.Core.Interfaces;
 using RusWallet.Core.DTOs.Auth;
-
+using Microsoft.AspNetCore.Authorization;
 
 [ApiController]
 [Route("api/[controller]")]
@@ -15,6 +15,7 @@ public class AuthController : ControllerBase
     }
 
     [HttpPost("register")]
+    [AllowAnonymous]
     public async Task<IActionResult> Register(RegisterRequestDto dto)
     {
         var result = await _authService.RegisterAsync(dto);
@@ -22,7 +23,7 @@ public class AuthController : ControllerBase
     }
 
     [HttpPost("login")]
-
+    [AllowAnonymous]
     public async Task<IActionResult> Login(LoginRequestDto dto)
     {
         var result = await _authService.LoginAsync(dto);

@@ -9,7 +9,7 @@ public class Prediction
         public DateTime PredictedMonth {get;set;}
         public DateTime CreatedAt { get; set; }
 
-        public User User { get; set; } // Navigation property for the user of this prediction
+        public User User { get; set; } = null!;
 
     }
 }

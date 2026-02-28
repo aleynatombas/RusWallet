@@ -16,18 +16,29 @@ public class TransactionController : ControllerBase
 [HttpPost("add")]
 public async Task<IActionResult> Add(TransactionCreateDto dto)
     {
-        int userId = int.Parse(User.FindFirst("id").Value);
-        
-        await _transactionService.AddTransactionAsync(userId, dto);
-        return Ok();
+        var idClaim = User.FindFirst("id")?.Value;
+        if (string.IsNullOrEmpty(idClaim)) return Unauthorized();
+        int userId = int.Parse(idClaim);
+
+        try
+        {
+            await _transactionService.AddTransactionAsync(userId, dto);
+            return Ok();
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(ex.Message);
+        }
     }
 
  [HttpGet]
  public async Task<IActionResult> Get([FromQuery] DateTime? start, [FromQuery] DateTime? end)
     {
-        int userId = int.Parse(User.FindFirst("id").Value);
+        var idClaim = User.FindFirst("id")?.Value;
+        if (string.IsNullOrEmpty(idClaim)) return Unauthorized();
+        int userId = int.Parse(idClaim);
 
-        var result = await _transactionService.GetUserTransactionsAsync(userId);
+        var result = await _transactionService.GetUserTransactionsAsync(userId, start, end);
         return Ok(result);
 
     }

@@ -6,6 +6,6 @@ namespace RusWallet.Core.Interfaces
     {
         Task AddTransactionAsync(int userId, TransactionCreateDto dto);
 
-        Task<List<TransactionResponseDto>> GetUserTransactionsAsync(int userId);
+        Task<List<TransactionResponseDto>> GetUserTransactionsAsync(int userId, DateTime? start, DateTime? end);
     }
 }

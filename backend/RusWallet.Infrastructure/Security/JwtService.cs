@@ -18,6 +18,23 @@ namespace RusWallet.Infrastructure.Security
 
         public string GenerateToken(User user)
         {
+            // 🔹 Null kontrolleri
+            if (user == null)
+                throw new ArgumentNullException(nameof(user), "User null geldi");
+
+            if (string.IsNullOrEmpty(user.Email))
+                throw new ArgumentNullException(nameof(user.Email), "User email boş");
+
+            var jwtKey = _configuration["Jwt:Key"];
+            var jwtIssuer = _configuration["Jwt:Issuer"];
+            var jwtAudience = _configuration["Jwt:Audience"];
+
+            if (string.IsNullOrEmpty(jwtKey))
+                throw new Exception("JWT Key configuration boş");
+            if (string.IsNullOrEmpty(jwtIssuer))
+                throw new Exception("JWT Issuer configuration boş");
+            if (string.IsNullOrEmpty(jwtAudience))
+                throw new Exception("JWT Audience configuration boş");
             var claims = new[]
             {
                 new Claim("id", user.UserId.ToString()),
@@ -26,7 +43,7 @@ namespace RusWallet.Infrastructure.Security
             };
 
             var key = new SymmetricSecurityKey(
-                Encoding.UTF8.GetBytes(_configuration["Jwt:Key"])
+                Encoding.UTF8.GetBytes(jwtKey)
             );
 
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);

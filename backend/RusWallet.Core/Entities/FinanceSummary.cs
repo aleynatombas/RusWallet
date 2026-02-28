@@ -11,7 +11,7 @@ namespace RusWallet.Core.Entities
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }
 
-        public User User {get; set;}
+        public User User { get; set; } = null!;
 
 
     }

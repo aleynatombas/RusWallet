@@ -11,6 +11,7 @@ using System.Security.Claims;
 [Authorize]
 public class CategoryController : ControllerBase
 {
+
     private readonly ICategoryService _categoryService;
 
     public CategoryController (ICategoryService categoryService)
@@ -21,33 +22,36 @@ public class CategoryController : ControllerBase
     [HttpPost("add")]
     public async Task<IActionResult> Add( CategoryCreateDto dto)
     {
-    
-    int userId = int.Parse(User.FindFirst("id").Value);
+        var idClaim = User.FindFirst("id")?.Value;
+        if (string.IsNullOrEmpty(idClaim)) return Unauthorized();
+        int userId = int.Parse(idClaim);
 
-
-    await _categoryService.AddCategoryAsync(userId, dto);
-    return Ok();
-
+        await _categoryService.AddCategoryAsync(userId, dto);
+        return Ok();
     }
 
     [HttpGet]
     public async Task<IActionResult> Get()
     {
-    int userId = int.Parse(User.FindFirst("id").Value);
+        var idClaim = User.FindFirst("id")?.Value;
+        if (string.IsNullOrEmpty(idClaim)) return Unauthorized();
+        int userId = int.Parse(idClaim);
 
-
-    var result = await _categoryService.GetUserCategoriesAsync(userId);
-    return Ok(result);
+        var result = await _categoryService.GetUserCategoriesAsync(userId);
+        return Ok(result);
     }
 
     [HttpDelete("{id}")]
     public async Task<IActionResult> Delete(int id)
     {
+        var idClaim = User.FindFirst("id")?.Value;
+        if (string.IsNullOrEmpty(idClaim)) return Unauthorized();
+        int userId = int.Parse(idClaim);
 
-    int userId = int.Parse(User.FindFirst("id").Value);
-
-    await _categoryService.DeleteCategoryAsync(userId, id);
-    return Ok();
+        await _categoryService.DeleteCategoryAsync(userId, id);
+        return Ok();
     }
+
+    
 
 }

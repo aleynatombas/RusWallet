@@ -6,7 +6,7 @@ namespace RusWallet.Core.DTOs.Transaction
 
         public decimal Amount { get; set; }
 
-        public string Description { get; set; }
+        public string Description { get; set; } = null!;
 
         public DateTime TransactionDate { get; set; }
 
@@ -14,7 +14,7 @@ namespace RusWallet.Core.DTOs.Transaction
 
         public int CategoryId { get; set; }
 
-        public string CategoryName { get; set; }
+        public string CategoryName { get; set; } = null!;
 
     }
 }

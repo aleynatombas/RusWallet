@@ -4,7 +4,7 @@ namespace RusWallet.Core.DTOs.Transaction
     {
         public decimal Amount { get; set; }
 
-        public string Description { get; set; }
+        public string Description { get; set; } = null!;
 
         public DateTime TransactionDate { get; set; }
 

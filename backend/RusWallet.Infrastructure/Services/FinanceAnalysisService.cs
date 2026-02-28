@@ -1,34 +1,23 @@
-using Microsoft.EntityFrameworkCore;
 using RusWallet.Core.DTOs.Finance;
-using RusWallet.Core.Entities;
 using RusWallet.Core.Interfaces;
-using RusWallet.Infrastructure.Data;
 
 namespace RusWallet.Infrastructure.Services
 {
     public class FinanceAnalysisService : IFinanceAnalysisService
     {
-        private readonly AppDbContext _context;
+        private readonly ITransactionRepository _transactionRepository;
 
-        public FinanceAnalysisService(AppDbContext context)
+        public FinanceAnalysisService(ITransactionRepository transactionRepository)
         {
-            _context = context;
+            _transactionRepository = transactionRepository;
         }
 
         public async Task<FinanceSummaryResponseDto> GetSummaryAsync(int userId)
         {
-            var transaction = await _context.Transactions
-            .Where (x => x.UserId== userId)
-            .ToListAsync();
+            var transactions = await _transactionRepository.GetAllByUserAsync(userId);
 
-            var totalIncome = transaction
-            .Where(x => x.IsIncome)
-            .Sum(x => x.Amount);
-
-            var totalExpense = transaction
-            .Where (x => !x.IsIncome)
-            .Sum (x => x.Amount);
-
+            var totalIncome = transactions.Where(x => x.IsIncome).Sum(x => x.Amount);
+            var totalExpense = transactions.Where(x => !x.IsIncome).Sum(x => x.Amount);
             var balance = totalIncome - totalExpense;
 
             return new FinanceSummaryResponseDto

@@ -1,9 +1,13 @@
 using Microsoft.AspNetCore.Mvc;
 using RusWallet.Core.DTOs.Transaction;
 using RusWallet.Core.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 
-
+namespace RusWallet.API.Controllers
+{
+[ApiController]
 [Route("api/[controller]")]
+[Authorize]
 public class TransactionController : ControllerBase
 {
     private readonly ITransactionService _transactionService;
@@ -40,7 +44,6 @@ public async Task<IActionResult> Add(TransactionCreateDto dto)
 
         var result = await _transactionService.GetUserTransactionsAsync(userId, start, end);
         return Ok(result);
-
     }
-
+}
 }

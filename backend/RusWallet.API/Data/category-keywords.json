@@ -1,0 +1,56 @@
+﻿[
+  {
+    "category": "Maaş",
+    "isIncome": true,
+    "keywords": ["maaş", "maas", "maaşım", "maaşim", "ücret", "ucret", "aylık", "aylik", "salary", "payroll", "bordro", "prim", "ikramiye"]
+  },
+  {
+    "category": "Market",
+    "isIncome": false,
+    "keywords": [
+      "market", "migros", "bim", "a101", "şok", "sok", "carrefour", "metro", "bakkal", "süpermarket", "supermarket", "gıda", "gida", "alışveriş", "alisveris", "grocery",
+      "muz", "çilek", "cilek", "elma", "armut", "portakal", "mandalina", "üzüm", "uzum", "şeftali", "seftali", "kayısı", "kayisi", "kiraz", "erik", "karpuz", "kavun", "mango", "ananas", "avokado", "nar", "incir", "dut", "böğürtlen", "bogurtlen", "ahududu", "yaban mersini", "meyve",
+      "domates", "salatalık", "salatalik", "patates", "soğan", "sogan", "biber", "marul", "ıspanak", "ispanak", "patlıcan", "patlican", "kabak", "havuç", "havuc", "lahana", "brokoli", "karnabahar", "pırasa", "sebze",
+      "süt", "sut", "peynir", "yoğurt", "yogurt", "tereyağı", "tereyagi", "margarin", "yumurta", "ekmek", "zeytin", "reçel", "recel", "bal", "makarna", "pirinç", "bulgur", "mercimek", "nohut", "fasulye", "bakliyat", "un", "şeker", "seker", "tuz", "yağ", "yag", "sucuk", "sosis", "tavuk", "et", "balık", "balik", "yogurt", "ayran", "kola", "meyve suyu", "su", "çay", "cay", "kahve", "bisküvi", "bisküvi", "çikolata", "cikolata", "cips", "kraker", "fındık", "findik", "ceviz", "badem", "fıstık", "fistik", "leblebi"]
+  },
+  {
+    "category": "Ulaşım",
+    "isIncome": false,
+    "keywords": ["benzin", "akaryakıt", "akaryakit", "yakıt", "yakit", "petrol", "lpg", "araç", "arac", "trafik", "otopark", "park", "metro", "metrobüs", "metrobus", "otobüs", "otobus", "tramvay", "dolmuş", "dolmus", "taksi", "uber", "bitaksi", "yol", "köprü", "kopru", "geçiş", "gecis", "oto", "araba", "tire", "lastik", "muayene", "toll", "gas", "fuel"]
+  },
+  {
+    "category": "Faturalar",
+    "isIncome": false,
+    "keywords": ["elektrik", "su faturası", "doğalgaz", "dogalgaz", "fatura", "internet", "telefon faturası", "telefon faturasi", "tv faturası", "tv aboneliği", "aidat", "kapıcı", "kapici", "dsl", "fiber", "turkcell", "vodafone", "turk telekom", "tt", "aysa", "tedaş", "bedas", "igdaş", "iski", "utility", "bill"]
+  },
+  {
+    "category": "Kira",
+    "isIncome": false,
+    "keywords": ["kira", "kiracı", "kiraci", "ev", "konut", "daire", "mortgage", "kredi", "ev kredisi", "apartman"]
+  },
+  {
+    "category": "Yemek",
+    "isIncome": false,
+    "keywords": ["restoran", "lokanta", "yemek", "kahve", "cafe", "kafe", "fast food", "sipariş", "siparis", "yemeksepeti", "getir", "trendyol yemek", "burger", "pizza", "döner", "doner", "kebap", "lahmacun", "pide", "çorba", "corba", "tatlı", "tatli", "pastane", "simit", "poğaça", "pogaca", "dining", "restaurant"]
+  },
+  {
+    "category": "Giyim",
+    "isIncome": false,
+    "keywords": ["giysi", "ayakkabı", "ayakkabi", "giyim", "kıyafet", "kiyafet", "pantolon", "gömlek", "gomlek", "tişört", "tisort", "elbise", "ceket", "mont", "palto", "çorap", "corap", "iç çamaşır", "ic camasir", "takı", "taki", "aksesuar", "lcw", "defacto", "koton", "mango", "zara", "hm", "nike", "adidas", "puma", "clothing", "shoes"]
+  },
+  {
+    "category": "Sağlık",
+    "isIncome": false,
+    "keywords": ["eczane", "ilaç", "ilac", "sağlık", "saglik", "doktor", "hastane", "muayene", "tahlil", "röntgen", "rontgen", "diş", "dis", "göz", "goz", "optik", "lens", "spor salonu", "fitness", "psikolog", "terapi", "pharmacy", "medical", "health"]
+  },
+  {
+    "category": "Gelir",
+    "isIncome": true,
+    "keywords": ["freelance", "serbest", "proje", "danışmanlık", "danismanlik", "ödeme", "odeme", "havale", "eft", "transfer", "kazanç", "kazanc", "bonus", "komisyon", "gelir", "income", "payment"]
+  },
+  {
+    "category": "Diğer Gelir",
+    "isIncome": true,
+    "keywords": ["hediye", "bağış", "bagis", "bağış", "hibe", "burs", "yardım", "yardim", "donation", "gift"]
+  }
+]

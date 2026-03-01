@@ -26,6 +26,9 @@ builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 builder.Services.AddScoped<IFinanceSummaryRepository, FinanceSummaryRepository>();
 builder.Services.AddScoped<IPredictionRepository, PredictionRepository>();
 
+// Yapay zeka servisleri (öğrenci bütçesi: ücretsiz, dış API yok)
+builder.Services.AddScoped<IAIService, KeywordCategoryService>();
+builder.Services.AddScoped<IChatbotService, FAQChatbotService>();
 
 // --- Swagger ---
 builder.Services.AddEndpointsApiExplorer();

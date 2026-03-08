@@ -1,7 +1,9 @@
+using RusWallet.Core.DTOs.AI;
+
 namespace RusWallet.Core.Interfaces
 {
     public interface IChatbotService
     {
-        Task<string> AskAsync(string message);
+        Task<ChatResponseDto> AskAsync(string message);
     }
 }

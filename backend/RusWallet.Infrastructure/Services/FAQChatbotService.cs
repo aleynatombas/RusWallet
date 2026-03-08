@@ -1,4 +1,5 @@
 using System.Text.Json;
+using RusWallet.Core.DTOs.AI;
 using RusWallet.Core.Interfaces;
 
 namespace RusWallet.Infrastructure.Services
@@ -35,10 +36,10 @@ namespace RusWallet.Infrastructure.Services
             return list;
         }
 
-        public Task<string> AskAsync(string message)
+        public Task<ChatResponseDto> AskAsync(string message)
         {
             if (string.IsNullOrWhiteSpace(message))
-                return Task.FromResult("Lütfen bir soru yazın.");
+                return Task.FromResult(new ChatResponseDto { Response = "Lütfen bir soru yazın.", Source = "FAQ" });
 
             var lower = message.Trim().ToLowerInvariant();
 
@@ -48,11 +49,11 @@ namespace RusWallet.Infrastructure.Services
                 {
                     if (string.IsNullOrEmpty(kw)) continue;
                     if (lower.Contains(kw.Trim().ToLowerInvariant()))
-                        return Task.FromResult(answer);
+                        return Task.FromResult(new ChatResponseDto { Response = answer, Source = "FAQ" });
                 }
             }
 
-            return Task.FromResult(DefaultAnswer);
+            return Task.FromResult(new ChatResponseDto { Response = DefaultAnswer, Source = "FAQ" });
         }
 
         private class ChatbotFaqEntry

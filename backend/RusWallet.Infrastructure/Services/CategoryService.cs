@@ -43,5 +43,26 @@ namespace RusWallet.Infrastructure.Services
 
             await _categoryRepository.DeleteAsync(categoryId);
         }
+
+        public async Task<int> GetOrCreateCategoryIdAsync(int userId, string name, bool isIncome)
+        {
+            var trimmed = (name ?? "").Trim();
+            if (string.IsNullOrWhiteSpace(trimmed))
+                trimmed = "Diğer";
+
+            var categories = await _categoryRepository.GetAllByUserAsync(userId);
+            var existing = categories.FirstOrDefault(c => string.Equals(c.Name, trimmed, StringComparison.OrdinalIgnoreCase));
+            if (existing != null)
+                return existing.CategoryId;
+
+            var category = new Category
+            {
+                Name = trimmed,
+                IsIncome = isIncome,
+                UserId = userId
+            };
+            await _categoryRepository.AddAsync(category);
+            return category.CategoryId;
+        }
     }
 }

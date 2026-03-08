@@ -28,7 +28,7 @@ namespace RusWallet.API.Controllers
                 return BadRequest("Message boş olamaz.");
 
             var response = await _chatbotService.AskAsync(dto.Message);
-            return Ok(new ChatResponseDto { Response = response });
+            return Ok(response);
         }
     }
 }

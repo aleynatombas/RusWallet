@@ -77,7 +77,7 @@ namespace RusWallet.Infrastructure.Services
         public Task<CategoryPredictionResponseDto> PredictCategoryAsync(string description)
         {
             if (string.IsNullOrWhiteSpace(description))
-                return Task.FromResult(new CategoryPredictionResponseDto { PredictedCategoryName = "Diğer", IsIncome = false });
+                return Task.FromResult(new CategoryPredictionResponseDto { PredictedCategoryName = "Diğer", IsIncome = false, Source = "Keyword" });
 
             var lower = description.Trim().ToLowerInvariant();
             foreach (var rule in _rules.Value)
@@ -86,10 +86,10 @@ namespace RusWallet.Infrastructure.Services
                 {
                     if (string.IsNullOrEmpty(kw)) continue;
                     if (lower.Contains(kw.Trim().ToLowerInvariant()))
-                        return Task.FromResult(new CategoryPredictionResponseDto { PredictedCategoryName = rule.Category, IsIncome = rule.IsIncome });
+                        return Task.FromResult(new CategoryPredictionResponseDto { PredictedCategoryName = rule.Category, IsIncome = rule.IsIncome, Source = "Keyword" });
                 }
             }
-            return Task.FromResult(new CategoryPredictionResponseDto { PredictedCategoryName = "Diğer", IsIncome = false });
+            return Task.FromResult(new CategoryPredictionResponseDto { PredictedCategoryName = "Diğer", IsIncome = false, Source = "Keyword" });
         }
 
         private class CategoryKeywordRule

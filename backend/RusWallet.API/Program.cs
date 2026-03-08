@@ -19,6 +19,7 @@ builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<JwtService>(); // artık doğru namespace ile referanslanıyor
 builder.Services.AddControllers();
 builder.Services.AddScoped<IFinanceAnalysisService, FinanceAnalysisService>();
+builder.Services.AddScoped<IFinanceMLService, FinanceMLService>();
 builder.Services.AddScoped<IPredictionService, PredictionService>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<ITransactionRepository, TransactionRepository>();
@@ -26,9 +27,27 @@ builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 builder.Services.AddScoped<IFinanceSummaryRepository, FinanceSummaryRepository>();
 builder.Services.AddScoped<IPredictionRepository, PredictionRepository>();
 
-// Yapay zeka servisleri (öğrenci bütçesi: ücretsiz, dış API yok)
-builder.Services.AddScoped<IAIService, KeywordCategoryService>();
-builder.Services.AddScoped<IChatbotService, FAQChatbotService>();
+// Yapay zeka: OpenAI ApiKey doluysa OpenAI, değilse kelime tabanlı (ücretsiz)
+builder.Services.AddScoped<KeywordCategoryService>();
+builder.Services.AddScoped<IAIService>(sp =>
+{
+    var config = sp.GetRequiredService<IConfiguration>();
+    if (!string.IsNullOrWhiteSpace(config["OpenAI:ApiKey"]?.Trim()))
+        return new RusWallet.API.Services.OpenAICategoryService(config, sp.GetRequiredService<KeywordCategoryService>());
+    return sp.GetRequiredService<KeywordCategoryService>();
+});
+// Chatbot: OpenAI ApiKey doluysa OpenAI, değilse FAQ (kelime tabanlı)
+builder.Services.AddScoped<FAQChatbotService>();
+builder.Services.AddScoped<IChatbotService>(sp =>
+{
+    var config = sp.GetRequiredService<IConfiguration>();
+    if (!string.IsNullOrWhiteSpace(config["OpenAI:ApiKey"]?.Trim()))
+        return new RusWallet.API.Services.OpenAIChatbotService(config, sp.GetRequiredService<FAQChatbotService>());
+    return sp.GetRequiredService<FAQChatbotService>();
+});
+
+// Fiş tarama (OCR)
+builder.Services.AddScoped<IReceiptAnalysisService, ReceiptAnalysisService>();
 
 // --- Swagger ---
 builder.Services.AddEndpointsApiExplorer();

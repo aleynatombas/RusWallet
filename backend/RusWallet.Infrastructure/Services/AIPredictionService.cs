@@ -17,16 +17,22 @@ namespace RusWallet.Infrastructure.Services
 
         public async Task<PredictionResponseDto> GetMonthlyPredictionAsync(int userId, DateTime month)
         {
-            var threeMonthsAgo = month.AddMonths(-3);
+            // Son 6 ay verisi ile ML (linear regression) tahmini; daha az veri varsa ortalama kullanılır
+            var sixMonthsAgo = month.AddMonths(-6);
+            var transactions = await _transactionRepository.GetByUserAndDateRangeAsync(userId, sixMonthsAgo, month, isIncome: false);
 
-            var transactions = await _transactionRepository.GetByUserAndDateRangeAsync(userId, threeMonthsAgo, month, isIncome: false);
-
-            var monthlyTotals = transactions
+            var orderedMonthlyTotals = transactions
                 .GroupBy(x => new { x.TransactionDate.Year, x.TransactionDate.Month })
+                .OrderBy(g => g.Key.Year).ThenBy(g => g.Key.Month)
                 .Select(g => g.Sum(x => x.Amount))
                 .ToList();
 
-            decimal estimatedAmount = monthlyTotals.Count > 0 ? monthlyTotals.Average() : 0;
+            decimal estimatedAmount = 0;
+            if (orderedMonthlyTotals.Count > 0)
+            {
+                var mlNetPrediction = MlNetForecastService.PredictNextMonth(orderedMonthlyTotals);
+                estimatedAmount = mlNetPrediction ?? MLPredictionHelper.PredictNextByLinearRegression(orderedMonthlyTotals);
+            }
 
             var prediction = new Prediction
             {

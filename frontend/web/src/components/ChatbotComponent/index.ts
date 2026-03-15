@@ -1,0 +1,1 @@
+export { ChatbotComponent } from './ChatbotComponent';

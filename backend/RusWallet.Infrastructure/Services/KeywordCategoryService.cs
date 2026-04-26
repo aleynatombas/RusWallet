@@ -60,6 +60,7 @@ namespace RusWallet.Infrastructure.Services
         {
             return new List<CategoryKeywordRule>
             {
+                new() { Category = "Gelir", IsIncome = true, Keywords = new[] { "gelen havale", "gelen eft", "yatırılan tutar", "tahsilat", "ödeme alındı", "alınan tutar", "dekont gelen", "freelance", "serbest", "proje", "danışmanlık", "müşteri ödemesi", "havale gelen", "eft gelen", "kazanç", "bonus", "komisyon", "gelir" } },
                 new() { Category = "Maaş", IsIncome = true, Keywords = new[] { "maaş", "maas", "ücret", "ucret", "aylık", "aylik" } },
                 new() { Category = "Market", IsIncome = false, Keywords = new[] { "market", "meyve", "sebze", "muz", "çilek", "cilek", "süt", "sut", "ekmek", "gıda", "gida", "bakkal", "migros", "bim", "a101", "şok", "sok" } },
                 new() { Category = "Ulaşım", IsIncome = false, Keywords = new[] { "benzin", "akaryakıt", "yakıt", "yakit", "petrol", "araç", "arac", "trafik", "otopark" } },
@@ -69,7 +70,6 @@ namespace RusWallet.Infrastructure.Services
                 new() { Category = "Yemek", IsIncome = false, Keywords = new[] { "restoran", "yemek", "kahve", "cafe", "kafe", "fast food", "sipariş", "siparis" } },
                 new() { Category = "Giyim", IsIncome = false, Keywords = new[] { "giysi", "ayakkabı", "ayakkabi", "giyim", "kıyafet", "kiyafet" } },
                 new() { Category = "Sağlık", IsIncome = false, Keywords = new[] { "eczane", "ilaç", "ilac", "sağlık", "saglik", "doktor", "hastane" } },
-                new() { Category = "Gelir", IsIncome = true, Keywords = new[] { "freelance", "serbest", "proje", "danışmanlık", "ödeme", "odeme", "havale", "eft" } },
                 new() { Category = "Diğer Gelir", IsIncome = true, Keywords = new[] { "hediye", "bağış", "bagis" } },
             };
         }

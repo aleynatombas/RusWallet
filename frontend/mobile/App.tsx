@@ -1,22 +1,36 @@
 import { StatusBar } from 'expo-status-bar';
 import { NavigationContainer } from '@react-navigation/native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
-import { PaperProvider } from 'react-native-paper';
 import { AuthProvider } from './src/context/AuthContext';
+import { ThemeProvider, useAppTheme } from './src/context/ThemeContext';
 import { RootNavigator } from './src/navigation/RootNavigator';
-import { appTheme } from './src/theme';
+import { MobileGlobalVoiceReceiptEntry } from './src/components/MobileGlobalVoiceReceiptEntry';
+
+function ThemedStatusBar() {
+  const { mode } = useAppTheme();
+  return <StatusBar style={mode === 'dark' ? 'light' : 'dark'} />;
+}
+
+function AppInner() {
+  return (
+    <>
+      <AuthProvider>
+        <NavigationContainer>
+          <RootNavigator />
+        </NavigationContainer>
+        <MobileGlobalVoiceReceiptEntry />
+      </AuthProvider>
+      <ThemedStatusBar />
+    </>
+  );
+}
 
 export default function App() {
   return (
     <SafeAreaProvider>
-      <PaperProvider theme={appTheme}>
-        <AuthProvider>
-          <NavigationContainer>
-            <RootNavigator />
-            <StatusBar style="auto" />
-          </NavigationContainer>
-        </AuthProvider>
-      </PaperProvider>
+      <ThemeProvider>
+        <AppInner />
+      </ThemeProvider>
     </SafeAreaProvider>
   );
 }

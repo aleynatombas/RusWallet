@@ -2,9 +2,7 @@ using RusWallet.Core.Entities;
 using RusWallet.Core.Interfaces;
 using RusWallet.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using System.Linq;
+
 
 namespace RusWallet.Infrastructure.Repositories
 {
@@ -27,7 +25,7 @@ namespace RusWallet.Infrastructure.Repositories
             return await _context.Categories.Where(c => c.UserId == userId).ToListAsync();
         }
 
-        public async Task<Category?> GetByIdAsync(int categoryId)
+        public async Task<Category> GetByIdAsync(int categoryId)
         {
             return await _context.Categories.FirstOrDefaultAsync(c => c.CategoryId == categoryId);
         }
@@ -44,6 +42,11 @@ namespace RusWallet.Infrastructure.Repositories
             if (category != null)
                 _context.Categories.Remove(category);
             await _context.SaveChangesAsync();
+        }
+
+        public static async Task GetAllAsync()
+        {
+            throw new NotImplementedException();
         }
     }
 }

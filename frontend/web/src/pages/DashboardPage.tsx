@@ -2,7 +2,7 @@ import { DashboardComponent } from '../components/DashboardComponent';
 
 export function DashboardPage() {
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
+    <div className="flex min-h-0 w-full flex-1 flex-col">
       <DashboardComponent />
     </div>
   );

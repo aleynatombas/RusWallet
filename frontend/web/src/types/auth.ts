@@ -3,6 +3,8 @@ export interface AuthUser {
   firstName: string;
   lastName: string;
   email: string;
+  /** Sunucudan gelir; false iken onboarding zorunlu (veya atlanabilir). */
+  onboardingCompleted: boolean;
 }
 
 export interface AuthResponse {
@@ -11,6 +13,7 @@ export interface AuthResponse {
   lastName: string;
   email: string;
   token: string | null;
+  onboardingCompleted?: boolean;
 }
 
 export interface LoginRequest {
@@ -24,4 +27,21 @@ export interface RegisterRequest {
   phoneNumber: string;
   email: string;
   password: string;
+}
+
+export interface UpdateProfileRequest {
+  firstName: string;
+  lastName: string;
+  email: string;
+}
+
+export interface ChangePasswordRequest {
+  currentPassword: string;
+  newPassword: string;
+}
+
+/** POST /auth/reset-password-by-email — oturum yok */
+export interface ResetPasswordByEmailRequest {
+  email: string;
+  newPassword: string;
 }

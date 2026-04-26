@@ -36,7 +36,7 @@ namespace RusWallet.Infrastructure.Services
             return list;
         }
 
-        public Task<ChatResponseDto> AskAsync(string message)
+        public Task<ChatResponseDto> AskAsync(int userId, string message)
         {
             if (string.IsNullOrWhiteSpace(message))
                 return Task.FromResult(new ChatResponseDto { Response = "Lütfen bir soru yazın.", Source = "FAQ" });

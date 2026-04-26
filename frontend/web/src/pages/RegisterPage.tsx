@@ -1,11 +1,17 @@
 import { useNavigate } from 'react-router-dom';
 import { AuthComponent } from '../components/AuthComponent';
+import { AuthShell } from '@/components/auth/AuthShell';
 
 export function RegisterPage() {
   const navigate = useNavigate();
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
-      <AuthComponent mode="register" onSuccess={() => navigate('/', { replace: true })} />
-    </div>
+    <AuthShell activeTab="register">
+      <AuthComponent
+        mode="register"
+        variant="split"
+        onSuccess={() => navigate('/', { replace: true })}
+        onPasswordHelpClick={() => navigate('/login?yardim=sifre', { replace: true })}
+      />
+    </AuthShell>
   );
 }

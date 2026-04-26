@@ -3,3 +3,4 @@ export { DashboardComponent } from './DashboardComponent';
 export { TransactionFormComponent } from './TransactionFormComponent';
 export { AnalysisComponent } from './AnalysisComponent';
 export { ChatbotComponent } from './ChatbotComponent';
+export { FloatingChatbot } from './FloatingChatbot';

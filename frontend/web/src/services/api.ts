@@ -15,15 +15,31 @@ function getToken(): string | null {
 api.interceptors.request.use((config: InternalAxiosRequestConfig) => {
   const token = getToken();
   if (token) config.headers.Authorization = `Bearer ${token}`;
+  // multipart boundary için varsayılan application/json üstbilgisini kaldır
+  if (typeof FormData !== 'undefined' && config.data instanceof FormData) {
+    delete config.headers['Content-Type'];
+  }
   return config;
 });
 
 api.interceptors.response.use(
   (res) => res,
-  (err: AxiosError) => {
+  (err: AxiosError<{ message?: string; title?: string }>) => {
     if (err.response?.status === 401) {
       localStorage.removeItem('token');
       window.location.href = '/login';
+    }
+    const data = err.response?.data;
+    const detail =
+      typeof data === 'string'
+        ? data
+        : data && typeof data === 'object'
+          ? (data as { message?: string }).message ?? (data as { title?: string }).title
+          : undefined;
+    if (detail && err.message) {
+      err.message = `${err.message} — ${detail}`;
+    } else if (detail) {
+      err.message = detail;
     }
     return Promise.reject(err);
   }

@@ -51,7 +51,8 @@ namespace RusWallet.Infrastructure.Services
                 trimmed = "Diğer";
 
             var categories = await _categoryRepository.GetAllByUserAsync(userId);
-            var existing = categories.FirstOrDefault(c => string.Equals(c.Name, trimmed, StringComparison.OrdinalIgnoreCase));
+            var existing = categories.FirstOrDefault(c =>
+                string.Equals(c.Name, trimmed, StringComparison.OrdinalIgnoreCase) && c.IsIncome == isIncome);
             if (existing != null)
                 return existing.CategoryId;
 

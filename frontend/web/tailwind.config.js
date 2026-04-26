@@ -7,6 +7,15 @@ export default {
   ],
   theme: {
     extend: {
+      fontFamily: {
+        display: ['"Plus Jakarta Sans"', 'system-ui', 'sans-serif'],
+      },
+      /** shadcn tarzı: aydınlıkta border + çok hafif gölge; koyuda mevcut Tailwind katmanları */
+      boxShadow: {
+        elevation: '0 1px 2px 0 rgb(0 0 0 / 0.05)',
+        'elevation-lg': '0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1)',
+        'elevation-xl': '0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)',
+      },
       borderRadius: {
         lg: 'var(--radius)',
         md: 'calc(var(--radius) - 2px)',

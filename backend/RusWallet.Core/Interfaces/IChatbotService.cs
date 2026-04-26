@@ -4,6 +4,7 @@ namespace RusWallet.Core.Interfaces
 {
     public interface IChatbotService
     {
-        Task<ChatResponseDto> AskAsync(string message);
+        /// <param name="userId">JWT ile giriş yapmış kullanıcı; kişiselleştirme ve bağlam için kullanılır.</param>
+        Task<ChatResponseDto> AskAsync(int userId, string message);
     }
 }

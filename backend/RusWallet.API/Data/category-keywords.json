@@ -1,4 +1,9 @@
-﻿[
+[
+  {
+    "category": "Gelir",
+    "isIncome": true,
+    "keywords": ["gelen havale", "gelen eft", "yatırılan tutar", "yatirilan tutar", "tahsil makbuzu", "tahsilat", "ödeme alındı", "odeme alindi", "alınan tutar", "alinan tutar", "dekont gelen", "iade tutarı", "iade tutari", "freelance", "serbest", "proje", "danışmanlık", "danismanlik", "müşteri ödemesi", "musteri odemesi", "havale gelen", "eft gelen", "transfer gelen", "kazanç", "kazanc", "bonus", "komisyon", "gelir", "income", "proje ödemesi"]
+  },
   {
     "category": "Maaş",
     "isIncome": true,
@@ -42,11 +47,6 @@
     "category": "Sağlık",
     "isIncome": false,
     "keywords": ["eczane", "ilaç", "ilac", "sağlık", "saglik", "doktor", "hastane", "muayene", "tahlil", "röntgen", "rontgen", "diş", "dis", "göz", "goz", "optik", "lens", "spor salonu", "fitness", "psikolog", "terapi", "pharmacy", "medical", "health"]
-  },
-  {
-    "category": "Gelir",
-    "isIncome": true,
-    "keywords": ["freelance", "serbest", "proje", "danışmanlık", "danismanlik", "ödeme", "odeme", "havale", "eft", "transfer", "kazanç", "kazanc", "bonus", "komisyon", "gelir", "income", "payment"]
   },
   {
     "category": "Diğer Gelir",

@@ -12,19 +12,45 @@
       "backgroundColor": "#ffffff"
     },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "infoPlist": {
+        "NSSpeechRecognitionUsageDescription": "Konuşmanızı metne çevirmek için konuşma tanıma izni gerekir.",
+        "NSMicrophoneUsageDescription": "Sesle işlem eklemek için mikrofon erişimi gerekir.",
+        "NSAppTransportSecurity": {
+          "NSAllowsLocalNetworking": true
+        }
+      }
     },
     "android": {
+      "usesCleartextTraffic": true,
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE",
         "foregroundImage": "./assets/android-icon-foreground.png",
         "backgroundImage": "./assets/android-icon-background.png",
         "monochromeImage": "./assets/android-icon-monochrome.png"
       },
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "permissions": ["android.permission.RECORD_AUDIO"],
+      "package": "com.anonymous.ruswalletmobile"
     },
     "web": {
       "favicon": "./assets/favicon.png"
-    }
+    },
+    "plugins": [
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Fiş fotoğrafı seçmek için galeri erişimi gerekir.",
+          "cameraPermission": "Fiş fotoğrafı çekmek için kamera erişimi gerekir."
+        }
+      ],
+      [
+        "expo-speech-recognition",
+        {
+          "microphonePermission": "Sesle işlem eklemek için mikrofon erişimi gerekir.",
+          "speechRecognitionPermission": "Konuşmanızı metne çevirmek için konuşma tanıma izni gerekir."
+        }
+      ]
+    ]
   }
 }

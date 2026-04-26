@@ -11,5 +11,7 @@ namespace RusWallet.Core.DTOs.Transaction
         public bool IsIncome { get; set; }
 
         public int CategoryId { get; set; }
+
+        public string? PaymentMethod { get; set; }
     }
 }

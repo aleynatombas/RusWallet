@@ -16,5 +16,6 @@ namespace RusWallet.Core.DTOs.Transaction
 
         public string CategoryName { get; set; } = null!;
 
+        public string? PaymentMethod { get; set; }
     }
 }

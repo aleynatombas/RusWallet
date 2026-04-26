@@ -24,6 +24,12 @@ namespace RusWallet.Infrastructure.Repositories
             return await _context.Users.FirstOrDefaultAsync(u => u.Email == email);
         }
 
+        public async Task<User?> GetByEmailCaseInsensitiveAsync(string email)
+        {
+            var e = email.Trim().ToLower();
+            return await _context.Users.FirstOrDefaultAsync(u => u.Email.ToLower() == e);
+        }
+
         public async Task AddAsync(User user)
         {
             await _context.Users.AddAsync(user);
@@ -38,11 +44,26 @@ namespace RusWallet.Infrastructure.Repositories
 
         public async Task DeleteAsync(int userId)
         {
-            var user = await GetByIdAsync(userId);
-            if (user != null)
+            // Bazı ortamlarda FK'lar cascade olmayabilir (örn: Categories -> Users).
+            // Bu yüzden kullanıcıyı silmeden önce bağlı kayıtları temizliyoruz.
+            await using var tx = await _context.Database.BeginTransactionAsync();
+            try
             {
-                _context.Users.Remove(user);
-                await _context.SaveChangesAsync();
+                // Çocuk tabloları önce
+                await _context.Database.ExecuteSqlRawAsync("DELETE FROM [Transactions] WHERE [UserId] = {0}", userId);
+                await _context.Database.ExecuteSqlRawAsync("DELETE FROM [FinanceSummaries] WHERE [UserId] = {0}", userId);
+                await _context.Database.ExecuteSqlRawAsync("DELETE FROM [Predictions] WHERE [UserId] = {0}", userId);
+                await _context.Database.ExecuteSqlRawAsync("DELETE FROM [Categories] WHERE [UserId] = {0}", userId);
+
+                // En son kullanıcı
+                await _context.Database.ExecuteSqlRawAsync("DELETE FROM [Users] WHERE [UserId] = {0}", userId);
+
+                await tx.CommitAsync();
+            }
+            catch
+            {
+                await tx.RollbackAsync();
+                throw;
             }
         }
     }

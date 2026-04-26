@@ -12,30 +12,37 @@ namespace RusWallet.API.Services;
 public class OpenAIChatbotService : IChatbotService
 {
     private readonly IChatbotService _fallback;
+    private readonly IChatUserFinancialContext _financialContext;
     private readonly string? _apiKey;
     private const string DefaultModel = "gpt-4o-mini";
 
-    public OpenAIChatbotService(IConfiguration configuration, FAQChatbotService fallback)
+    public OpenAIChatbotService(
+        IConfiguration configuration,
+        FAQChatbotService fallback,
+        IChatUserFinancialContext financialContext)
     {
         _fallback = fallback;
+        _financialContext = financialContext;
         _apiKey = configuration["OpenAI:ApiKey"]?.Trim();
     }
 
-    public async Task<ChatResponseDto> AskAsync(string message)
+    public async Task<ChatResponseDto> AskAsync(int userId, string message)
     {
         if (string.IsNullOrWhiteSpace(message))
             return new ChatResponseDto { Response = "Lütfen bir soru yazın.", Source = "FAQ" };
 
         if (string.IsNullOrWhiteSpace(_apiKey))
-            return await _fallback.AskAsync(message);
+            return await _fallback.AskAsync(userId, message);
 
         try
         {
             var client = new ChatClient(DefaultModel, _apiKey);
-            var systemPrompt = """
+            var facts = await _financialContext.BuildSummaryAsync(userId);
+            var systemPrompt = $"""
                 Sen RusWallet uygulamasının bütçe asistanısın. Kullanıcılar gelir-gider takibi, kategoriler, tasarruf, yatırım, borç yönetimi, acil fon, bütçe planlama, fiş yükleme gibi konularda soru sorabilir.
                 Her zaman Türkçe, kısa ve anlaşılır cevap ver. Yatırım/borç/tasarruf tavsiyesi verirken "Bu bilgi genel bilgilendirme amaçlıdır, yatırım tavsiyesi değildir" benzeri bir uyarı ekle.
                 Uygulama özellikleri: işlem ekleme, kategori önerisi (açıklamaya göre), fiş fotoğrafı yükleme (OCR), analiz özeti, aylık tahmin, chatbot. Soru konu dışıysa kibarca bütçe/harcama konularına yönlendir.
+                Bu kullanıcıya ait güncel RusWallet verileri (soru bunlarla ilgiliyse bunlara dayan; uydurma rakam verme): {facts}
                 """;
             var messages = new List<ChatMessage>
             {
@@ -52,6 +59,6 @@ public class OpenAIChatbotService : IChatbotService
             // fallback
         }
 
-        return await _fallback.AskAsync(message);
+        return await _fallback.AskAsync(userId, message);
     }
 }

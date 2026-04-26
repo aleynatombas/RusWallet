@@ -9,6 +9,9 @@ namespace RusWallet.Core.Entities
         public bool IsIncome { get; set; }
 
         public int UserId { get; set; }// User who owns this transaction
+        /// <summary>Ödeme aracı: kart adı, nakit, banka vb. (opsiyonel).</summary>
+        public string? PaymentMethod { get; set; }
+
         public int CategoryId { get; set; }// Category of the transaction
         public User User { get; set; } = null!;
         public Category Category { get; set; } = null!;

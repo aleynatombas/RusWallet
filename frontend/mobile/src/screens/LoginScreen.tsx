@@ -6,9 +6,6 @@ type Props = NativeStackScreenProps<AuthStackParamList, 'Login'>;
 
 export function LoginScreen({ navigation }: Props) {
   return (
-    <MobileAuthComponent
-      mode="login"
-      onNavigateToRegister={() => navigation.navigate('Register')}
-    />
+    <MobileAuthComponent mode="login" onNavigateToRegister={() => navigation.navigate('Register')} />
   );
 }

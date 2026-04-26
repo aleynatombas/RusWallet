@@ -3,6 +3,7 @@ export interface AuthUser {
   firstName: string;
   lastName: string;
   email: string;
+  onboardingCompleted: boolean;
 }
 
 export interface LoginRequest {
@@ -16,4 +17,24 @@ export interface RegisterRequest {
   phoneNumber: string;
   email: string;
   password: string;
+}
+
+export interface AuthResponse {
+  userId: number;
+  firstName: string;
+  lastName: string;
+  email: string;
+  token?: string | null;
+  onboardingCompleted?: boolean;
+}
+
+export interface UpdateProfileRequest {
+  firstName: string;
+  lastName: string;
+  email: string;
+}
+
+export interface ChangePasswordRequest {
+  currentPassword: string;
+  newPassword: string;
 }

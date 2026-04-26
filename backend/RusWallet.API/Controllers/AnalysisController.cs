@@ -11,11 +11,16 @@ namespace RusWallet.API.Controllers
     {
         private readonly IFinanceAnalysisService _financeAnalysisService;
         private readonly IFinanceMLService _financeMLService;
+        private readonly IAnalysisRoadmapService _roadmapService;
 
-        public AnalysisController(IFinanceAnalysisService financeAnalysisService, IFinanceMLService financeMLService)
+        public AnalysisController(
+            IFinanceAnalysisService financeAnalysisService,
+            IFinanceMLService financeMLService,
+            IAnalysisRoadmapService roadmapService)
         {
             _financeAnalysisService = financeAnalysisService;
             _financeMLService = financeMLService;
+            _roadmapService = roadmapService;
         }
 
         /// <summary>Giriş yapmış kullanıcının finansal özeti. userId JWT'den alınır.</summary>
@@ -56,6 +61,18 @@ namespace RusWallet.API.Controllers
             if (historicalMonths < 2 || historicalMonths > 24) historicalMonths = 6;
 
             var result = await _financeMLService.GetAnomaliesAsync(userId, month, historicalMonths);
+            return Ok(result);
+        }
+
+        /// <summary>Finansal yol haritası: öngörü kartları, yaşam tarzı skoru, nakit akışı tahmini, soru modülü (ML/istatistik).</summary>
+        [HttpGet("roadmap")]
+        public async Task<IActionResult> GetRoadmap(CancellationToken cancellationToken)
+        {
+            var idClaim = User.FindFirst("id")?.Value;
+            if (string.IsNullOrEmpty(idClaim)) return Unauthorized();
+            int userId = int.Parse(idClaim);
+
+            var result = await _roadmapService.GetRoadmapAsync(userId, cancellationToken);
             return Ok(result);
         }
     }

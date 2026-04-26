@@ -1,6 +1,6 @@
-# RusWallet Frontend – Web & Mobil Yönetimi
+# RusWallet Frontend – Web & Mobil
 
-Bu klasörde **web** ve **mobil** iki ayrı uygulama var; ikisi de aynı backend API'yi kullanır.
+Bu klasörde **web** ve **mobil** iki ayrı uygulama var; ikisi de aynı backend API’yi kullanır.
 
 ---
 
@@ -9,7 +9,7 @@ Bu klasörde **web** ve **mobil** iki ayrı uygulama var; ikisi de aynı backend
 | Uygulama | Teknoloji | Port / Ortam | Klasör |
 |----------|-----------|--------------|--------|
 | **Web** | React + Vite + TypeScript + Tailwind | http://localhost:3000 | `web/` |
-| **Mobil** | React Native (Expo) + TypeScript | Metro / cihaz emülatör | `mobile/` |
+| **Mobil** | React Native (Expo) + TypeScript | Metro / cihaz | `mobile/` |
 | **Backend API** | .NET 10 | http://localhost:5140 | `../backend/RusWallet.API` |
 
 ---
@@ -23,9 +23,7 @@ cd backend/RusWallet.API
 dotnet run
 ```
 
-API: **http://localhost:5140**
-
----
+API: **http://localhost:5140** — Swagger: `/swagger`
 
 ### 2. Web
 
@@ -36,11 +34,9 @@ yarn dev
 ```
 
 Tarayıcı: **http://localhost:3000**  
-Web, `/api` isteklerini otomatik olarak `http://localhost:5140`'a proxy eder.
+Vite, `/api` isteklerini `http://localhost:5140` adresine proxy eder.
 
----
-
-### 3. Mobil (React Native – Expo)
+### 3. Mobil (Expo)
 
 ```bash
 cd frontend/mobile
@@ -48,53 +44,57 @@ yarn install   # ilk seferde
 yarn start
 ```
 
-- Emülatör veya fiziksel cihazda Expo Go ile açılır.
-- **API adresi:** Mobilde proxy yok; API base URL ortam değişkeni ile ayarlanır (aşağıda).
+---
+
+## Kimlik ve dashboard
+
+- **Auth:** Kayıt / giriş sonrası JWT `localStorage` (web) veya `AsyncStorage` (mobil) içinde saklanır; `axios` interceptor ile isteklere eklenir.
+- **Dashboard:** Giriş sonrası ana ekranda finans özeti (`GET /api/Analysis/summary`), son işlemler (`GET /api/Transaction?period=30`) ve hızlı işlem ekleme (`POST /api/Transaction/add`) çağrılır.
+
+### UI (web + mobil aynı akış)
+
+- **Web:** [shadcn/ui](https://ui.shadcn.com/docs/components/radix/button) bileşenleri (`Button`, `Card`, `Input`, `Label`) — ör. `frontend/web/src/components/ui/`, dashboard: `DashboardComponent`.
+- **Mobil:** React Native Paper ile aynı bölümler (başlık, özet kartları, Gelir/Gider segment düğmeleri, form, işlem listesi); dosya: `MobileDashboardComponent`.
 
 ---
 
-## Paylaşılan kurallar (Web + Mobil)
+## Base URL
 
-- **Aynı API:** Auth, işlemler, kategoriler, analiz, chatbot, fiş OCR vb. hepsi aynı endpoint’ler.
-- **JWT:** Login sonrası token alınır; isteklerde `Authorization: Bearer <token>` kullanılır.
-- **Base URL:**
-  - Web: geliştirmede `/api` (Vite proxy → 5140).
-  - Mobil: `http://localhost:5140` (emülatör) veya bilgisayarın IP’si (fiziksel cihaz, örn. `http://192.168.1.x:5140`).
+| Ortam | Base URL |
+|--------|----------|
+| Web (dev) | `/api` (proxy → 5140) |
+| Mobil – fiziksel cihaz | Bilgisayarın yerel IP’si, örn. `http://192.168.1.x:5140` |
+| Mobil – Android emülatör | `http://10.0.2.2:5140` |
+| Mobil – iOS Simulator (Mac) | Genelde `http://localhost:5140` |
 
-Mobilde API base URL **`mobile/src/config/api.ts`** içinde; `API_BASE_URL` değiştirilebilir. Android emülatörde `http://10.0.2.2:5140` gerekebilir.
-
----
-
-## Mobil kurulum sırası (React Native – Expo)
-
-Mobil proje henüz oluşturulmadıysa:
-
-1. **Expo ile proje oluştur (TypeScript):**
-   ```bash
-   cd frontend
-   npx create-expo-app@latest mobile --template blank-typescript
-   cd mobile
-   yarn install
-   ```
-
-2. **Yarn kullanımı:** `package.json` içine `"packageManager": "yarn@1.22.22"` eklenebilir (web ile aynı).
-
-3. **API client:** `axios` veya `fetch` + base URL config; token’ı login sonrası saklayıp her istekte header’a eklemek.
-
-4. **Ortam değişkeni (API URL):** `expo-constants` veya `react-native-dotenv` ile `API_BASE_URL` okunabilir.
-
-Bu adımları tamamladıktan sonra ekranlar ve navigasyon (React Navigation) eklenerek web ile paralel ilerlenebilir.
+Mobil adres **`mobile/src/config/api.ts`** içindeki `DEV_HOST` ile ayarlanır. **Wi‑Fi veya ağ değişince** bilgisayarda `ipconfig` ile IPv4’ü güncelle; aksi halde `Network Error` alırsın. Windows’ta gerekirse 5140 için inbound firewall kuralı açılır.
 
 ---
 
-## Web & Mobil uyum durumu
+## Kontrol listesi (mobil bağlanmıyorsa)
+
+1. Telefon ve PC aynı Wi‑Fi’da mı?
+2. `api.ts` içindeki IP güncel mi? (`ipconfig` → Wi‑Fi IPv4)
+3. Backend çalışıyor mu? (`dotnet run`)
+4. Telefon tarayıcısından `http://<IP>:5140/swagger` açılıyor mu?
+5. Gerekirse: `npx expo start -c`
+
+---
+
+## Web & Mobil uyum
 
 | Kontrol | Web | Mobil |
 |--------|-----|--------|
-| Başlangıç ekranı | "RusWallet" (Tailwind) | "RusWallet" (aynı marka) |
-| Backend port | 5140 (proxy) | 5140 (`src/config/api.ts`) |
-| packageManager | yarn@1.22.22 | yarn@1.22.22 |
-| Proje adı | ruswallet-web | ruswallet-mobile |
-| API client / Auth | Henüz yok | Henüz yok |
+| Auth (login/register) | ✅ | ✅ |
+| Dashboard: özet + işlemler + ekle | ✅ | ✅ |
+| Backend port | 5140 (proxy) | `api.ts` |
 
-İkisi de aynı noktada: sadece başlangıç ekranı, backend’e bağlanan kod yok. API ve auth eklendiğinde aynı endpoint’ler kullanılacak.
+---
+
+## Web ekran dokümantasyonu (SS iskeleti)
+
+Ekran görüntülü anlatım için alt başlık yapısı: **`web/WEB-EKRAN-DOKUMANTASYONU.md`**.
+
+## İleride genişletilebilir
+
+- Grafikler, kategori yönetimi ekranı, analiz/tahmin/chatbot sayfaları, fiş yükleme (camera/image picker) UI.

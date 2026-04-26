@@ -5,9 +5,9 @@
 | # | Kapsam maddesi | Durum | Nerede / nasıl |
 |---|----------------|-------|----------------|
 | 1 | **Kullanıcı kimlik doğrulama** (kayıt / giriş) | ✅ | AuthController: Register, Login. JWT token. |
-| 2 | **Gelir–gider takibi** | ✅ | Transaction: işlem ekleme (manuel / AI / categoryId ile), listeleme (tarih filtresi). |
-| 3 | **Kategoriler** | ✅ | CategoryController: listeleme (GET), silme (DELETE). Kategori ekleme yok; transaction (manuel veya AI) eklenirken otomatik oluşur. |
-| 4 | **İşlem ekleme – Manuel** | ✅ | POST /api/transaction/add-manual: kategori adı + fiyat + gelir/gider manuel; kategori yoksa oluşturulur. |
+| 2 | **Gelir–gider takibi** | ✅ | Transaction: işlem ekleme (`POST /api/Transaction/add` — `categoryId` verilmezse varsayılan kategori), AI ile ekleme, listeleme (`GET /api/Transaction`, `period` / tarih filtresi). |
+| 3 | **Kategoriler** | ✅ | CategoryController: listeleme (GET), silme (DELETE). Kategori ekleme endpoint’i yok; işlem eklenirken otomatik oluşur. |
+| 4 | **İşlem ekleme – Manuel** | ✅ | `POST /api/Transaction/add`: tutar, açıklama, tarih, gelir/gider; isteğe bağlı `categoryId` (0 veya boşta otomatik kategori). |
 | 5 | **İşlem ekleme – AI** | ✅ | POST /api/AI/add-transaction-with-ai: açıklama + fiyat; kategori ve gelir/gider otomatik algılanır. |
 | 6 | **Açıklamadan kategori önerisi** | ✅ | AIController suggest-category. OpenAI (opsiyonel) veya kelime tabanlı fallback. |
 | 7 | **Analiz / özet** | ✅ | AnalysisController: gelir–gider özeti, bütçe önerisi (ML), anomali (ML). |
@@ -15,7 +15,7 @@
 | 9 | **Bütçe önerisi (kategori bazlı)** | ✅ | GET /api/analysis/budget-suggestions. ML.NET regresyon ile öneri. |
 | 10 | **Anomali tespiti (alışılmadık harcama)** | ✅ | GET /api/analysis/anomalies. ML.NET Time Series IID Spike + z-score fallback. |
 | 11 | **Chatbot** | ✅ | ChatbotController. OpenAI (opsiyonel) veya FAQ (kelime tabanlı). |
-| 12 | **Fiş tarama (OCR)** | ✅ | ReceiptController: görsel yükleme, Tesseract OCR, AI kategori, otomatik işlem. |
+| 12 | **Fiş tarama (OCR)** | ✅ | ReceiptController `POST /api/Receipt/upload`: görsel yükleme, Tesseract OCR, satıcı/tarih/tutar çıkarımı, AI ile önerilen kategori. **İşlem kaydı oluşturmaz**; kullanıcı onaylarsa Transaction ile eklenir. |
 | 13 | **Veri güvenliği** | ✅ | BCrypt hash, JWT, kullanıcı verisi userId ile ayrı. |
 | 14 | **Tek API (web + mobil)** | ✅ | REST API; web ve mobil aynı endpoint’leri kullanır. |
 
@@ -54,7 +54,7 @@
 
 ## Kapsam dışı / ileride
 
-- **Frontend:** Web ve mobil arayüz ayrı geliştirilecek.
+- **Frontend:** Web ve mobilde giriş + dashboard’da özet ve işlem listesi / ekleme bağlandı; grafikler, fiş yükleme UI, chatbot ekranı vb. genişletilebilir.
 - **İşlem güncelleme / silme:** API’de henüz yok; eklenebilir.
 - **Refresh token / şifre sıfırlama:** Henüz yok.
 

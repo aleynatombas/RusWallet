@@ -17,6 +17,8 @@
     <PackageReference Include="Tesseract" Version="5.2.0" />
     <PackageReference Include="Microsoft.ML" Version="4.0.0" />
     <PackageReference Include="Microsoft.ML.TimeSeries" Version="4.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Http" Version="10.0.2" />
+    <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="10.0.2" />
   </ItemGroup>
 
   <!-- Proje ayarları -->

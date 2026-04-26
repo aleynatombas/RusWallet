@@ -1,12 +1,22 @@
-import { Navigate, useLocation } from 'react-router-dom';
+import { Navigate, Outlet, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
-export function ProtectedRoute({ children }: { children: React.ReactNode }) {
-  const { token } = useAuth();
+/** Sadece JWT: yoksa login. İlk yüklemede onboarding eşlemesi için authHydrated beklenir. */
+export function ProtectedRoute() {
+  const { token, authHydrated } = useAuth();
   const location = useLocation();
 
   if (!token) {
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
-  return <>{children}</>;
+
+  if (!authHydrated) {
+    return (
+      <div className="flex min-h-[40vh] items-center justify-center text-sm text-muted-foreground">
+        Oturum hazırlanıyor…
+      </div>
+    );
+  }
+
+  return <Outlet />;
 }

@@ -27,7 +27,11 @@ namespace RusWallet.API.Controllers
             if (string.IsNullOrWhiteSpace(dto.Message))
                 return BadRequest("Message boş olamaz.");
 
-            var response = await _chatbotService.AskAsync(dto.Message);
+            var idClaim = User.FindFirst("id")?.Value;
+            if (string.IsNullOrEmpty(idClaim) || !int.TryParse(idClaim, out var userId))
+                return Unauthorized();
+
+            var response = await _chatbotService.AskAsync(userId, dto.Message);
             return Ok(response);
         }
     }

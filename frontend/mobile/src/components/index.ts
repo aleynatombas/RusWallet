@@ -1,5 +1,12 @@
 export { MobileAuthComponent } from './MobileAuthComponent';
-export { MobileDashboardComponent } from './MobileDashboardComponent';
+export { MobileHomeComponent } from './MobileHomeComponent';
+export { MobileTransactionsComponent } from './MobileTransactionsComponent';
+export { MobileBudgetComponent } from './MobileBudgetComponent';
 export { MobileTransactionFormComponent } from './MobileTransactionFormComponent';
 export { MobileAnalysisComponent } from './MobileAnalysisComponent';
 export { MobileChatbotComponent } from './MobileChatbotComponent';
+export { MobileFloatingChatbot } from './MobileFloatingChatbot';
+export { MobilePaperPasswordInput } from './MobilePaperPasswordInput';
+export { MobileGlobalVoiceReceiptEntry } from './MobileGlobalVoiceReceiptEntry';
+export { MobileReceiptScanningOverlay } from './MobileReceiptScanningOverlay';
+export { MobileReceiptConfirmDialog } from './MobileReceiptConfirmDialog';

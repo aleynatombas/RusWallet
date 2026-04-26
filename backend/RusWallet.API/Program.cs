@@ -8,6 +8,8 @@ using RusWallet.Core.Interfaces;
 using RusWallet.Infrastructure.Services;
 using RusWallet.Infrastructure.Security;
 using RusWallet.Infrastructure.Repositories; // <- JwtService için using eklendi
+using RusWallet.Infrastructure.Services.Email;
+using Microsoft.Extensions.Logging;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -16,10 +18,20 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddScoped<ICategoryService, CategoryService>();
 builder.Services.AddScoped<ITransactionService, TransactionService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IOnboardingService, OnboardingService>();
+builder.Services.AddScoped<IEmailSender>(sp =>
+{
+    var config = sp.GetRequiredService<IConfiguration>();
+    if (!string.IsNullOrWhiteSpace(config["Email:SmtpHost"]?.Trim()))
+        return new SmtpEmailSender(config, sp.GetRequiredService<ILogger<SmtpEmailSender>>());
+    return new LoggingEmailSender(sp.GetRequiredService<ILogger<LoggingEmailSender>>(), config);
+});
 builder.Services.AddScoped<JwtService>(); // artık doğru namespace ile referanslanıyor
 builder.Services.AddControllers();
 builder.Services.AddScoped<IFinanceAnalysisService, FinanceAnalysisService>();
 builder.Services.AddScoped<IFinanceMLService, FinanceMLService>();
+builder.Services.AddScoped<IAnalysisRoadmapService, AnalysisRoadmapService>();
+
 builder.Services.AddScoped<IPredictionService, PredictionService>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<ITransactionRepository, TransactionRepository>();
@@ -36,18 +48,27 @@ builder.Services.AddScoped<IAIService>(sp =>
         return new RusWallet.API.Services.OpenAICategoryService(config, sp.GetRequiredService<KeywordCategoryService>());
     return sp.GetRequiredService<KeywordCategoryService>();
 });
-// Chatbot: OpenAI ApiKey doluysa OpenAI, değilse FAQ (kelime tabanlı)
+// Chatbot: önce kişisel veri yanıtları; sonra OpenAI ApiKey doluysa OpenAI, değilse FAQ
+builder.Services.AddScoped<IPersonalizedChatAnswerService, PersonalizedChatAnswerService>();
+builder.Services.AddScoped<IChatUserFinancialContext, ChatUserFinancialContext>();
 builder.Services.AddScoped<FAQChatbotService>();
 builder.Services.AddScoped<IChatbotService>(sp =>
 {
     var config = sp.GetRequiredService<IConfiguration>();
-    if (!string.IsNullOrWhiteSpace(config["OpenAI:ApiKey"]?.Trim()))
-        return new RusWallet.API.Services.OpenAIChatbotService(config, sp.GetRequiredService<FAQChatbotService>());
-    return sp.GetRequiredService<FAQChatbotService>();
+    IChatbotService inner = !string.IsNullOrWhiteSpace(config["OpenAI:ApiKey"]?.Trim())
+        ? new RusWallet.API.Services.OpenAIChatbotService(
+            config,
+            sp.GetRequiredService<FAQChatbotService>(),
+            sp.GetRequiredService<IChatUserFinancialContext>())
+        : sp.GetRequiredService<FAQChatbotService>();
+    return new RusWallet.API.Services.PersonalizedChatbotService(
+        sp.GetRequiredService<IPersonalizedChatAnswerService>(),
+        inner);
 });
 
 // Fiş tarama (OCR)
 builder.Services.AddScoped<IReceiptAnalysisService, ReceiptAnalysisService>();
+builder.Services.AddScoped<IVoiceTransactionParser, VoiceTransactionParser>();
 
 // --- Swagger ---
 builder.Services.AddEndpointsApiExplorer();

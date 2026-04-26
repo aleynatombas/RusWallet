@@ -16,9 +16,9 @@ import {
   DeviceEventEmitter,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useTheme } from 'react-native-paper';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { api, getApiErrorMessage } from '../services/api';
+import { darkPaperTheme } from '../theme/paperThemes';
 import type { ChatAskResponse, ChatMessage } from '../types/chat';
 import { MobileAiAssistantMark, MobileAiAssistantMarkShell } from './ai/MobileAiAssistantMark';
 
@@ -57,7 +57,6 @@ export function MobileFloatingChatbot({
   fabVariant = 'withTabs',
   fabPlacement = 'floating-right',
 }: MobileFloatingChatbotProps) {
-  const theme = useTheme();
   const insets = useSafeAreaInsets();
   const { width: windowWidth, height: windowHeight } = useWindowDimensions();
   const [open, setOpen] = useState(false);
@@ -140,15 +139,22 @@ export function MobileFloatingChatbot({
     return () => sub.remove();
   }, []);
 
-  const card = theme.colors.surface;
-  const border = theme.colors.outline;
-  const muted = theme.colors.surfaceVariant;
-  const mutedFg = theme.colors.onSurfaceVariant;
-  const fg = theme.colors.onSurface;
-  const primary = theme.colors.primary;
-  const onPrimary = theme.colors.onPrimary;
-  const headerBg = theme.dark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.04)';
-  const footerBg = theme.dark ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.02)';
+  /** Uygulama temasından bağımsız: her zaman koyu (web) sohbet paleti */
+  const c = darkPaperTheme.colors;
+  const card = c.surface;
+  const border = c.outline;
+  const muted = c.surfaceVariant;
+  const mutedFg = c.onSurfaceVariant;
+  const fg = c.onSurface;
+  const primary = c.primary;
+  const onPrimary = c.onPrimary;
+  const inputBg = c.background;
+  const headerBg = 'rgba(255,255,255,0.06)';
+  const footerBg = 'rgba(255,255,255,0.03)';
+  const shortcutBorder = 'rgba(125, 211, 252, 0.35)';
+  const shortcutBgA = 'rgba(36, 173, 219, 0.12)';
+  const shortcutBgB = 'rgba(36, 173, 219, 0.08)';
+  const shortcutBorderB = 'rgba(125, 211, 252, 0.28)';
 
   return (
     <>
@@ -216,20 +222,34 @@ export function MobileFloatingChatbot({
                       setOpen(false);
                       DeviceEventEmitter.emit('ruswallet-open-voice');
                     }}
-                    style={({ pressed }) => [styles.shortcutTeal, { opacity: pressed ? 0.9 : 1 }]}
+                    style={({ pressed }) => [
+                      styles.shortcutBase,
+                      {
+                        borderColor: shortcutBorder,
+                        backgroundColor: shortcutBgA,
+                        opacity: pressed ? 0.9 : 1,
+                      },
+                    ]}
                   >
-                    <MaterialCommunityIcons name="microphone" size={16} color="#0f766e" />
-                    <Text style={styles.shortcutTealText}>Sesle işlem</Text>
+                    <MaterialCommunityIcons name="microphone" size={16} color={primary} />
+                    <Text style={[styles.shortcutLabel, { color: primary }]}>Sesle işlem</Text>
                   </Pressable>
                   <Pressable
                     onPress={() => {
                       setOpen(false);
                       DeviceEventEmitter.emit('ruswallet-open-receipt');
                     }}
-                    style={({ pressed }) => [styles.shortcutCyan, { opacity: pressed ? 0.9 : 1 }]}
+                    style={({ pressed }) => [
+                      styles.shortcutBase,
+                      {
+                        borderColor: shortcutBorderB,
+                        backgroundColor: shortcutBgB,
+                        opacity: pressed ? 0.9 : 1,
+                      },
+                    ]}
                   >
-                    <MaterialCommunityIcons name="camera-outline" size={16} color="#155e75" />
-                    <Text style={styles.shortcutCyanText}>Fiş yükle</Text>
+                    <MaterialCommunityIcons name="camera-outline" size={16} color={primary} />
+                    <Text style={[styles.shortcutLabel, { color: primary }]}>Fiş yükle</Text>
                   </Pressable>
                 </View>
               </View>
@@ -311,7 +331,7 @@ export function MobileFloatingChatbot({
                       styles.input,
                       {
                         borderColor: border,
-                        backgroundColor: theme.colors.background,
+                        backgroundColor: inputBg,
                         color: fg,
                       },
                     ]}
@@ -331,7 +351,7 @@ export function MobileFloatingChatbot({
                     accessibilityLabel="Gönder"
                   >
                     <MobileAiAssistantMarkShell size="header">
-                      <MaterialCommunityIcons name="send" size={16} color="#22d3ee" />
+                      <MaterialCommunityIcons name="send" size={16} color={primary} />
                     </MobileAiAssistantMarkShell>
                   </Pressable>
                 </View>
@@ -358,7 +378,7 @@ export function MobileFloatingChatbot({
         >
           {open ? (
             <MobileAiAssistantMarkShell size="fab">
-              <MaterialCommunityIcons name="close" size={24} color="#e2e8f0" />
+              <MaterialCommunityIcons name="close" size={24} color={fg} />
             </MobileAiAssistantMarkShell>
           ) : (
             <MobileAiAssistantMark size="fab" />
@@ -415,7 +435,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   shortcutRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
-  shortcutTeal: {
+  shortcutBase: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
@@ -423,22 +443,8 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     borderRadius: 999,
     borderWidth: StyleSheet.hairlineWidth,
-    borderColor: 'rgba(45,212,191,0.45)',
-    backgroundColor: 'rgba(20,184,166,0.12)',
   },
-  shortcutTealText: { fontSize: 13, fontWeight: '500', color: '#134e4a' },
-  shortcutCyan: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: 999,
-    borderWidth: StyleSheet.hairlineWidth,
-    borderColor: 'rgba(34,211,238,0.4)',
-    backgroundColor: 'rgba(6,182,212,0.12)',
-  },
-  shortcutCyanText: { fontSize: 13, fontWeight: '500', color: '#164e63' },
+  shortcutLabel: { fontSize: 13, fontWeight: '500' },
   msgScroll: { flex: 1, minHeight: 0 },
   msgScrollContent: { paddingHorizontal: 12, paddingVertical: 16, flexGrow: 1, gap: 12 },
   msgRow: { width: '100%', flexDirection: 'row' },

@@ -10,6 +10,8 @@ import { Label } from '@/components/ui/label';
 import { cn } from '@/lib/utils';
 import { isValidEmailFormat } from '@/lib/authValidation';
 import { SETTINGS_UNDERLINE_INPUT_CLASS } from '@/components/account/ChangePasswordPanel';
+import { authSplitFieldShell, authSplitPrimaryCta } from '@/components/auth/authSplitFieldClasses';
+import { PASSWORD_RULES_HINT } from '@/lib/authValidation';
 
 function fieldError(err: unknown): string {
   if (axios.isAxiosError(err)) {
@@ -24,11 +26,17 @@ function fieldError(err: unknown): string {
 export interface EmailPasswordUpdatePanelProps {
   idPrefix?: string;
   className?: string;
+  /** `authSplit`: giriş/kayıt sayfasıyla aynı alan ve CTA stili */
+  appearance?: 'settings' | 'authSplit';
 }
+
+const labelAuth =
+  'text-xs font-medium uppercase tracking-wide text-muted-foreground';
 
 export function EmailPasswordUpdatePanel({
   idPrefix = 'email-pwd',
   className,
+  appearance = 'settings',
 }: EmailPasswordUpdatePanelProps) {
   const [email, setEmail] = useState('');
   const [newPassword, setNewPassword] = useState('');
@@ -68,10 +76,16 @@ export function EmailPasswordUpdatePanel({
   const newId = `${idPrefix}-new`;
   const new2Id = `${idPrefix}-new2`;
 
+  const isAuthSplit = appearance === 'authSplit';
+  const emailInputClass = isAuthSplit ? authSplitFieldShell : cn(SETTINGS_UNDERLINE_INPUT_CLASS, 'pr-2');
+  const pwdInputClass = isAuthSplit ? authSplitFieldShell : cn(SETTINGS_UNDERLINE_INPUT_CLASS, 'pr-10');
+  const labelClass = isAuthSplit ? labelAuth : 'text-xs font-medium text-foreground';
+  const formGap = isAuthSplit ? 'space-y-5' : 'space-y-8';
+
   return (
-    <form onSubmit={(e) => void handleSubmit(e)} className={cn('space-y-8', className)}>
+    <form onSubmit={(e) => void handleSubmit(e)} className={cn(formGap, className)}>
       <div className="space-y-2">
-        <Label htmlFor={emailId} className="text-xs font-medium text-foreground">
+        <Label htmlFor={emailId} className={labelClass}>
           E-posta
         </Label>
         <Input
@@ -82,11 +96,11 @@ export function EmailPasswordUpdatePanel({
           onChange={(ev) => setEmail(ev.target.value)}
           disabled={loading}
           placeholder="ornek@email.com"
-          className={cn(SETTINGS_UNDERLINE_INPUT_CLASS, 'pr-2')}
+          className={emailInputClass}
         />
       </div>
       <div className="space-y-2">
-        <Label htmlFor={newId} className="text-xs font-medium text-foreground">
+        <Label htmlFor={newId} className={labelClass}>
           Yeni şifre
         </Label>
         <PasswordInput
@@ -95,14 +109,14 @@ export function EmailPasswordUpdatePanel({
           onChange={(ev) => setNewPassword(ev.target.value)}
           autoComplete="new-password"
           disabled={loading}
-          className={cn(SETTINGS_UNDERLINE_INPUT_CLASS, 'pr-10')}
+          className={pwdInputClass}
         />
-        <p className="text-[11px] text-muted-foreground">
-          En az 8 karakter; büyük, küçük harf, rakam ve özel karakter (!@#$% vb.).
+        <p className={cn('text-muted-foreground', isAuthSplit ? 'text-[11px] leading-snug' : 'text-[11px]')}>
+          {isAuthSplit ? PASSWORD_RULES_HINT : 'En az 8 karakter; büyük, küçük harf, rakam ve özel karakter (!@#$% vb.).'}
         </p>
       </div>
       <div className="space-y-2">
-        <Label htmlFor={new2Id} className="text-xs font-medium text-foreground">
+        <Label htmlFor={new2Id} className={labelClass}>
           Yeni şifre (tekrar)
         </Label>
         <PasswordInput
@@ -111,7 +125,7 @@ export function EmailPasswordUpdatePanel({
           onChange={(ev) => setNewPassword2(ev.target.value)}
           autoComplete="new-password"
           disabled={loading}
-          className={cn(SETTINGS_UNDERLINE_INPUT_CLASS, 'pr-10')}
+          className={pwdInputClass}
         />
       </div>
 
@@ -126,11 +140,17 @@ export function EmailPasswordUpdatePanel({
         </p>
       ) : null}
 
-      <div className="flex flex-wrap items-center gap-4">
-        <Button type="submit" variant="default" size="lg" disabled={loading} className="min-w-[8rem] rounded-md px-8">
-          {loading ? 'Güncelleniyor…' : 'Güncelle'}
+      {isAuthSplit ? (
+        <Button type="submit" disabled={loading} className={authSplitPrimaryCta}>
+          {loading ? 'Güncelleniyor…' : 'Şifreyi güncelle'}
         </Button>
-      </div>
+      ) : (
+        <div className="flex flex-wrap items-center gap-4">
+          <Button type="submit" variant="default" size="lg" disabled={loading} className="min-w-[8rem] rounded-md px-8">
+            {loading ? 'Güncelleniyor…' : 'Güncelle'}
+          </Button>
+        </div>
+      )}
     </form>
   );
 }

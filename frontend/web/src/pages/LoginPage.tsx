@@ -3,10 +3,6 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { AuthComponent } from '../components/AuthComponent';
 import { AuthShell } from '@/components/auth/AuthShell';
 import { EmailPasswordUpdatePanel } from '@/components/account/EmailPasswordUpdatePanel';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { PAGE_TITLE_CLASS, formatPageTitleDisplay } from '@/lib/pageTitle';
-import { cn } from '@/lib/utils';
 
 const PASSWORD_HELP_QUERY = 'yardim';
 const PASSWORD_HELP_VALUE = 'sifre';
@@ -38,20 +34,26 @@ export function LoginPage() {
   if (passwordHelpOpen) {
     return (
       <AuthShell activeTab="login">
-        <Card className="border-border/80 bg-card/95 shadow-elevation-lg backdrop-blur-sm dark:border-border/60">
-          <CardHeader className="space-y-1 pb-4">
-            <CardTitle className={cn(PAGE_TITLE_CLASS, 'text-2xl')}>{formatPageTitleDisplay('Şifre güncelle')}</CardTitle>
-            <CardDescription>Hesabına kayıtlı e-postayı ve yeni şifreni gir.</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <EmailPasswordUpdatePanel idPrefix="login-email-pwd" className="mt-0 max-w-xl space-y-6" />
-          </CardContent>
-          <CardFooter className="flex flex-col gap-2 border-t border-border/60 pt-4">
-            <Button type="button" variant="outline" className="w-full" onClick={closePasswordHelp}>
+        <div className="w-full space-y-8">
+          <div>
+            <h2 className="font-display text-2xl font-semibold tracking-tight text-foreground sm:text-3xl">
+              Şifremi unuttum
+            </h2>
+            <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+              Hesabına kayıtlı e-postayı ve yeni şifreni gir; ardından giriş yapabilirsin.
+            </p>
+          </div>
+          <EmailPasswordUpdatePanel idPrefix="login-email-pwd" appearance="authSplit" className="mt-0" />
+          <p className="text-center text-sm text-muted-foreground">
+            <button
+              type="button"
+              onClick={closePasswordHelp}
+              className="font-medium text-primary underline-offset-4 hover:underline"
+            >
               Girişe dön
-            </Button>
-          </CardFooter>
-        </Card>
+            </button>
+          </p>
+        </div>
       </AuthShell>
     );
   }

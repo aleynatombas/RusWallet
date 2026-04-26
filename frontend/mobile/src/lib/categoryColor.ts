@@ -1,3 +1,5 @@
+import { getChartPalette } from '../theme/webPaletteMobile';
+
 const PALETTE = [
   'hsl(221, 83%, 53%)',
   'hsl(142, 71%, 45%)',
@@ -25,17 +27,16 @@ export function categoryColorSemanticOrHash(name: string): string {
   return categoryColorForName(name);
 }
 
-const PALETTE_HEX = ['#2563eb', '#22c55e', '#9333ea', '#ea580c', '#db2777', '#0ea5e9', '#ca8a04', '#a855f7'];
-
-/** react-native-svg Path fill için (HSL her cihazda güvenilir olmayabilir). */
-export function categoryColorHexSemanticOrHash(name: string): string {
+/** Web `--chart-*` (cyan ailesi); moda göre hex dilim renkleri */
+export function categoryColorHexSemanticOrHash(name: string, isDark: boolean): string {
+  const chart = getChartPalette(isDark);
   const n = name.toLowerCase();
-  if (/market|migros|bim|a101|şok|sok|grocery|bakkal/i.test(n)) return '#2563eb';
-  if (/yemek|gıda|gida|restoran|kahve|food|içecek|icecek/i.test(n)) return '#ea580c';
-  if (/ulaşım|ulasim|taksi|metro|benzin|otobüs|otobus|transport/i.test(n)) return '#22c55e';
-  if (/sağlık|saglik|eczane|ilaç|ilac/i.test(n)) return '#db2777';
-  if (/eğlence|eglence|sinema|oyun|hobi/i.test(n)) return '#9333ea';
+  if (/market|migros|bim|a101|şok|sok|grocery|bakkal/i.test(n)) return chart[0]!;
+  if (/yemek|gıda|gida|restoran|kahve|food|içecek|icecek/i.test(n)) return chart[3]!;
+  if (/ulaşım|ulasim|taksi|metro|benzin|otobüs|otobus|transport/i.test(n)) return chart[2]!;
+  if (/sağlık|saglik|eczane|ilaç|ilac/i.test(n)) return chart[1]!;
+  if (/eğlence|eglence|sinema|oyun|hobi/i.test(n)) return chart[4]!;
   let h = 0;
   for (let i = 0; i < name.length; i++) h = (h + name.charCodeAt(i) * (i + 1)) % 997;
-  return PALETTE_HEX[h % PALETTE_HEX.length];
+  return chart[h % chart.length]!;
 }

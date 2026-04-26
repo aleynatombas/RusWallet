@@ -132,8 +132,7 @@ export function MobileHomeComponent() {
 
   const totalAssets = summary ? Number(summary.balance) : 0;
 
-  /** Aydınlık: beyaz; koyu: Paper `background` (canlı lacivert, tüm sekmelerle aynı) */
-  const bg = isDark ? theme.colors.background : '#ffffff';
+  const bg = theme.colors.background;
 
   /** Tab bar + home indicator + yüzen sohbet FAB — alttaki bloklar kesilmesin, rahat kaydırılsın */
   const scrollBottomPad = tabBarH + Math.max(insets.bottom, 10) + 88;
@@ -162,7 +161,7 @@ export function MobileHomeComponent() {
             <Text
               style={[
                 styles.h1,
-                { color: isDark ? '#ffffff' : '#0f172a' },
+                { color: theme.colors.onSurface },
                 Platform.OS === 'android' && { includeFontPadding: false },
               ]}
               numberOfLines={1}
@@ -174,7 +173,7 @@ export function MobileHomeComponent() {
           <MobileDashboardPeriodSelect value={period} onChange={setPeriod} />
         </View>
 
-        {error ? <Text style={styles.errorText}>{error}</Text> : null}
+        {error ? <Text style={[styles.errorText, { color: theme.colors.error }]}>{error}</Text> : null}
 
         {loading ? (
           <Card
@@ -183,14 +182,14 @@ export function MobileHomeComponent() {
               loadingShadow,
               {
                 backgroundColor: isDark ? theme.colors.surface : 'rgba(255,255,255,0.3)',
-                borderColor: isDark ? 'rgba(148,163,184,0.14)' : 'rgba(0,0,0,0.08)',
+                borderColor: isDark ? 'rgba(141,155,176,0.14)' : theme.colors.outline,
               },
             ]}
             mode="outlined"
           >
             <Card.Content style={styles.loadingInner}>
               <ActivityIndicator color={theme.colors.primary} />
-              <Text style={[styles.loadingHint, { color: isDark ? '#94a3b8' : '#64748b' }]}>
+              <Text style={[styles.loadingHint, { color: theme.colors.onSurfaceVariant }]}>
                 Özet yükleniyor…
               </Text>
             </Card.Content>
@@ -261,7 +260,7 @@ const styles = StyleSheet.create({
     textAlign: 'left',
     lineHeight: 24,
   },
-  errorText: { color: '#dc2626', fontSize: 13, marginBottom: 12 },
+  errorText: { fontSize: 13, marginBottom: 12 },
   loadingCard: {
     borderRadius: 16,
     borderColor: 'rgba(255,255,255,0.1)',

@@ -29,8 +29,8 @@ export function MainTabCustomBar({ state, descriptors, navigation, insets: navIn
   const { width: windowWidth } = useWindowDimensions();
   const onHeightChange = useContext(BottomTabBarHeightCallbackContext);
 
-  const active = theme.dark ? '#818cf8' : theme.colors.primary;
-  const inactive = theme.dark ? '#94a3b8' : theme.colors.onSurfaceVariant;
+  const active = theme.colors.primary;
+  const inactive = theme.colors.onSurfaceVariant;
   const barBg = theme.dark ? theme.colors.background : theme.colors.surface;
   const borderTop = theme.dark ? 'rgba(148, 163, 184, 0.12)' : theme.colors.outlineVariant;
 

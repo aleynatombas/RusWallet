@@ -8,6 +8,7 @@ import { MobileTransactionsPanel } from './MobileTransactionsPanel';
 export function MobileTransactionsComponent() {
   const theme = useTheme();
   const fg = theme.colors.onSurface;
+  const headerIcon = theme.colors.onSurfaceVariant;
 
   return (
     <View style={[styles.wrap, { backgroundColor: theme.colors.background }]}>
@@ -18,6 +19,7 @@ export function MobileTransactionsComponent() {
             icon="microphone"
             mode="outlined"
             size={22}
+            iconColor={headerIcon}
             onPress={() => DeviceEventEmitter.emit('ruswallet-open-voice')}
             accessibilityLabel="Sesle işlem ekle"
           />
@@ -25,6 +27,7 @@ export function MobileTransactionsComponent() {
             icon="camera"
             mode="outlined"
             size={22}
+            iconColor={headerIcon}
             onPress={() => DeviceEventEmitter.emit('ruswallet-open-receipt')}
             accessibilityLabel="Fiş veya fotoğraf yükle"
           />

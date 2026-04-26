@@ -148,18 +148,17 @@ export function SettingsPage() {
     <div className="mx-auto flex h-full min-h-0 w-full max-w-screen-2xl flex-1 flex-col overflow-hidden bg-background px-3 sm:px-6 lg:px-8 md:flex-row">
       {/* Navbar iç kabuğu ile aynı max-w + yatay padding — sol sütun logo hizasına oturur */}
       <aside className="w-full shrink-0 border-b border-border bg-background md:h-full md:w-[min(100%,280px)] md:border-b-0 md:border-r md:border-border/80">
-        <div className="pt-6">
-          <p className="text-sm text-muted-foreground">Hoşgeldiniz</p>
-          <p className="mt-1 text-lg font-semibold tracking-tight text-foreground">{displayName}</p>
+        <div className="border-b border-border/50 px-3 py-4">
+          <p className="text-sm font-medium text-foreground">{displayName}</p>
           <button
             type="button"
             onClick={() => logout()}
-            className="mt-2 text-sm font-medium text-destructive underline-offset-2 transition-colors hover:underline hover:opacity-90"
+            className="mt-3 text-xs font-medium text-destructive underline-offset-2 transition-colors hover:underline hover:opacity-80"
           >
             Çıkış Yap
           </button>
         </div>
-        <nav className="mt-6 flex flex-col pb-4" aria-label="Hesap menüsü">
+        <nav className="flex flex-col pb-4 pt-4" aria-label="Hesap menüsü">
           <SidebarNavItem active={panel === 'profile'} icon={User} onClick={() => goToTab('profile')}>
             Kişisel Bilgilerim
           </SidebarNavItem>

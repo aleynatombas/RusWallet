@@ -52,24 +52,19 @@ export function EsnekRing({
 export function GradientFlexBar({
   value,
   trackColor,
-  accent,
-  accentEnd,
+  gradientColors,
 }: {
   value: number;
   trackColor: string;
-  accent: string;
-  accentEnd: string;
+  /** Web grafik / birincil tonları — 2 veya 3 durak */
+  gradientColors: readonly [string, string] | readonly [string, string, string];
 }) {
   const v = Math.min(100, Math.max(0, value));
+  const colors = [...gradientColors] as [string, string, ...string[]];
   return (
     <View style={[styles.progressTrack, { backgroundColor: trackColor }]}>
       <View style={[styles.progressClip, { width: `${v}%` }]}>
-        <LinearGradient
-          colors={[accent, accentEnd, '#c4b5fd']}
-          start={{ x: 0, y: 0.5 }}
-          end={{ x: 1, y: 0.5 }}
-          style={StyleSheet.absoluteFill}
-        />
+        <LinearGradient colors={colors} start={{ x: 0, y: 0.5 }} end={{ x: 1, y: 0.5 }} style={StyleSheet.absoluteFill} />
       </View>
     </View>
   );

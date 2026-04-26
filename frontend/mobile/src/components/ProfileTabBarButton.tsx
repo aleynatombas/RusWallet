@@ -132,8 +132,8 @@ export function ProfileTabBarButton(props: ProfileTabBarButtonProps) {
               onPress={handleLogout}
               style={({ pressed }) => [styles.sheetRow, pressed && { opacity: 0.85 }]}
             >
-              <MaterialCommunityIcons name="logout" size={22} color="#dc2626" />
-              <Text style={[styles.sheetRowLabel, { color: '#dc2626' }]}>Çıkış yap</Text>
+              <MaterialCommunityIcons name="logout" size={22} color={theme.colors.error} />
+              <Text style={[styles.sheetRowLabel, { color: theme.colors.error }]}>Çıkış yap</Text>
             </Pressable>
           </View>
         </View>

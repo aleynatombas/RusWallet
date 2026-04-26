@@ -3,23 +3,18 @@ import { Card, useTheme } from 'react-native-paper';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { DARK_SURFACE } from '../theme/darkPalette';
 import { getCardShadow } from '../theme/cardShadow';
+import { themeColorAlpha } from '../theme/themeColorAlpha';
 
 function formatTry(n: number): string {
   return n.toLocaleString('tr-TR', { minimumFractionDigits: 0, maximumFractionDigits: 2 });
 }
 
-/** Web dashboard / koyu mockup ile uyumlu */
+/** Koyu: web `.dark` kart / sınır; ikonlar web gibi tek `primary` (teal) */
 const DARK = {
   card: DARK_SURFACE,
-  border: 'rgba(148, 163, 184, 0.14)',
-  muted: '#94a3b8',
-  fg: '#ffffff',
-  incomeBg: 'rgba(16, 185, 129, 0.15)',
-  incomeIc: '#34d399',
-  expenseBg: 'rgba(244, 63, 94, 0.15)',
-  expenseIc: '#fb7185',
-  balanceBg: 'rgba(99, 102, 241, 0.12)',
-  balanceIc: '#818cf8',
+  border: 'rgba(141, 155, 176, 0.14)',
+  muted: 'rgb(141, 155, 176)',
+  fg: 'rgb(243, 246, 247)',
 };
 
 interface MobileDashboardMetricCardsProps {
@@ -46,17 +41,15 @@ export function MobileDashboardMetricCards({
   const theme = useTheme();
   const light = !theme.dark;
 
-  const muted = light ? '#64748b' : DARK.muted;
-  const fg = light ? '#0f172a' : DARK.fg;
-  const cardBorder = light ? '#e2e8f0' : DARK.border;
-  const cardBg = light ? '#ffffff' : DARK.card;
+  const muted = light ? theme.colors.onSurfaceVariant : DARK.muted;
+  const fg = light ? theme.colors.onSurface : DARK.fg;
+  const cardBorder = light ? theme.colors.outline : DARK.border;
+  const cardBg = light ? theme.colors.surface : DARK.card;
 
-  const incBg = light ? styles.iconIncomeLight : { backgroundColor: DARK.incomeBg };
-  const expBg = light ? styles.iconExpenseLight : { backgroundColor: DARK.expenseBg };
-  const balBg = light ? styles.iconBalanceLight : { backgroundColor: DARK.balanceBg };
-  const incIc = light ? '#15803d' : DARK.incomeIc;
-  const expIc = light ? '#be123c' : DARK.expenseIc;
-  const balIc = light ? '#4338ca' : DARK.balanceIc;
+  const iconBg = light
+    ? { backgroundColor: themeColorAlpha(theme.colors.primary, 0.1) }
+    : { backgroundColor: themeColorAlpha(theme.colors.primary, 0.12) };
+  const accentIc = theme.colors.primary;
 
   const cardShadow = getCardShadow(theme.dark);
 
@@ -66,8 +59,8 @@ export function MobileDashboardMetricCards({
         <Card.Content style={styles.content}>
           <View style={styles.topRow}>
             <Text style={[styles.label, { color: muted }]}>{incomeTitle}</Text>
-            <View style={[styles.iconWrap, incBg]}>
-              <MaterialCommunityIcons name="arrow-top-right" size={18} color={incIc} />
+            <View style={[styles.iconWrap, iconBg]}>
+              <MaterialCommunityIcons name="arrow-top-right" size={18} color={accentIc} />
             </View>
           </View>
           <Text style={[styles.value, { color: fg }]}>₺{formatTry(monthlyIncome)}</Text>
@@ -79,8 +72,8 @@ export function MobileDashboardMetricCards({
         <Card.Content style={styles.content}>
           <View style={styles.topRow}>
             <Text style={[styles.label, { color: muted }]}>{expenseTitle}</Text>
-            <View style={[styles.iconWrap, expBg]}>
-              <MaterialCommunityIcons name="arrow-bottom-right" size={18} color={expIc} />
+            <View style={[styles.iconWrap, iconBg]}>
+              <MaterialCommunityIcons name="arrow-bottom-right" size={18} color={accentIc} />
             </View>
           </View>
           <Text style={[styles.value, { color: fg }]}>₺{formatTry(monthlyExpense)}</Text>
@@ -92,8 +85,8 @@ export function MobileDashboardMetricCards({
         <Card.Content style={styles.content}>
           <View style={styles.topRow}>
             <Text style={[styles.label, { color: muted }]}>Toplam bakiye</Text>
-            <View style={[styles.iconWrap, balBg]}>
-              <MaterialCommunityIcons name="wallet-outline" size={18} color={balIc} />
+            <View style={[styles.iconWrap, iconBg]}>
+              <MaterialCommunityIcons name="wallet-outline" size={18} color={accentIc} />
             </View>
           </View>
           <Text style={[styles.value, { color: fg }]}>₺{formatTry(lifetimeBalance)}</Text>
@@ -132,9 +125,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  iconIncomeLight: { backgroundColor: '#dcfce7' },
-  iconExpenseLight: { backgroundColor: '#fce7f3' },
-  iconBalanceLight: { backgroundColor: '#ede9fe' },
   value: {
     fontSize: 24,
     fontWeight: '700',

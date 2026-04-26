@@ -1,4 +1,5 @@
-export { MobileAuthComponent } from './MobileAuthComponent';
+export { MobileLogoIntroSplash } from './MobileLogoIntroSplash';
+export { MobileHeroIntroScreen } from './MobileHeroIntroScreen';
 export { MobileHomeComponent } from './MobileHomeComponent';
 export { MobileTransactionsComponent } from './MobileTransactionsComponent';
 export { MobileBudgetComponent } from './MobileBudgetComponent';

@@ -55,7 +55,7 @@ export function MainHeaderRight({ variant = 'default' }: MainHeaderRightProps) {
             accessibilityLabel="Akıllı tanıtım — bilgilerini güncelle"
             hitSlop={8}
           >
-            <MaterialCommunityIcons name="star-four-points-outline" size={22} color="#f59e0b" />
+            <MaterialCommunityIcons name="star-four-points-outline" size={22} color={theme.colors.primary} />
           </Pressable>
           <Pressable
             onPress={openNotifications}
@@ -65,7 +65,9 @@ export function MainHeaderRight({ variant = 'default' }: MainHeaderRightProps) {
             hitSlop={8}
           >
             <MaterialCommunityIcons name="bell-outline" size={22} color={theme.colors.onSurface} />
-            {showUnreadDot ? <View style={[styles.dot, { borderColor: theme.colors.surface }]} /> : null}
+            {showUnreadDot ? (
+      <View style={[styles.dot, { borderColor: theme.colors.surface, backgroundColor: theme.colors.error }]} />
+    ) : null}
           </Pressable>
         </>
       ) : null}
@@ -124,7 +126,6 @@ const styles = StyleSheet.create({
     width: 8,
     height: 8,
     borderRadius: 4,
-    backgroundColor: '#ef4444',
     borderWidth: 2,
   },
   modalBackdrop: {

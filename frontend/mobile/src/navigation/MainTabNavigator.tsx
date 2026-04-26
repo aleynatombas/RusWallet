@@ -22,7 +22,7 @@ export function MainTabNavigator() {
       tabBar={(props) => <MainTabCustomBar {...props} />}
       screenOptions={{
         headerShown: false,
-        tabBarActiveTintColor: theme.dark ? '#818cf8' : theme.colors.primary,
+        tabBarActiveTintColor: theme.colors.primary,
         tabBarInactiveTintColor: theme.dark ? '#94a3b8' : theme.colors.onSurfaceVariant,
       }}
     >

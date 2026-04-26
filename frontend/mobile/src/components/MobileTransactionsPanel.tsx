@@ -18,6 +18,7 @@ import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { TextInput, Button, Card, useTheme } from 'react-native-paper';
 import { api, getApiErrorMessage } from '../services/api';
 import { CARD_SHADOW_BLEED, getCardShadow } from '../theme/cardShadow';
+import { themeColorAlpha } from '../theme/themeColorAlpha';
 import type { TransactionRow } from '../types/dashboard';
 import { getCurrentMonthRangeStrings } from '../lib/monthRange';
 import {
@@ -80,6 +81,7 @@ export function MobileTransactionsPanel({ onTransactionChange }: MobileTransacti
   const border = theme.colors.outlineVariant;
   const cardBg = theme.colors.surface;
   const cardShadow = getCardShadow(theme.dark);
+  const suggestDivider = themeColorAlpha(theme.colors.outline, theme.dark ? 0.4 : 0.22);
 
   const loadCategories = useCallback(async () => {
     try {
@@ -291,7 +293,12 @@ export function MobileTransactionsPanel({ onTransactionChange }: MobileTransacti
           </Text>
         </View>
         <View style={styles.txRight}>
-          <Text style={[styles.txAmt, t.isIncome ? styles.txIn : styles.txOut]}>
+          <Text
+            style={[
+              styles.txAmt,
+              { color: t.isIncome ? theme.colors.primary : theme.colors.error },
+            ]}
+          >
             {t.isIncome ? '+' : '−'}
             {t.amount.toLocaleString('tr-TR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} TL
           </Text>
@@ -301,7 +308,7 @@ export function MobileTransactionsPanel({ onTransactionChange }: MobileTransacti
         </View>
       </View>
     ),
-    [border, fg, muted]
+    [border, fg, muted, theme.colors.primary, theme.colors.error]
   );
 
   return (
@@ -332,7 +339,10 @@ export function MobileTransactionsPanel({ onTransactionChange }: MobileTransacti
           <View
             style={[
               styles.searchWrap,
-              { borderColor: border, backgroundColor: theme.dark ? 'rgba(255,255,255,0.06)' : cardBg },
+              {
+                borderColor: border,
+                backgroundColor: theme.dark ? themeColorAlpha(theme.colors.onSurface, 0.06) : cardBg,
+              },
             ]}
           >
             <MaterialCommunityIcons name="magnify" size={18} color={muted} style={styles.searchIcon} />
@@ -426,7 +436,11 @@ export function MobileTransactionsPanel({ onTransactionChange }: MobileTransacti
                           setQuickCategory('');
                           setCategorySuggestOpen(false);
                         }}
-                        style={({ pressed }) => [styles.suggestRow, pressed && { opacity: 0.85 }]}
+                        style={({ pressed }) => [
+                          styles.suggestRow,
+                          { borderBottomColor: suggestDivider },
+                          pressed && { opacity: 0.85 },
+                        ]}
                       >
                         <Text style={{ color: muted, fontSize: 13 }}>— Seçimi temizle —</Text>
                       </Pressable>
@@ -434,7 +448,11 @@ export function MobileTransactionsPanel({ onTransactionChange }: MobileTransacti
                         <Pressable
                           key={label}
                           onPress={() => pickSuggestion(label)}
-                          style={({ pressed }) => [styles.suggestRow, pressed && { opacity: 0.85 }]}
+                          style={({ pressed }) => [
+                            styles.suggestRow,
+                            { borderBottomColor: suggestDivider },
+                            pressed && { opacity: 0.85 },
+                          ]}
                         >
                           <Text style={{ color: fg, fontSize: 14 }}>{label}</Text>
                         </Pressable>
@@ -484,7 +502,10 @@ export function MobileTransactionsPanel({ onTransactionChange }: MobileTransacti
 
       {editing ? (
         <Modal visible transparent animationType="fade" onRequestClose={closeEdit}>
-          <Pressable style={styles.modalBackdrop} onPress={closeEdit}>
+          <Pressable
+            style={[styles.modalBackdrop, { backgroundColor: themeColorAlpha(theme.colors.scrim, 0.5) }]}
+            onPress={closeEdit}
+          >
             <Pressable
               style={[styles.modalCard, cardShadow, { backgroundColor: cardBg, borderColor: border }]}
               onPress={(e) => e.stopPropagation()}
@@ -537,7 +558,11 @@ export function MobileTransactionsPanel({ onTransactionChange }: MobileTransacti
                             setEditCategory('');
                             setEditCategorySuggestOpen(false);
                           }}
-                          style={({ pressed }) => [styles.suggestRow, pressed && { opacity: 0.85 }]}
+                          style={({ pressed }) => [
+                            styles.suggestRow,
+                            { borderBottomColor: suggestDivider },
+                            pressed && { opacity: 0.85 },
+                          ]}
                           disabled={editSaving}
                         >
                           <Text style={{ color: muted, fontSize: 13 }}>— Seçimi temizle —</Text>
@@ -546,7 +571,11 @@ export function MobileTransactionsPanel({ onTransactionChange }: MobileTransacti
                           <Pressable
                             key={label}
                             onPress={() => pickEditSuggestion(label)}
-                            style={({ pressed }) => [styles.suggestRow, pressed && { opacity: 0.85 }]}
+                            style={({ pressed }) => [
+                              styles.suggestRow,
+                              { borderBottomColor: suggestDivider },
+                              pressed && { opacity: 0.85 },
+                            ]}
                             disabled={editSaving}
                           >
                             <Text style={{ color: fg, fontSize: 14 }}>{label}</Text>
@@ -637,8 +666,6 @@ const styles = StyleSheet.create({
   txSub: { fontSize: 12, marginTop: 4, lineHeight: 16 },
   txRight: { alignItems: 'flex-end', justifyContent: 'center', gap: 8, minWidth: 108 },
   txAmt: { fontSize: 16, fontWeight: '600', fontVariant: ['tabular-nums'] },
-  txIn: { color: '#16a34a' },
-  txOut: { color: '#dc2626' },
   updateBtn: { alignSelf: 'flex-end', marginTop: 2 },
   quickCard: { borderRadius: 12, marginTop: 10, marginBottom: 8 },
   quickInner: { gap: 12, paddingTop: 0 },
@@ -673,7 +700,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     overflow: 'hidden',
     elevation: 6,
-    shadowColor: '#000',
+    shadowColor: 'rgb(0,0,0)',
     shadowOffset: { width: 0, height: -2 },
     shadowOpacity: 0.12,
     shadowRadius: 6,
@@ -685,11 +712,10 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     paddingHorizontal: 12,
     borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: 'rgba(148,163,184,0.2)',
   },
   quickBtns: { flexDirection: 'row', gap: 10, marginTop: 8 },
   quickBtnHalf: { flex: 1 },
-  modalBackdrop: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'center', padding: 20 },
+  modalBackdrop: { flex: 1, justifyContent: 'center', padding: 20 },
   modalCard: { borderRadius: 16, padding: 20, borderWidth: StyleSheet.hairlineWidth, maxHeight: '90%' },
   modalTitle: { fontSize: 18, fontWeight: '600' },
   modalSub: { fontSize: 14, marginTop: 8, lineHeight: 20 },

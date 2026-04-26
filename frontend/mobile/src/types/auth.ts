@@ -38,3 +38,9 @@ export interface ChangePasswordRequest {
   currentPassword: string;
   newPassword: string;
 }
+
+/** POST /auth/reset-password-by-email — oturum yok */
+export interface ResetPasswordByEmailRequest {
+  email: string;
+  newPassword: string;
+}

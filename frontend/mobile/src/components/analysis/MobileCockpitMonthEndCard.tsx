@@ -67,12 +67,7 @@ export function MobileCockpitMonthEndCard({ cockpit }: { cockpit: FinancialCockp
         </View>
 
         <View style={styles.barBlock}>
-          <GradientFlexBar
-            value={m.budgetFillPercent}
-            trackColor={p.trackBar}
-            accent={p.accent}
-            accentEnd={p.accentEnd}
-          />
+          <GradientFlexBar value={m.budgetFillPercent} trackColor={p.trackBar} gradientColors={p.flexBarGradient} />
           <Text style={[styles.progressCaption, { color: p.muted }]}>Esnek pay doluluğu</Text>
         </View>
 

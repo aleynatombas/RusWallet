@@ -106,7 +106,7 @@ export function MobileDashboardProfileSummaryCard() {
                 ]}
               >
                 <View style={[styles.statIcon, { backgroundColor: isDark ? 'rgba(244,63,94,0.2)' : 'rgba(244,63,94,0.12)' }]}>
-                  <MaterialCommunityIcons name="receipt-text-outline" size={20} color="#f43f5e" />
+                  <MaterialCommunityIcons name="receipt-text-outline" size={20} color={theme.colors.error} />
                 </View>
                 <View style={styles.statTextCol}>
                   <Text style={[styles.statLabel, { color: muted }]}>Sabit giderler (ay)</Text>

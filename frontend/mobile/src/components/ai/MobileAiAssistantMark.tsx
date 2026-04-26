@@ -1,10 +1,13 @@
 /**
- * Web FloatingChatbot / görsel referans: koyu lacivert disk, kalın koyu çerçeve,
- * hafif eşmerkez “radar” halkaları, neon cyan Lucide Bot çizgisi, yumuşak cyan glow.
+ * Web FloatingChatbot ile uyumlu: Paper arka plan / yüzey, birincil renk halka ve bot çizgisi.
  */
 import { View, StyleSheet, type ViewStyle } from 'react-native';
-import { DARK_PAGE_BACKGROUND } from '../../theme/darkPalette';
+import { darkPaperTheme } from '../../theme/paperThemes';
 import { LucideBotIcon } from './LucideBotIcon';
+
+const CHAT = darkPaperTheme.colors;
+const RING_BORDER = 'rgba(125, 211, 252, 0.12)';
+const FACE_BORDER = 'rgba(125, 211, 252, 0.22)';
 
 export type MobileMarkSize = 'header' | 'fab';
 
@@ -12,10 +15,6 @@ const SHELL: Record<MobileMarkSize, { outer: number; rim: number; icon: number }
   header: { outer: 40, rim: 2, icon: 17 },
   fab: { outer: 64, rim: 3, icon: 26 },
 };
-
-const BG_FACE = '#0a0e23';
-const BG_RIM = DARK_PAGE_BACKGROUND;
-const RING_CYAN = 'rgba(34, 211, 238, 0.14)';
 
 type ShellProps = {
   size: MobileMarkSize;
@@ -42,7 +41,8 @@ function ConcentricRings({ innerSize }: { innerSize: number }) {
                 width: w,
                 height: w,
                 borderRadius: w / 2,
-                borderColor: `rgba(34, 211, 238, ${0.05 + i * 0.035})`,
+                borderColor: RING_BORDER,
+                opacity: 0.55 + i * 0.15,
               },
             ]}
           />
@@ -55,9 +55,10 @@ function ConcentricRings({ innerSize }: { innerSize: number }) {
 export function MobileAiAssistantMarkShell({ size, children, style }: ShellProps) {
   const { outer, rim } = SHELL[size];
   const inner = outer - rim * 2;
+  const primary = CHAT.primary;
 
   return (
-    <View style={[styles.glow, { width: outer, height: outer, borderRadius: outer / 2 }, style]}>
+    <View style={[styles.glow, { width: outer, height: outer, borderRadius: outer / 2, shadowColor: primary }, style]}>
       <View
         style={[
           styles.rim,
@@ -66,7 +67,7 @@ export function MobileAiAssistantMarkShell({ size, children, style }: ShellProps
             height: outer,
             borderRadius: outer / 2,
             padding: rim,
-            backgroundColor: BG_RIM,
+            backgroundColor: CHAT.background,
           },
         ]}
       >
@@ -77,7 +78,8 @@ export function MobileAiAssistantMarkShell({ size, children, style }: ShellProps
               width: inner,
               height: inner,
               borderRadius: inner / 2,
-              borderColor: RING_CYAN,
+              borderColor: FACE_BORDER,
+              backgroundColor: CHAT.surface,
             },
           ]}
         >
@@ -93,16 +95,15 @@ export function MobileAiAssistantMark({ size, style }: { size: MobileMarkSize; s
   const icon = SHELL[size].icon;
   return (
     <MobileAiAssistantMarkShell size={size} style={style}>
-      <LucideBotIcon size={icon} />
+      <LucideBotIcon size={icon} color={CHAT.primary} />
     </MobileAiAssistantMarkShell>
   );
 }
 
 const styles = StyleSheet.create({
   glow: {
-    shadowColor: '#22d3ee',
     shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.45,
+    shadowOpacity: 0.4,
     shadowRadius: 14,
     elevation: 10,
   },
@@ -110,7 +111,6 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
   },
   face: {
-    backgroundColor: BG_FACE,
     borderWidth: StyleSheet.hairlineWidth,
     overflow: 'hidden',
     alignItems: 'center',

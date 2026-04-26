@@ -16,7 +16,7 @@ type NavForSettings = NavigationProp<ParamListBase> | NavigationHelpers<ParamLis
 export function navigateToAppSettings(navigation: NavForSettings) {
   const parent = navigation.getParent();
   if (parent) {
-    (parent as NavigationProp<ParamListBase>).navigate('Settings' as never);
+    (parent as unknown as NavigationProp<ParamListBase>).navigate('Settings' as never);
     return;
   }
   navigation.dispatch(

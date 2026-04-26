@@ -6,6 +6,7 @@ import { View, StyleSheet, Pressable, Text, Platform } from 'react-native';
 import { Menu, useTheme } from 'react-native-paper';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { DASHBOARD_PERIOD_OPTIONS, type DashboardPeriod } from '../lib/dashboardPeriod';
+import { themeColorAlpha } from '../theme/themeColorAlpha';
 
 type Props = {
   value: DashboardPeriod;
@@ -18,11 +19,11 @@ export function MobileDashboardPeriodSelect({ value, onChange }: Props) {
   const [open, setOpen] = useState(false);
   const current = DASHBOARD_PERIOD_OPTIONS.find((o) => o.value === value) ?? DASHBOARD_PERIOD_OPTIONS[0];
 
-  /** Web `DashboardPeriodSelect` ile aynı teal ailesi (index.css --primary ~173°) */
-  const border = isDark ? 'rgba(45, 212, 191, 0.22)' : 'rgba(15, 118, 110, 0.22)';
-  const bg = isDark ? 'rgba(13, 148, 136, 0.14)' : 'rgba(20, 184, 166, 0.08)';
-  const fg = isDark ? '#cbd5e1' : '#0f172a';
-  const chevron = isDark ? '#94a3b8' : '#64748b';
+  const p = theme.colors.primary;
+  const border = themeColorAlpha(p, isDark ? 0.22 : 0.2);
+  const bg = themeColorAlpha(p, isDark ? 0.14 : 0.08);
+  const fg = theme.colors.onSurfaceVariant;
+  const chevron = theme.colors.onSurfaceVariant;
 
   return (
     <View style={styles.wrap}>

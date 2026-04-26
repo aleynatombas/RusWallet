@@ -2,6 +2,7 @@ import { View, Text, Pressable, StyleSheet, DeviceEventEmitter } from 'react-nat
 import { useTheme } from 'react-native-paper';
 import { useNavigation } from '@react-navigation/native';
 import { getCardShadow } from '../theme/cardShadow';
+import { themeColorAlpha } from '../theme/themeColorAlpha';
 import type { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import type { CategorySlice } from '../lib/groupExpenseByCategory';
@@ -42,19 +43,21 @@ export function MobileAiShortcutOrbs({
   const navigation = useNavigation<BottomTabNavigationProp<MainTabParamList>>();
   const picks = topCategories.slice(0, 3);
 
-  const titleMuted = isDark ? '#94a3b8' : '#334155';
-  const descMuted = isDark ? '#94a3b8' : '#64748b';
-  const fg = isDark ? '#ffffff' : '#0f172a';
-  const cardBg = isDark ? theme.colors.surface : '#ffffff';
-  const border = isDark ? 'rgba(148, 163, 184, 0.14)' : '#e2e8f0';
+  const titleMuted = theme.colors.onSurfaceVariant;
+  const descMuted = theme.colors.onSurfaceVariant;
+  const fg = theme.colors.onSurface;
+  const cardBg = theme.colors.surface;
+  const border = isDark ? themeColorAlpha(theme.colors.outline, 0.35) : theme.colors.outline;
   const showStats = typeof monthTransactionCount === 'number';
-  const labelSection = isDark ? '#94a3b8' : '#475569';
+  const labelSection = theme.colors.onSurfaceVariant;
 
-  const blue = '#2563eb';
-  const violetIcon = '#7c3aed';
-  const violetText = isDark ? '#c4b5fd' : '#5b21b6';
-  const catGreen = '#047857';
-  const catGreenBg = isDark ? 'rgba(16,185,129,0.1)' : '#ecfdf5';
+  const accent = theme.colors.primary;
+  const accentSoftBg = isDark
+    ? themeColorAlpha(accent, 0.1)
+    : themeColorAlpha(accent, 0.08);
+  const channelInnerBg = isDark
+    ? themeColorAlpha(theme.colors.onSurface, 0.04)
+    : themeColorAlpha(theme.colors.primary, 0.04);
 
   const pad = compact ? 16 : 20;
   const cardShadow = getCardShadow(isDark);
@@ -89,8 +92,8 @@ export function MobileAiShortcutOrbs({
           style={[
             styles.statsCard,
             {
-              borderColor: isDark ? 'rgba(148,163,184,0.2)' : '#e5e7eb',
-              backgroundColor: isDark ? theme.colors.background : '#fafafa',
+              borderColor: isDark ? themeColorAlpha(theme.colors.outline, 0.45) : theme.colors.outline,
+              backgroundColor: isDark ? theme.colors.elevation.level2 : theme.colors.surfaceVariant,
             },
           ]}
         >
@@ -98,7 +101,7 @@ export function MobileAiShortcutOrbs({
             <Text style={[styles.statsLabelCaps, { color: labelSection }]}>{periodTransactionLabel}</Text>
             <Text style={[styles.statsNum, { color: fg }]}>{monthTransactionCount}</Text>
           </View>
-          <View style={[styles.statsDivider, { backgroundColor: isDark ? 'rgba(148,163,184,0.25)' : '#e5e7eb' }]} />
+          <View style={[styles.statsDivider, { backgroundColor: themeColorAlpha(theme.colors.outline, 0.5) }]} />
           <View style={styles.statsColWide}>
             <Text style={[styles.statsLabelCaps, styles.statsLabelLeft, { color: labelSection }]}>Son işlem</Text>
             {lastTransaction ? (
@@ -106,12 +109,7 @@ export function MobileAiShortcutOrbs({
                 <Text style={[styles.lastTitle, { color: fg }]} numberOfLines={2}>
                   {lastTransaction.description?.trim() || '—'}
                 </Text>
-                <Text
-                  style={[
-                    styles.lastAmount,
-                    { color: lastTransaction.isIncome ? '#059669' : '#dc2626' },
-                  ]}
-                >
+                <Text style={[styles.lastAmount, { color: accent }]}>
                   {lastTransaction.isIncome ? '+' : '−'}₺{formatTry(Math.abs(Number(lastTransaction.amount)))}
                 </Text>
                 <Text style={[styles.lastFoot, { color: descMuted }]} numberOfLines={2}>
@@ -134,23 +132,23 @@ export function MobileAiShortcutOrbs({
             onPress={openReceipt}
             style={({ pressed }) => [
               styles.channelBtn,
-              { borderColor: border, backgroundColor: isDark ? 'rgba(255,255,255,0.04)' : '#ffffff' },
+              { borderColor: border, backgroundColor: channelInnerBg },
               pressed && styles.pressed,
             ]}
           >
-            <MaterialCommunityIcons name="camera-outline" size={compact ? 28 : 32} color={blue} />
-            <Text style={[styles.channelLabel, { color: blue }]}>Fiş tara</Text>
+            <MaterialCommunityIcons name="camera-outline" size={compact ? 28 : 32} color={accent} />
+            <Text style={[styles.channelLabel, { color: accent }]}>Fiş tara</Text>
           </Pressable>
           <Pressable
             onPress={openVoiceTransaction}
             style={({ pressed }) => [
               styles.channelBtn,
-              { borderColor: border, backgroundColor: isDark ? 'rgba(255,255,255,0.04)' : '#ffffff' },
+              { borderColor: border, backgroundColor: channelInnerBg },
               pressed && styles.pressed,
             ]}
           >
-            <MaterialCommunityIcons name="microphone-outline" size={compact ? 28 : 32} color={violetIcon} />
-            <Text style={[styles.channelLabel, { color: violetText }]}>Sesle ekle</Text>
+            <MaterialCommunityIcons name="microphone-outline" size={compact ? 28 : 32} color={accent} />
+            <Text style={[styles.channelLabel, { color: accent }]}>Sesle ekle</Text>
           </Pressable>
         </View>
       </View>
@@ -171,13 +169,13 @@ export function MobileAiShortcutOrbs({
                     styles.catRow,
                     {
                       borderColor: border,
-                      backgroundColor: catGreenBg,
+                      backgroundColor: accentSoftBg,
                     },
                     pressed && styles.pressed,
                   ]}
                 >
-                  <MaterialCommunityIcons name="cart-outline" size={26} color={catGreen} />
-                  <Text style={[styles.catRowLabel, { color: catGreen }]} numberOfLines={2}>
+                  <MaterialCommunityIcons name="cart-outline" size={26} color={accent} />
+                  <Text style={[styles.catRowLabel, { color: accent }]} numberOfLines={2}>
                     {label}
                   </Text>
                 </Pressable>
@@ -186,13 +184,24 @@ export function MobileAiShortcutOrbs({
           </View>
         </View>
       ) : (
-        <Text style={[styles.emptyCats, { color: descMuted, borderColor: isDark ? 'rgba(148,163,184,0.3)' : 'rgba(15,23,42,0.15)' }]}>
+        <Text
+          style={[
+            styles.emptyCats,
+            { color: descMuted, borderColor: themeColorAlpha(theme.colors.outline, isDark ? 0.45 : 0.55) },
+          ]}
+        >
           Henüz üst kategori yok; işlem ekledikçe burada kısayol önerileri görünür.
         </Text>
       )}
 
-      <Pressable onPress={() => navigation.navigate('Transactions')} style={styles.footerLink}>
-        <Text style={[styles.footerText, { color: '#6366f1' }]}>Tüm işlemleri gör →</Text>
+      <Pressable
+        onPress={() => navigation.navigate('Transactions')}
+        style={[
+          styles.footerLink,
+          { borderTopColor: themeColorAlpha(theme.colors.outline, isDark ? 0.35 : 0.5) },
+        ]}
+      >
+        <Text style={[styles.footerText, { color: accent }]}>Tüm işlemleri gör →</Text>
       </Pressable>
     </View>
   );
@@ -343,7 +352,6 @@ const styles = StyleSheet.create({
     marginTop: 8,
     paddingTop: 14,
     borderTopWidth: StyleSheet.hairlineWidth,
-    borderTopColor: 'rgba(148,163,184,0.25)',
   },
   footerText: { fontSize: 14, fontWeight: '600' },
 });

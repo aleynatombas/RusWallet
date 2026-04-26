@@ -77,7 +77,7 @@ export function MobileGoalHourglassSimulator({
 
   const varışPanel =
     remaining <= 0 ? (
-      <View style={[styles.varisBox, { borderColor: p.emeraldBorder, backgroundColor: 'rgba(16,185,129,0.08)' }]}>
+      <View style={[styles.varisBox, { borderColor: p.emeraldBorder, backgroundColor: p.emeraldSoft }]}>
         <Text style={[styles.varisEmeraldText, { color: p.emeraldText }]}>Kayıtlı bakiyene göre hedef tutarına ulaşılmış görünüyor.</Text>
       </View>
     ) : allocationClamped <= 0 ? (
@@ -88,7 +88,7 @@ export function MobileGoalHourglassSimulator({
       <View style={[styles.varisBox, { borderColor: p.emeraldBorder, backgroundColor: p.emeraldSoft }]}>
         <View style={styles.varisRow}>
           <View style={[styles.sparkleCircle, { backgroundColor: p.sparkleBg }]}>
-            <MaterialCommunityIcons name="star-four-points" size={20} color={theme.dark ? '#6ee7b7' : '#059669'} />
+            <MaterialCommunityIcons name="star-four-points" size={20} color={theme.colors.primary} />
           </View>
           <View style={styles.flex1}>
             <Text style={[styles.varisLabel, { color: p.varisLabelLight }]}>Hedefe varış tarihin</Text>

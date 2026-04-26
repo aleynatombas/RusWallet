@@ -16,8 +16,6 @@ const CX = 100;
 const CY = 100;
 const OUTER = 90;
 const INNER = 70;
-const SELECT_RING = '#3498DB';
-
 function polarToCartesian(cx: number, cy: number, radius: number, angleInDegrees: number) {
   const angleInRadians = ((angleInDegrees - 90) * Math.PI) / 180;
   return {
@@ -112,17 +110,17 @@ export function MobileDashboardCategoryDonut({
       const startDeg = (360 * cum) / total;
       cum += s.value;
       const endDeg = (360 * cum) / total;
-      const fill = categoryColorHexSemanticOrHash(s.name);
+      const fill = categoryColorHexSemanticOrHash(s.name, isDark);
       const d = describeDonutSlice(CX, CY, INNER, OUTER, startDeg, endDeg);
       return { d, fill, name: s.name, index: i, value: s.value };
     });
-  }, [slices, total]);
+  }, [slices, total, isDark]);
 
-  const fg = isDark ? '#ffffff' : '#0f172a';
-  const muted = isDark ? '#94a3b8' : '#6b7280';
-  const primary = isDark ? '#818cf8' : '#0284c7';
-  const cardBg = isDark ? theme.colors.surface : '#ffffff';
-  const border = isDark ? 'rgba(148, 163, 184, 0.14)' : '#e5e7eb';
+  const fg = theme.colors.onSurface;
+  const muted = theme.colors.onSurfaceVariant;
+  const primary = theme.colors.primary;
+  const cardBg = theme.colors.surface;
+  const border = isDark ? 'rgba(141, 155, 176, 0.14)' : theme.colors.outline;
   const sliceStroke = isDark ? theme.colors.background : '#ffffff';
   const cardShadow = getCardShadow(isDark);
 
@@ -168,7 +166,7 @@ export function MobileDashboardCategoryDonut({
               key={p.name}
               d={p.d}
               fill={p.fill}
-              stroke={activeIndex === p.index ? SELECT_RING : sliceStroke}
+              stroke={activeIndex === p.index ? primary : sliceStroke}
               strokeWidth={activeIndex === p.index ? 2 : 1}
               onPress={() => setActiveIndex((i) => (i === p.index ? null : p.index))}
             />

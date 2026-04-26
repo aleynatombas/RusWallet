@@ -202,7 +202,7 @@ export function MobileAnalysisComponent() {
         <Text style={[styles.h1, { color: p.fg }]}>Analizlerim</Text>
 
         {error ? (
-          <Text style={styles.errorText} accessibilityRole="alert">
+          <Text style={[styles.errorText, { color: theme.colors.error }]} accessibilityRole="alert">
             {error}
           </Text>
         ) : null}
@@ -221,8 +221,8 @@ export function MobileAnalysisComponent() {
         ) : (
           <>
             {roadmapError ? (
-              <View style={[styles.warnBox, cardShadow, { borderColor: 'rgba(248,113,113,0.35)', backgroundColor: p.cardBg }]}>
-                <Text style={styles.warnText}>{roadmapError}</Text>
+              <View style={[styles.warnBox, cardShadow, { borderColor: theme.colors.error, backgroundColor: p.cardBg }]}>
+                <Text style={[styles.warnText, { color: theme.colors.error }]}>{roadmapError}</Text>
               </View>
             ) : !roadmap?.cockpit ? (
               <View style={[styles.warnBox, cardShadow, { borderColor: p.border, backgroundColor: p.cardBg }]}>
@@ -264,7 +264,7 @@ const styles = StyleSheet.create({
     paddingBottom: 100,
   },
   h1: { fontSize: 22, fontWeight: '700', marginBottom: 16, letterSpacing: -0.3 },
-  errorText: { color: '#f87171', fontSize: 13, marginBottom: 12 },
+  errorText: { fontSize: 13, marginBottom: 12 },
   loadingBox: {
     minHeight: 120,
     alignItems: 'center',
@@ -280,6 +280,6 @@ const styles = StyleSheet.create({
     padding: 14,
     marginBottom: 8,
   },
-  warnText: { color: '#fca5a5', fontSize: 13, lineHeight: 18 },
+  warnText: { fontSize: 13, lineHeight: 18 },
   mutedCenter: { textAlign: 'center', fontSize: 12 },
 });

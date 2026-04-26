@@ -3,7 +3,8 @@
  */
 import Svg, { Path, Rect } from 'react-native-svg';
 
-const CYAN = '#22d3ee';
+/** Varsayılan: web birincil (koyu modda açık cyan); üst bileşen `theme.colors.primary` geçmeli */
+const DEFAULT_STROKE = 'rgb(36, 173, 219)';
 
 type Props = {
   size: number;
@@ -11,7 +12,7 @@ type Props = {
   strokeWidth?: number;
 };
 
-export function LucideBotIcon({ size, color = CYAN, strokeWidth }: Props) {
+export function LucideBotIcon({ size, color = DEFAULT_STROKE, strokeWidth }: Props) {
   const sw = strokeWidth ?? Math.max(1.25, 1.75 * (size / 24));
   return (
     <Svg width={size} height={size} viewBox="0 0 24 24" accessibilityRole="image">

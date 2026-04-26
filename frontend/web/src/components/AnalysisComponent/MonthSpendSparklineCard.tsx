@@ -15,7 +15,7 @@ import { MonthOverMonthDeltaBadge } from './MonthOverMonthSparkline';
 const chartConfig = {
   expense: {
     label: 'Gider',
-    color: 'hsl(var(--chart-1))',
+    color: 'hsl(var(--primary))',
   },
 } satisfies ChartConfig;
 

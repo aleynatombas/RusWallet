@@ -4,6 +4,7 @@ import { useTheme } from 'react-native-paper';
 import { useAuth } from '../context/AuthContext';
 import { LoginScreen } from '../screens/LoginScreen';
 import { RegisterScreen } from '../screens/RegisterScreen';
+import { ForgotPasswordScreen } from '../screens/ForgotPasswordScreen';
 import { SettingsScreen } from '../screens/SettingsScreen';
 import { MainTabNavigator } from './MainTabNavigator';
 import { OnboardingScreen } from '../screens/OnboardingScreen';
@@ -12,17 +13,23 @@ import type { AuthStackParamList, AppStackParamList } from './types';
 const AuthStack = createNativeStackNavigator<AuthStackParamList>();
 const AppStack = createNativeStackNavigator<AppStackParamList>();
 
+const stackFade = {
+  animation: 'fade' as const,
+  animationDuration: 280,
+};
+
 function AuthScreens() {
-  const theme = useTheme();
   return (
     <AuthStack.Navigator
       screenOptions={{
         headerShown: false,
-        contentStyle: { backgroundColor: theme.colors.background },
+        contentStyle: { backgroundColor: 'transparent' },
+        ...stackFade,
       }}
     >
       <AuthStack.Screen name="Login" component={LoginScreen} />
       <AuthStack.Screen name="Register" component={RegisterScreen} />
+      <AuthStack.Screen name="ForgotPassword" component={ForgotPasswordScreen} />
     </AuthStack.Navigator>
   );
 }
@@ -41,6 +48,7 @@ function AppScreens() {
         headerStyle: { backgroundColor: theme.colors.surface },
         headerTintColor: theme.colors.onSurface,
         contentStyle: { backgroundColor: theme.colors.background },
+        ...stackFade,
       }}
     >
       <AppStack.Screen
@@ -54,7 +62,7 @@ function AppScreens() {
             gestureEnabled: revisit,
             /** Gönüllü güncelleme: şeffaf tam ekran; içerik ortada kutu olarak çizilir */
             presentation: revisit ? 'transparentModal' : 'card',
-            animation: revisit ? 'fade' : 'default',
+            animation: 'fade',
             contentStyle: revisit ? { backgroundColor: 'transparent' } : { backgroundColor: theme.colors.background },
           };
         }}

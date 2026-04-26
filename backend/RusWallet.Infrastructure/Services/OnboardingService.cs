@@ -25,7 +25,7 @@ public class OnboardingService : IOnboardingService
         "**Faturalar** için ayda toplam yaklaşık ne kadar? (Yoksa **0**.)",
         "**Abonelikler** için ayda toplam yaklaşık kaç TL? (Yoksa **0**.)",
         "**Finansal hedefin ne?** **Sadece yazılı anlat; rakam veya tutar yazma.** Bu hedef için **TL tutarını** bir sonraki adımda soracağım.",
-        "Bu hedef için **toplamda birikmek istediğin tutar** yaklaşık kaç TL? Bilmiyorsan veya tutar yoksa **0** yaz.",
+        "Bu hedef için ne kadar para biriktirmen gerekiyor?",
     ];
 
     /// <summary>Son adım indeksi (0–3: sayı; 4: hedef metni; 5: hedef tutarı; tamamlanır).</summary>
@@ -355,8 +355,8 @@ public class OnboardingService : IOnboardingService
         0 => "Gelirini not aldım. Şimdi **kira** tutarına bakalım.",
         1 => "Kira tutarını not aldım. **Faturalar** için devam edelim.",
         2 => "Faturaları not aldım. **Abonelikler** toplamına geçelim.",
-        3 => "Tamam. **Abonelikleri** not aldım.",
-        4 => "Hedefini not aldım. Şimdi bu hedef için **hedeflediğin toplam tutarı** (TL) yaz.",
+        3 => "Hedefini not aldım.",
+        4 => "Hedef tutarını not aldım.",
         _ => "Tamamdır.",
     };
 

@@ -21,6 +21,7 @@ import { isValidEmailFormat, PASSWORD_RULES_HINT, validatePassword } from '@/lib
 import { cn } from '@/lib/utils';
 import { PAGE_TITLE_CLASS, formatPageTitleDisplay } from '@/lib/pageTitle';
 import { RusWalletLogoMark } from '@/components/brand/RusWalletLogoMark';
+import { authSplitFieldShell, authSplitPrimaryCta } from '@/components/auth/authSplitFieldClasses';
 import PhoneInput, { isValidPhoneNumber } from 'react-phone-number-input';
 import 'react-phone-number-input/style.css';
 
@@ -35,9 +36,7 @@ interface AuthComponentProps {
   variant?: 'card' | 'split';
 }
 
-/** Giriş/kayıt split: aynı çerçeve, yükseklik, tipografi */
-const fieldShell =
-  'h-11 w-full rounded-lg border border-input bg-background/80 px-3 py-2 text-sm shadow-sm transition-[border-color,box-shadow] focus-visible:outline-none focus-within:border-primary/45 focus-within:ring-2 focus-within:ring-ring/35 focus-within:ring-offset-0 dark:focus-within:border-primary/40 dark:focus-within:ring-ring/25';
+const fieldShell = authSplitFieldShell;
 
 const phoneFieldShell = cn(
   fieldShell,
@@ -45,8 +44,7 @@ const phoneFieldShell = cn(
   '[&_.ruswallet-phone-input]:min-h-0 [&_.ruswallet-phone-input]:w-full [&_.ruswallet-phone-input]:flex-1'
 );
 
-const primaryCta =
-  'h-11 w-full rounded-lg bg-gradient-to-r from-sky-600 via-cyan-600 to-sky-500 font-semibold text-white shadow-md transition-[filter,transform] hover:brightness-105 active:scale-[0.99] disabled:opacity-60 dark:from-sky-500 dark:via-cyan-500 dark:to-sky-400';
+const primaryCta = authSplitPrimaryCta;
 
 export function AuthComponent({
   mode,

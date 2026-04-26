@@ -1,46 +1,59 @@
 import { useMemo } from 'react';
 import { useTheme } from 'react-native-paper';
+import { getChartPalette } from './webPaletteMobile';
+import { themeColorAlpha } from './themeColorAlpha';
 
 /**
- * Analizler ekranı — Paper temasına bağlı (aydınlık / koyu).
+ * Analizler ekranı — web koyu tema (cyan vurgu, slate yüzey) ile Paper hizalı.
  */
 export function useAnalysisPalette() {
   const theme = useTheme();
   return useMemo(() => {
     const d = theme.dark;
+    const chartColors = getChartPalette(d);
+    const prim = theme.colors.primary;
+    const outline = theme.colors.outline;
+    const onSurf = theme.colors.onSurface;
+    const skyEnd = d ? 'rgb(125, 211, 252)' : 'rgb(14, 165, 233)';
+
     return {
       pageBg: theme.colors.background,
       cardBg: theme.colors.surface,
-      innerBg: d ? 'rgba(255,255,255,0.06)' : 'rgba(15,23,42,0.04)',
-      chipBg: d ? 'rgba(255,255,255,0.06)' : 'rgba(15,23,42,0.05)',
-      calendarRowBg: d ? 'rgba(255,255,255,0.05)' : 'rgba(15,23,42,0.04)',
-      border: d ? 'rgba(148,163,184,0.14)' : 'rgba(15,23,42,0.12)',
+      innerBg: d ? themeColorAlpha(onSurf, 0.06) : themeColorAlpha(onSurf, 0.04),
+      chipBg: d ? themeColorAlpha(onSurf, 0.06) : themeColorAlpha(onSurf, 0.05),
+      calendarRowBg: d ? themeColorAlpha(onSurf, 0.05) : themeColorAlpha(onSurf, 0.04),
+      border: d ? themeColorAlpha(outline, 0.45) : themeColorAlpha(outline, 0.28),
       muted: theme.colors.onSurfaceVariant,
       fg: theme.colors.onSurface,
       subtitle: theme.colors.onSurfaceVariant,
-      accent: theme.colors.primary,
-      accentEnd: '#818cf8',
-      trackRing: d ? 'rgba(255,255,255,0.12)' : 'rgba(15,23,42,0.12)',
-      trackBar: d ? 'rgba(255,255,255,0.08)' : 'rgba(15,23,42,0.08)',
-      emeraldSoft: d ? 'rgba(16,185,129,0.14)' : 'rgba(16,185,129,0.1)',
-      emeraldBorder: d ? 'rgba(16,185,129,0.35)' : 'rgba(16,185,129,0.28)',
-      emeraldText: d ? '#a7f3d0' : '#047857',
-      varisMutedBox: d ? 'rgba(255,255,255,0.04)' : 'rgba(15,23,42,0.05)',
-      goalFlagBg: d ? 'rgba(255,255,255,0.08)' : 'rgba(15,23,42,0.06)',
-      sparkleBg: d ? 'rgba(16,185,129,0.2)' : 'rgba(16,185,129,0.15)',
-      firsatTileBg: d ? 'rgba(0,0,0,0.15)' : 'rgba(0,0,0,0.04)',
-      radarEmptyBg: d ? 'rgba(255,255,255,0.03)' : 'rgba(15,23,42,0.04)',
-      hitRowBg: d ? 'rgba(255,255,255,0.04)' : 'rgba(15,23,42,0.03)',
-      deltaBadgeBg: d ? 'rgba(255,255,255,0.06)' : 'rgba(15,23,42,0.06)',
-      dashedBoxBg: d ? 'rgba(255,255,255,0.03)' : 'rgba(15,23,42,0.03)',
-      onboardBtnBg: d ? 'rgba(79,86,241,0.12)' : 'rgba(79,86,241,0.1)',
-      onboardBtnText: d ? '#c4b5fd' : theme.colors.primary,
-      barTrackLifestyle: d ? 'rgba(255,255,255,0.08)' : 'rgba(15,23,42,0.08)',
-      sliderTrackMax: d ? 'rgba(255,255,255,0.12)' : 'rgba(15,23,42,0.15)',
-      sliderThumb: d ? '#f8fafc' : theme.colors.onSurface,
-      outlineBtnBorder: d ? 'rgba(255,255,255,0.2)' : 'rgba(15,23,42,0.2)',
-      varisDateLight: d ? '#ecfdf5' : '#065f46',
-      varisLabelLight: d ? '#6ee7b7' : '#047857',
+      accent: prim,
+      accentEnd: skyEnd,
+      /** Web --chart-* ile uyumlu kategori / çoklu seri */
+      chartColors,
+      /** İlerleme çubuğu: birincil + cyan gökyüzü + grafik tonu */
+      flexBarGradient: [prim, skyEnd, chartColors[2] ?? prim] as const,
+      trackRing: d ? themeColorAlpha(onSurf, 0.12) : themeColorAlpha(onSurf, 0.12),
+      trackBar: d ? themeColorAlpha(onSurf, 0.08) : themeColorAlpha(onSurf, 0.08),
+      /** Hedef / varış kutuları — web’deki yeşil yerine primary (teal–cyan) ailesi */
+      emeraldSoft: themeColorAlpha(prim, d ? 0.14 : 0.1),
+      emeraldBorder: themeColorAlpha(prim, d ? 0.35 : 0.28),
+      emeraldText: d ? 'rgb(186, 230, 253)' : prim,
+      varisMutedBox: d ? themeColorAlpha(onSurf, 0.04) : themeColorAlpha(onSurf, 0.05),
+      goalFlagBg: d ? themeColorAlpha(onSurf, 0.08) : themeColorAlpha(onSurf, 0.06),
+      sparkleBg: themeColorAlpha(prim, d ? 0.2 : 0.15),
+      firsatTileBg: d ? themeColorAlpha(theme.colors.scrim, 0.28) : themeColorAlpha(onSurf, 0.06),
+      radarEmptyBg: d ? themeColorAlpha(onSurf, 0.03) : themeColorAlpha(onSurf, 0.04),
+      hitRowBg: d ? themeColorAlpha(onSurf, 0.04) : themeColorAlpha(onSurf, 0.03),
+      deltaBadgeBg: d ? themeColorAlpha(onSurf, 0.06) : themeColorAlpha(onSurf, 0.06),
+      dashedBoxBg: d ? themeColorAlpha(onSurf, 0.03) : themeColorAlpha(onSurf, 0.03),
+      onboardBtnBg: themeColorAlpha(prim, d ? 0.14 : 0.1),
+      onboardBtnText: d ? 'rgb(186, 230, 253)' : prim,
+      barTrackLifestyle: d ? themeColorAlpha(onSurf, 0.08) : themeColorAlpha(onSurf, 0.08),
+      sliderTrackMax: d ? themeColorAlpha(onSurf, 0.12) : themeColorAlpha(onSurf, 0.15),
+      sliderThumb: theme.colors.onSurface,
+      outlineBtnBorder: d ? themeColorAlpha(onSurf, 0.2) : themeColorAlpha(onSurf, 0.2),
+      varisDateLight: d ? theme.colors.onSurface : prim,
+      varisLabelLight: d ? theme.colors.primary : prim,
       lifestyleBarMandatory: d ? 'rgba(248,250,252,0.82)' : '#0f172a',
       lifestyleBarDiscretionary: d ? 'rgba(148,163,184,0.42)' : '#94a3b8',
     };

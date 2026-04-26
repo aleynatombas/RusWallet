@@ -1,45 +1,45 @@
 import { MD3DarkTheme, MD3LightTheme, configureFonts } from 'react-native-paper';
 import { DARK_OUTLINE, DARK_PAGE_BACKGROUND, DARK_SURFACE, DARK_SURFACE_VARIANT } from './darkPalette';
+import { webPaletteMobile } from './webPaletteMobile';
 
 const fontConfig = configureFonts({ config: {} });
 
-/**
- * Web `src/index.css` :root ve .dark HSL değişkenleriyle birebir hizalı (shadcn).
- * Açık: --background 0 0% 100%, --foreground 222.2 84% 4.9%, --primary 238 84% 55%, vb.
- * Koyu: --background 222.2 84% 4.9%, --foreground 210 40% 98%, vb.
- */
+const L = webPaletteMobile.light;
+const D = webPaletteMobile.dark;
 
-/** :root — background / card beyaz; yüzey varyantı --muted (210 40% 96.1%) */
+/**
+ * Web `frontend/web/src/index.css` @layer base ile aynı palet (cyan / slate ailesi).
+ */
 export const lightPaperTheme = {
   ...MD3LightTheme,
   colors: {
     ...MD3LightTheme.colors,
-    primary: 'rgb(79, 70, 229)', // hsl(238 84% 55%) ≈ indigo-600
-    primaryContainer: 'rgb(238, 242, 255)',
-    onPrimary: 'rgb(255, 255, 255)',
-    onPrimaryContainer: 'rgb(30, 27, 75)',
-    background: 'rgb(255, 255, 255)', // --background: 0 0% 100%
-    surface: 'rgb(255, 255, 255)', // --card: 0 0% 100%
-    surfaceVariant: 'rgb(241, 245, 249)', // --muted: 210 40% 96.1%
-    surfaceDisabled: 'rgb(241, 245, 249)',
-    onSurface: 'rgb(2, 8, 23)', // --foreground: 222.2 84% 4.9%
-    onSurfaceVariant: 'rgb(100, 116, 139)', // --muted-foreground: 215.4 16.3% 46.9%
+    primary: L.primary,
+    primaryContainer: L.accent,
+    onPrimary: L.onPrimary,
+    onPrimaryContainer: L.onAccent,
+    background: L.background,
+    surface: L.card,
+    surfaceVariant: L.muted,
+    surfaceDisabled: L.muted,
+    onSurface: L.foreground,
+    onSurfaceVariant: L.mutedForeground,
     onSurfaceDisabled: 'rgb(148, 163, 184)',
-    outline: 'rgb(226, 232, 240)', // --border: 214.3 31.8% 91.4%
-    outlineVariant: 'rgb(226, 232, 240)',
-    shadow: 'rgb(2, 8, 23)',
-    scrim: 'rgb(2, 8, 23)',
-    inverseSurface: 'rgb(2, 8, 23)',
-    inverseOnSurface: 'rgb(248, 250, 252)',
-    inversePrimary: 'rgb(165, 180, 252)',
+    outline: L.border,
+    outlineVariant: L.border,
+    shadow: L.foreground,
+    scrim: L.foreground,
+    inverseSurface: L.foreground,
+    inverseOnSurface: L.background,
+    inversePrimary: D.primary,
     elevation: {
       ...MD3LightTheme.colors.elevation,
       level0: 'transparent',
-      level1: 'rgb(255, 255, 255)',
-      level2: 'rgb(255, 255, 255)',
-      level3: 'rgb(255, 255, 255)',
-      level4: 'rgb(255, 255, 255)',
-      level5: 'rgb(255, 255, 255)',
+      level1: L.card,
+      level2: L.card,
+      level3: L.card,
+      level4: L.card,
+      level5: L.card,
     },
     error: 'rgb(239, 68, 68)',
     onError: 'rgb(255, 255, 255)',
@@ -49,37 +49,36 @@ export const lightPaperTheme = {
   fonts: fontConfig,
 };
 
-/** .dark — canlı lacivert zemin + kart yüzeyi (`darkPalette.ts`) */
 export const darkPaperTheme = {
   ...MD3DarkTheme,
   colors: {
     ...MD3DarkTheme.colors,
-    primary: '#4f56f1',
-    primaryContainer: 'rgb(49, 46, 129)',
-    onPrimary: '#ffffff',
-    onPrimaryContainer: 'rgb(224, 231, 255)',
+    primary: D.primary,
+    primaryContainer: D.secondary,
+    onPrimary: D.onPrimary,
+    onPrimaryContainer: D.foreground,
     background: DARK_PAGE_BACKGROUND,
     surface: DARK_SURFACE,
     surfaceVariant: DARK_SURFACE_VARIANT,
-    surfaceDisabled: 'rgb(30, 41, 59)',
-    onSurface: '#ffffff',
-    onSurfaceVariant: '#9ca3af',
+    surfaceDisabled: D.muted,
+    onSurface: D.foreground,
+    onSurfaceVariant: D.mutedForeground,
     onSurfaceDisabled: 'rgb(100, 116, 139)',
     outline: DARK_OUTLINE,
     outlineVariant: DARK_OUTLINE,
     shadow: 'rgb(0, 0, 0)',
     scrim: 'rgb(0, 0, 0)',
-    inverseSurface: 'rgb(248, 250, 252)',
-    inverseOnSurface: 'rgb(15, 23, 42)',
-    inversePrimary: 'rgb(67, 56, 202)',
+    inverseSurface: L.foreground,
+    inverseOnSurface: D.background,
+    inversePrimary: L.primary,
     elevation: {
       ...MD3DarkTheme.colors.elevation,
       level0: 'transparent',
       level1: DARK_SURFACE,
       level2: DARK_SURFACE_VARIANT,
       level3: DARK_SURFACE_VARIANT,
-      level4: 'rgb(51, 65, 85)',
-      level5: 'rgb(51, 65, 85)',
+      level4: D.muted,
+      level5: D.muted,
     },
     error: 'rgb(248, 113, 113)',
     onError: 'rgb(127, 29, 29)',

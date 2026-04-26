@@ -1,21 +1,25 @@
 import { MD3LightTheme, configureFonts } from 'react-native-paper';
+import { webPaletteMobile } from './webPaletteMobile';
+
+const fontConfig = configureFonts({ config: {} });
+const L = webPaletteMobile.light;
 
 /**
- * Web (shadcn primary indigo) ile uyumlu tema – primary: indigo
+ * Eski `appTheme` tüketicileri — web `index.css` :root ile aynı ana renkler.
  */
-const fontConfig = configureFonts({ config: {} });
-
 export const appTheme = {
   ...MD3LightTheme,
   colors: {
     ...MD3LightTheme.colors,
-    primary: 'rgb(79, 70, 229)',   // indigo-600 ~ web primary
-    primaryContainer: 'rgb(224, 231, 255)',
-    onPrimary: 'rgb(255, 255, 255)',
-    onPrimaryContainer: 'rgb(30, 27, 75)',
-    surface: 'rgb(249, 250, 251)', // gray-50
-    surfaceVariant: 'rgb(243, 244, 246)',
-    outline: 'rgb(209, 213, 219)',
+    primary: L.primary,
+    primaryContainer: L.accent,
+    onPrimary: L.onPrimary,
+    onPrimaryContainer: L.onAccent,
+    surface: L.card,
+    surfaceVariant: L.muted,
+    outline: L.border,
+    onSurface: L.foreground,
+    onSurfaceVariant: L.mutedForeground,
   },
   fonts: fontConfig,
 };

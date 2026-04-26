@@ -99,6 +99,14 @@
     --chart-5: 194 44% 58%;
   }
 
+  /*
+   * Varsayılan %100 yakınlaştırmada, tarayıcıda ~%90 zoom ile benzer sığlık.
+   * Tailwind spacing / typography çoğunlukla rem ile ölçeklenir.
+   */
+  html {
+    font-size: 90%;
+  }
+
   * {
     @apply border-border;
     scrollbar-width: thin;

@@ -11,7 +11,7 @@
 const USE_ANDROID_EMULATOR = false;
 
 /** Bilgisayarın yerel IP’si evin mesela (örn. 192.168.1.32). Emülatörde kullanılmaz. batu int 172.20.10.10 */
-const DEV_HOST = '172.20.10.10';
+const DEV_HOST = '192.168.1.28';
 
 const PORT = 5140;
 

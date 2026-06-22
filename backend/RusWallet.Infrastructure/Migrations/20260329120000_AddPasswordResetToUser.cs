@@ -5,7 +5,6 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace RusWallet.Infrastructure.Migrations
 {
     /// <inheritdoc />
-    [Migration("20260329120000_AddPasswordResetToUser")]
     public partial class AddPasswordResetToUser : Migration
     {
         /// <inheritdoc />

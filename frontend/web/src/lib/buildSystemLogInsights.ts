@@ -40,7 +40,12 @@ function avgExpenseTicketByCategory(tx: TransactionRow[]): Map<string, number> {
   return out;
 }
 
-/** Anomali + istatistiksel örüntüler; “sistem logu” kartları için metin üretir. */
+/** Kira, fatura, sigorta, kredi gibi zorunlu kategoriler anomali olarak işaretlenmez. */
+function isMandatoryCategory(categoryName: string): boolean {
+  return /kira|fatura|sigorta|kredi|vergi/i.test(categoryName);
+}
+
+/** Anomali + istatistiksel örüntüler; "sistem logu" kartları için metin üretir. */
 export function buildSystemLogInsights(
   transactions: TransactionRow[],
   currentMonthTx: TransactionRow[],
@@ -52,8 +57,9 @@ export function buildSystemLogInsights(
   const now = new Date();
 
   if (anomalies?.anomalies?.length) {
-    for (let i = 0; i < Math.min(3, anomalies.anomalies.length); i++) {
-      const a = anomalies.anomalies[i];
+    const flexibleAnomalies = anomalies.anomalies.filter((a) => !isMandatoryCategory(a.categoryName));
+    for (let i = 0; i < Math.min(3, flexibleAnomalies.length); i++) {
+      const a = flexibleAnomalies[i];
       out.push({
         id: `log-anom-${i}-${a.categoryName}`,
         level: 'ANOMALY',

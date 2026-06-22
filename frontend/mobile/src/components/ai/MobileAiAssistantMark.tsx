@@ -2,10 +2,9 @@
  * Web FloatingChatbot ile uyumlu: Paper arka plan / yüzey, birincil renk halka ve bot çizgisi.
  */
 import { View, StyleSheet, type ViewStyle } from 'react-native';
-import { darkPaperTheme } from '../../theme/paperThemes';
+import { useTheme } from 'react-native-paper';
 import { LucideBotIcon } from './LucideBotIcon';
 
-const CHAT = darkPaperTheme.colors;
 const RING_BORDER = 'rgba(125, 211, 252, 0.12)';
 const FACE_BORDER = 'rgba(125, 211, 252, 0.22)';
 
@@ -53,9 +52,10 @@ function ConcentricRings({ innerSize }: { innerSize: number }) {
 }
 
 export function MobileAiAssistantMarkShell({ size, children, style }: ShellProps) {
+  const theme = useTheme();
   const { outer, rim } = SHELL[size];
   const inner = outer - rim * 2;
-  const primary = CHAT.primary;
+  const primary = theme.colors.primary;
 
   return (
     <View style={[styles.glow, { width: outer, height: outer, borderRadius: outer / 2, shadowColor: primary }, style]}>
@@ -67,7 +67,7 @@ export function MobileAiAssistantMarkShell({ size, children, style }: ShellProps
             height: outer,
             borderRadius: outer / 2,
             padding: rim,
-            backgroundColor: CHAT.background,
+            backgroundColor: theme.colors.background,
           },
         ]}
       >
@@ -79,7 +79,7 @@ export function MobileAiAssistantMarkShell({ size, children, style }: ShellProps
               height: inner,
               borderRadius: inner / 2,
               borderColor: FACE_BORDER,
-              backgroundColor: CHAT.surface,
+              backgroundColor: theme.colors.surface,
             },
           ]}
         >
@@ -92,10 +92,11 @@ export function MobileAiAssistantMarkShell({ size, children, style }: ShellProps
 }
 
 export function MobileAiAssistantMark({ size, style }: { size: MobileMarkSize; style?: ViewStyle }) {
+  const theme = useTheme();
   const icon = SHELL[size].icon;
   return (
     <MobileAiAssistantMarkShell size={size} style={style}>
-      <LucideBotIcon size={icon} color={CHAT.primary} />
+      <LucideBotIcon size={icon} color={theme.colors.primary} />
     </MobileAiAssistantMarkShell>
   );
 }

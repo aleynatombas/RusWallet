@@ -179,11 +179,7 @@ export function GoalHourglassSimulator({
                     </p>
                   ) : null}
 
-                  {forecastNextMonthSpending != null && forecastNextMonthSpending > 0 ? (
-                    <p className="text-[11px] leading-snug text-muted-foreground">
-                      Gelecek ay tahmin: <span className="font-semibold">{formatGoalAmountTry(forecastNextMonthSpending)}</span>
-                    </p>
-                  ) : null}
+
                 </div>
               </div>
             </div>

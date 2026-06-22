@@ -314,6 +314,9 @@ export function MobileTransactionsPanel({ onTransactionChange }: MobileTransacti
               styles.txAmt,
               { color: t.isIncome ? theme.colors.primary : theme.colors.error },
             ]}
+            numberOfLines={1}
+            adjustsFontSizeToFit
+            minimumFontScale={0.8}
           >
             {t.isIncome ? '+' : '−'}
             {t.amount.toLocaleString('tr-TR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} TL
@@ -415,9 +418,10 @@ export function MobileTransactionsPanel({ onTransactionChange }: MobileTransacti
         >
           <Card.Title
             title="Hızlı ekle"
-            subtitle="Kategoriyi listeden seçin; kayıt türünü Gelir veya Gider ile belirleyin."
+            subtitle="Kategori seçin, tutarı girin; Gelir veya Gider ile kaydedin."
             titleStyle={{ color: fg, fontSize: 18 }}
-            subtitleStyle={{ color: muted, fontSize: 13, lineHeight: 18 }}
+            subtitleStyle={{ color: muted, fontSize: 12, lineHeight: 17 }}
+            subtitleNumberOfLines={2}
           />
           <Card.Content style={[styles.quickInner, { overflow: 'visible' }]}>
             <View style={[styles.fieldCol, { overflow: 'visible', zIndex: categorySuggestOpen ? 20 : 0 }]}>
@@ -693,8 +697,8 @@ const styles = StyleSheet.create({
   txMain: { flex: 1, minWidth: 0, paddingRight: 4 },
   txDesc: { fontSize: 14, fontWeight: '600', lineHeight: 20 },
   txSub: { fontSize: 12, marginTop: 4, lineHeight: 16 },
-  txRight: { alignItems: 'flex-end', justifyContent: 'center', gap: 8, minWidth: 108 },
-  txAmt: { fontSize: 16, fontWeight: '600', fontVariant: ['tabular-nums'] },
+  txRight: { alignItems: 'flex-end', justifyContent: 'center', gap: 8, minWidth: 128, flexShrink: 0 },
+  txAmt: { fontSize: 14, fontWeight: '600', fontVariant: ['tabular-nums'], maxWidth: 128 },
   updateBtn: { alignSelf: 'flex-end', marginTop: 2 },
   quickCard: { borderRadius: 12, marginTop: 10, marginBottom: 8 },
   quickInner: { gap: 12, paddingTop: 0 },

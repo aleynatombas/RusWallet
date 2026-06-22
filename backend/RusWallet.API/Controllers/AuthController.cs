@@ -63,6 +63,45 @@ public class AuthController : ControllerBase
         }
     }
 
+    // ── Şifremi Unuttum — 2 adımlı OTP akışı ───────────────────────────────
+
+    /// <summary>E-postaya 6 haneli doğrulama kodu gönderir (15 dk geçerli).</summary>
+    [HttpPost("forgot-password")]
+    [AllowAnonymous]
+    public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordRequestDto dto)
+    {
+        if (dto == null)
+            return BadRequest(new { message = "İstek gövdesi gerekli." });
+        try
+        {
+            await _authService.ForgotPasswordAsync(dto);
+            // Her durumda aynı mesaj — e-posta numaralandırma saldırısını önler
+            return Ok(new { message = "Kayıtlı e-posta adresinize doğrulama kodu gönderildi." });
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
+    }
+
+    /// <summary>E-posta + OTP kodu + yeni şifre ile sıfırlama.</summary>
+    [HttpPost("reset-password")]
+    [AllowAnonymous]
+    public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordWithCodeRequestDto dto)
+    {
+        if (dto == null)
+            return BadRequest(new { message = "İstek gövdesi gerekli." });
+        try
+        {
+            await _authService.ResetPasswordWithCodeAsync(dto);
+            return Ok(new { message = "Şifreniz güncellendi. Giriş yapabilirsiniz." });
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
+    }
+
     /// <summary>Giriş yapan kullanıcının ad, soyad ve e-postasını günceller; yeni JWT döner.</summary>
     [HttpPut("profile")]
     [Authorize]

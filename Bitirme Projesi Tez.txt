@@ -1,0 +1,658 @@
+
+
+T. C.
+ÝSTANBUL GELÝÞÝM ÜNÝVERSÝTESÝ
+MÜHENDÝSLÝK VE MÝMARLIK FAKÜLTESÝ YAZILIM MÜHENDÝSLÝÐÝ BÝTÝRME PROJESÝ
+
+
+
+
+
+
+
+
+
+
+
+ÝSTANBUL GELÝÞÝM ÜNÝVERSÝTESÝ 
+MÜHENDÝSLÝK VE MÝMARLIK FAKÜLTESÝ 
+YAZILIM MÜHENDÝSLÝÐÝ BÖLÜMÜ
+
+AI Destekli Kiþisel Finans Yönetim Uygulamasý:
+RusWallet
+
+BÝTÝRME PROJESÝ II
+
+
+Hazýrlayan
+Aleyna TOMBAÞ
+
+Danýþman
+Dr. Öðr. Üyesi Gökçe KARACAYILMAZ
+Ýstanbul – 2026
+TEZ TANITIM FORMU 
+
+Yazar Adý Soyadý: Aleyna TOMBAÞTezin Dili:TürkçeTezin Adý: AI Destekli Kiþisel Finans Yönetim Uygulamasý: RusWalletFAKÜLTE: Mühendislik ve Mimarlýk FakültesiBÖLÜM: Yazýlým MühendisliðiTezin Türü: Bitirme Projesi TeziTezin Tarihi: 22.06.2026Sayfa Sayýsý: +50Tez Danýþmanlarý:Dr. Öðr. Üyesi Gökçe KARACAYILMAZDizin Terimleri:Türkçe Özet:
+
+	Ýmzasý
+
+Aleyna TOMBAÞ
+
+
+T. C.
+ÝSTANBUL GELÝÞÝM ÜNÝVERSÝTESÝ
+MÜHENDÝSLÝK VE MÝMARLIK FAKÜLTESÝ 
+
+
+
+YAZILIM MÜHENDÝSLÝÐÝ BÖLÜMÜ
+
+
+AI Destekli Kiþisel Finans Yönetim Uygulamasý: RusWallet
+
+BÝTÝRME PROJESÝ II
+
+
+Hazýrlayan
+Aleyna TOMBAÞ
+
+
+Danýþman
+Dr. Öðr. Üyesi Gökçe KARACAYILMAZ
+
+
+Ýstanbul – 2026
+BEYAN
+     Bu tezin hazýrlanmasýnda bilimsel ahlak kurallarýna uyulduðu, baþkalarýnýn eserlerinden yararlanýlmasý durumunda bilimsel normlara uygun olarak atýfta bulunulduðu, kullanýlan verilerde herhangi tahrifat yapýlmadýðýný, tezin herhangi bir kýsmýnýn bu üniversite veya baþka bir üniversitedeki baþka bir tez olarak sunulmadýðýný beyan ederim.
+
+Aleyna TOMBAÞ
+	22.06.2026
+
+
+
+Aleyna TOMBAÞ tarafýndan hazýrlanan “AI Destekli Kiþisel Finans Yönetim Uygulamasý: RusWallet” adlý tez çalýþmasý aþaðýdaki jüri tarafýndan OY BÝRLÝÐÝ / OY ÇOKLUÐU ile Ýstanbul Geliþim Üniversitesi Yazýlým Mühendisliði Bölümünde LÝSANS TEZÝ olarak kabul edilmiþtir.
+
+
+
+Danýþman: Dr. Öðr. Üyesi Gökçe KARACAYILMAZ
+
+Bu tezin, kapsam ve kalite olarak Lisans Tezi olduðunu 
+onaylýyorum/onaylamýyorum                                             ……………………………      
+
+
+Baþkan: 
+
+Bu tezin, kapsam ve kalite olarak Lisans Tezi olduðunu 
+onaylýyorum/onaylamýyorum                                               ……………………………
+
+
+Üye: 
+
+Bu tezin, kapsam ve kalite olarak Lisans Tezi olduðunu 
+onaylýyorum/onaylamýyorum                                               ……………………………
+
+
+Tez Savunma Tarihi:	
+
+
+ÖZET
+     Günümüzde finansal iþlem çeþitliliði, birden fazla banka hesabý kullanýmý gibi sebeplerden dolayý finansal yönetim zorlaþmýþtýr. Bu projede, özellikle genç kullanýcýlara gelir-gider dengesini saðlama konusunda destek olan ve harcama alýþkanlýklarýna göre öneriler sunan bir kiþisel finans uygulamasý geliþtirilmiþtir. Uygulama kullanýcýya finansal özetini sunar ve grafiksel olarak bu verileri gösterir. Kullanýcý gelir-gider bilgilerini güncelleyebilir. Sesle ekleme, fiþ ile ekleme gibi özelliklerle kolayca yeni harcama ekleyebilir. Harcama eklendiðinde açýklama kýsmýna girilen metne göre Transaction Categorization yapay zekâ modülü kullanýlarak kategorileþtirme iþlemi yapýlýr. Analiz ekranýnda Machine Learning (ML) yapay zekâ modülü kullanýlarak finansal veriler analiz edilir. Analiz edilen veriler grafiksel olarak gösterilir. Predictive Analytics yapay zekâ modülü kullanýlarak gelecek ayýn harcama tahminleri yapýlýr ve bu tahminlere göre kullanýcýya kiþisel tasarruf önerileri sunulur. Chatbot özelliðinde doðal dil iþleme (NLP) ile kullanýcýya hazýr sorular sunularak kiþisel finansal durumu hakkýnda bilgi alma ve kiþisel tasarruf önerisi desteði saðlanýr. Uygulama .NET Core (ASP.NET Core) tabanlý backend mimarisi ve React tabanlý front end arayüzü ile geliþtirilmiþtir. Veritabaný kýsmýnda Microsoft SQL Server kullanýlmýþtýr. Güvenlik açýðý oluþmamasý amacýyla kullanýcý verileri þifrelenerek veritabanýna kaydedilmiþtir.
+Anahtar Kelimeler: Kiþisel Finans Yönetimi, Yapay Zekâ, Makine Öðrenmesi, Ýþlem Kategorizasyonu, Tahminleyici Analiz, Doðal Dil Ýþleme, .NET Core, React
+SUMMARY
+Nowadays, financial management has become increasingly difficult due to reasons such as the diversity of financial transactions and the use of multiple bank accounts. In this study, a personal finance application has been developed to support especially young users in maintaining an income-expense balance and to provide recommendations based on their spending habits. The application presents a financial summary to the user and visualizes this data graphically. Users can update their income-expense information and add new transactions. When an expense is added, categorization is performed through the "Transaction Categorization" artificial intelligence module based on the text entered in the description field. On the analysis screen, financial data is analyzed using a Machine Learning (ML) AI module, and the analyzed data is displayed graphically. Future spending predictions for the upcoming month are generated using a "Predictive Analytics" AI module, and personalized savings recommendations are provided to the user based on these forecasts. Through the Chatbot feature powered by Natural Language Processing (NLP), users are presented with pre-defined questions to obtain information about their personal financial status and receive customized savings advice.
+
+The application is developed with a .NET Core (ASP.NET Core) based backend architecture and a React-based frontend interface. Microsoft SQL Server is utilized on the database side. To prevent security vulnerabilities, user data is stored in the database in an encrypted format.
+Keywords: Personal Finance Management, Artificial Intelligence, Machine Learning, Transaction Categorization, Predictive Analytics, Natural Language Processing, .NET Core, React
+ÝÇÝNDEKÝLER
+ÖZET	i
+SUMMARY	ii
+ÝÇÝNDEKÝLER	iii
+KISALTMALAR	v
+TABLOLAR LÝSTESÝ	vi
+ÞEKÝLLER LÝSTESÝ	vii
+ÖNSÖZ	viii
+BÝRÝNCÝ BÖLÜM
+TEZÝN ÞEKÝL ÖZELLÝKLERÝ
+1.1.	Kâðýt Özellikleri ve Baský	2
+1.2.	Yazý Karakteri	2
+1.3.	Bölüm Baþlýk ve Alt Baþlýklar	3
+1.4.	Sayfa Düzeni ve Numaralandýrma	4
+1.5.	Paragraf Yapýsý Ve Satýr Aralýðý	5
+1.6.	Tablo ve Þekiller	6
+1.6.1.	Tablolar	6
+1.6.2.	Þekiller	6
+1.8.	Kýsaltmalar	8
+1.9.	Anlatým Biçimi	8
+ÝKÝNCÝ BÖLÜM
+KAYNAK GÖSTERME KURALLARI
+2.1.	Metin Ýçi Göndermeler	9
+2.1.1.	Tek yazarlý çalýþmalar	9
+2.1.2.	Ýki ve/veya daha fazla yazarlý çalýþmalar	9
+2.1.3.	Tüzel kiþili çalýþmalar	9
+2.1.4.	Yazarý belli olmayan anonim çalýþmalar	10
+2.1.5.	Ayný parantez içerisinde birden çok gönderme yapýlmasý	10
+2.1.6.	Ýkincil kaynaklar	10
+2.1.7.	Klasik eserle	10
+2.1.8.	Kiþisel iletiþim	10
+2.2.	Kaynakça Oluþturma Kurallarý	11
+2.2.1.	Kaynakça düzeni	12
+
+
+ÜÇÜNCÜ BÖLÜM
+TEZÝN KISIMLARI
+3.1.	Sýralama	16
+3.2.	Dýþ Kapak	17
+3.3.	Ýç Kapak	17
+3.4.	Jüri Üyelerinin Kabul ve Onay Sayfasý	17
+3.5.	Özet Sayfalarý	18
+3.6.	Ýçindekiler Sayfasý	18
+3.7.	Kýsaltmalar	18
+3.8.	Tablo, Harita, Grafik, Þekil Ve Resim Listeleri	18
+3.9.	Önsöz	19
+3.10.	Metin Kýsmý	19
+3.10.1.	Bölümler	19
+3.10.2.	Sonuç ve Öneriler	20
+3.12.	Kaynakça	20
+DÖRDÜNCÜ BÖLÜM 
+SONUÇ VE ÖNERÝLER
+4.1.	Genel Deðerlendirme	20
+KAYNAKÇA	22
+EKLER	24
+ÖZGEÇMÝÞ	25
+
+
+KISALTMALAR
+API	:	Application Programming Interface
+CNN	:	Convolutional Neural Network
+DRF	:	Django REST Framework
+E2EE	:	End-to-End Encryption
+IoT	:	Internet of Things
+JSON	:	JavaScript Object Notation
+JWT	:	JSON Web Token
+NaCl	:	Networking and Cryptography library
+RESTful API	:	Representational State Transfer Application Programming Interface
+SMS	:	Short Message Service
+T.C.	:	Türkiye Cumhuriyeti
+UX	:	User Experience
+YZ	:	Yapay Zekâ
+
+
+TABLOLAR LÝSTESÝ
+Tablo 1.1. Paragraf Yapýsý Ayarlarý	5
+Tablo 1.2. Westerlund panel eþ-bütünleþme testi sonuçlarý	6
+Tablo 3.1. Tez kýsýmlarýnýn sýralamasý	16
+
+
+ÞEKÝLLER LÝSTESÝ
+Þekil 1.1. MS Word’ün “Ekle” menüsünden “Denklem”	3
+Þekil 1.2. Word sayfa yapýsý	4
+Þekil 1.3. Word paragraf yapýsý	5
+Þekil 2.1. Kaynakça listesi paragraf ayarlarý	12
+Þekil 2.2. Word "Giriþ" ekmesi sýralama	12
+
+
+
+ÖNSÖZ
+     Bu tez çalýþmasýnda günümüzde bireysel finans yönetiminin doðru bir þekilde yapýlmasý, özellikle genç bireylerin finansal okuryazarlýðýn arttýrýlmasý ve kiþisel ekonomik dengenin daha basit korunmasý amaçlanmýþtýr. Bu amaçla hazýrlanan bitirme projesi kapsamýnda kullanýcýlarýn bütçe takibini kolaylaþtýran, harcamalarýný kontrol eden ve yapay zekâ desteðiyle finansal analizler sunan .Net Core ve React tabanlý “RusWallet” uygulamasý geliþtirilmiþtir. Projenin geliþtirilmesi süresince, lisans eðitimi boyunca edinilen teorik ve teknik bilgilerin bir ürüne dönüþtürülmesi, modern yazýlým mimarilerinin uygulanmasý deneyimlenmiþtir.
+     Bu çalýþmanýn planlanmasýndan tamamlanmasýna kadar geçen tüm süreçte, akademik bilgi birikimi ve yapýcý yönlendirmeleriyle çalýþmaya destek olan kýymetli danýþman hocam Dr. Öðr. Üyesi Gökçe KARACAYILMAZ’ a en içten teþekkürlerimi sunarým.
+                                                                                                       Aleyna TOMBAÞ
+     
+
+
+
+
+
+        Birinci bölüm 
+     1.1 Giriþ
+     Günümüzde finansal iþlem çeþitliliði ve birden fazla banka hesabý kullanýmý gibi sebeplerden dolayý finansal yönetim zorlaþmýþtýr. Bu çalýþmada, özellikle genç kullanýcýlara gelir ve gider dengesini saðlama konusunda destek olan ve harcama alýþkanlýklarýna göre öneriler sunan bir kiþisel finans uygulamasý geliþtirilmiþtir. Uygulama kullanýldýkça finansal yönetim kolaylaþacak ve ay sonunda “Bu para nereye gitti?” sorusu azalacaktýr. Ýnsanlarýn finansal stresinin azaltýlmasý amaçlanmýþtýr.
+     Bu çalýþma hem web üzerinden hem de mobil uygulama olarak kullanýlabilecektir. Proje kapsamýnda kullanýcýlar gelir ve gider iþlemlerini grafikler sayesinde kolayca takip edebilir, harcamalarý otomatik kategorilendirilir ve geçmiþ verilerine göre geleceðe dair harcama tahminleri sunulabilir. Ayrýca chatbot özelliði sayesinde hazýr sorular üzerinden anlýk yanýtlar alýnabilir. Bunun yanýnda fiþ okuma (OCR) özelliði ile kullanýcýlar fiþ görsellerinden iþlem bilgilerini otomatik çýkararak gelir-gider kayýtlarýný daha hýzlý oluþturabilir.
+     Literatürdeki çalýþmalarda genelde veri güvenliði, finansal analiz ve kiþiye özel öneriler sunulmasý üzerinde durulmuþtur. Bazý çalýþmalarda makine öðrenmesi ile analizler kullanýlýrken, bazý araþtýrmalarda gelir-gider takibi ve raporlama süreçlerinin dijitalleþtirilmesine odaklanýlmýþtýr. Ancak bu projede, veri güvenliði, yapay zekâ destekli analizler, otomatik iþlem kategorilendirme, fiþ okuma, sesle gelir ve gider ekleme gibi özelliklerin tek uygulama içerisinde bulunmasý amaçlanmýþtýr. Bu yönüyle, kullanýcýlarýn finansal verilerini daha kolay bir þekilde yönetebileceði bir uygulama hedeflenmiþtir.
+     1.2 Problem Tanýmý
+     Bireysel finans yönetiminde karþýlaþýlan temel problemlerden biri, kullanýcýlarýn gelir ve gider kayýtlarýný düzenli olarak tutamamasýdýr.Mevcut finans uygulamalarýnýn büyük bir kýsmý yalnýzca kayýt tutma iþlevi sunmakta, kullanýcýlara detaylý analizler ve kiþiselleþtirilmiþ öneriler saðlayamamaktadýr. Ayrýca birçok sistemde harcamalarýn manuel olarak kategorilendirilmesi gerekmekte ve bu durum kullanýcý deneyimini olumsuz etkilemektedir.
+     Finansal verilerin artmasýyla birlikte kullanýcýlarýn bu verileri anlamlandýrmasý ve geleceðe yönelik bütçe planlamasý yapmasý da zorlaþmaktadýr. Bu nedenle finansal verileri analiz edebilen, harcamalarý otomatik kategorilendirebilen, tahminleme yapabilen ve kullanýcýlarla doðal dilde iletiþim kurabilen yapay zekâ destekli sistemlere ihtiyaç duyulmaktadýr.
+     1.3 Projenin Amacý
+     Bu projenin temel amacý, kullanýcýlarýn finansal durumlarýný daha etkin þekilde yönetebilmelerini saðlayan yapay zekâ destekli bir kiþisel finans yönetim uygulamasý geliþtirmektir.
+     Geliþtirilen sistem ile kullanýcýlarýn gelir ve gider kayýtlarýný tutabilmesi, harcamalarýný analiz edebilmesi, geleceðe yönelik harcama tahminleri elde edebilmesi ve finansal konularda yapay zekâ destekli öneriler alabilmesi hedeflenmiþtir. Ayrýca OCR teknolojisi kullanýlarak fiþlerden otomatik veri çýkarýlmasý ve manuel veri giriþ yükünün azaltýlmasý amaçlanmýþtýr.
+     1.4 Projenin Kapsamý
+     Geliþtirilen uygulama web ve mobil platformlarda çalýþabilecek þekilde tasarlanmýþtýr. Sistem kapsamýnda aþaðýdaki özellikler yer almaktadýr:
+* Kullanýcý kayýt ve giriþ iþlemleri
+* Gelir ve gider yönetimi
+* Otomatik iþlem kategorilendirme
+* Finansal analiz ve grafikselleþtirme 
+* Harcama tahmini ve bütçe planlama
+* Yapay zekâ destekli chatbot
+* OCR tabanlý fiþ okuma sistemi
+* Güvenli veri saklama ve kullanýcý doðrulama iþlemleri
+     Frontend katmanýnda React ve React Native teknolojileri, backend katmanýnda ASP.NET Core, veri tabaný katmanýnda Microsoft SQL Server kullanýlmýþtýr. Yapay zekâ bileþenlerinde OpenAI API, ML.NET ve OCR teknolojilerinden yararlanýlmýþtýr.
+     
+     1.5 Literatür Taramasý
+     Bu bölümde, kiþisel finans yönetimi ve yapay zekâ destekli finansal planlama alanýnda yapýlan çalýþmalar incelenmiþtir ve çalýþmalarýn bu proje ile ortak noktalarý ele alýnmýþtýr. [1] Talasila, S. D. (2024) AI-Driven Personal Finance Management: Revolutionizing Budgeting and Financial Planning çalýþmasýnda, yapay zekâ destekli bir kiþisel finans yönetim sistemi geliþtirilmiþ; sistem kullanýcý verilerini þifreleyerek koruyor ve makine öðrenmesi algoritmalarýyla finansal analizler yapýp kiþiye özel tavsiyeler sunuyor. Bu çalýþma, mevcut proje ile benzer özellikler taþýyor çünkü proje de veri güvenliði ve AI temelli kiþisel öneriler sunmayý amaçlýyor. [2] Subasri, N., vd. (2025) AI Powered Personal Finance Management System çalýþmasýnda harcama takibi ve bütçe önerileri otomatik olarak saðlanýyor. Mevcut projeyle benzerliði ML temelli analizlerin kullanýcýya kiþiselleþtirilmiþ finansal öneriler sunmasýndadýr. Ayrýca her iki sistem de kullanýcý farkýndalýðýný artýrmayý hedefliyor.[3] Zelani, F. H., vd. (2024) Financial Application for the STMIK Mardira Indonesia Educational Institution çalýþmasý, eðitim kurumlarýnýn finansal yönetimini dijitalleþtirmeye odaklanmýþ. Bu baðlamda, gelir-gider takibi ve raporlama özellikleriyle mevcut projeye ilham verecek bir bakýþ açýsý sunuyor.[4] Wong, C. K. ve Salleh, M. N. (2023) Personal Finance and Budgeting Mobile Application “CashSave” çalýþmasýnda, kullanýcýlarýn gelir ve giderlerini kaydederek bütçelerini planlamalarýný saðlayan bir mobil uygulama geliþtirilmiþ. Bu çalýþmanýn proje ile iliþkisi, harcamalarýn görselleþtirilmesi ve kiþiye özel öneriler sunma yaklaþýmýnýn benzer olmasýdýr.[5] Miji?, M. ve ?ebi?, B. (2023) Mobile Applications for Personal Finance Management: Technology Acceptance Perspective çalýþmasý, kiþisel finans uygulamalarýnýn kullanýcýlar tarafýndan benimsenme düzeylerini analiz ediyor. Proje ile baðlantýsý, kullanýcý deneyimini ön planda tutarak finansal farkýndalýðý artýrmayý hedeflemesidir.[6] Gorai, S. K. ve Maurya, A. (2023) Artificial Intelligence in Personal Finance Management: Opportunities and Challenges çalýþmasýnda, AI’nin finans yönetiminde saðladýðý verimlilik avantajlarý, kiþiselleþtirme ve etik konular ele alýnmýþ. Bu çalýþmanýn projeye katkýsý, kullanýcýya özel finansal analizler ve otomatik tavsiye mekanizmalarý sunmasýdýr.[7] Agarwal, V., vd. (2024) An AI-Powered Personal Finance Assistant: Enhancing Financial Literacy and Management çalýþmasýnda, harcama takibi, kiþiselleþtirilmiþ bütçeleme ve yatýrým önerilerini saðlayan bir AI asistaný geliþtirilmiþ. Proje ile benzerliði, kullanýcýlarýn finansal farkýndalýðýný artýrmak için AI temelli analizleri kullanmasýdýr.[8] Nayak, M. ve Jayakumar, K. (2024) An AI-Powered Mobile Application for Intelligent Personal Finance Management and Decision Support çalýþmasý, harcama tahmini ve bütçe optimizasyonu gibi karar destek özellikleri sunuyor. Bu çalýþmanýn projeyle iliþkisi, güvenli ve kiþiselleþtirilmiþ AI analizlerinin finansal karar süreçlerinde kullanýlmasýdýr.[9] Bashshar, S. A., vd. (2025) Artificial Intelligence-Driven Personal Finance Solution çalýþmasýnda, NLP teknikleriyle harcama kategorilendirme ve zaman serisi tahminleri yapýlmýþ. Mevcut proje ile baðlantýsý, AI temelli öngörücü analizler ve finansal farkýndalýk yaratma stratejileridir.[10] Wah, J. N. K. (2025) AI-Powered Wealth Management: Transforming Financial Literacy, Personalized Investments, and Risk Assessment çalýþmasý, AI tabanlý robo-danýþmanlarla kiþiselleþtirilmiþ finansal karar destek sistemlerini inceliyor. Bu, mevcut proje ile paralel çünkü kiþiselleþtirilmiþ finansal öneriler ve risk deðerlendirmesi ön plana çýkarýlmýþ.[11] Pawar, S., vd. (2024) ExpenseXpert: Transforming Financial Management with AI-Driven Predictive Analytics and Efficient Tracking çalýþmasýnda, harcama takibi ve öngörücü analizler yapabilen bir sistem geliþtirilmiþ. Bu çalýþma, yapay zekâ destekli bütçe ve tahmin sistemlerinin kullanýcýya nasýl fayda saðladýðýný göstermesi açýsýndan proje ile iliþkilidir.[12] Pande, A. D., vd. (2025) AI-Powered Loan Approval Prediction and Smart Finance Management System Using Machine Learning çalýþmasýnda, kredi tahmin sistemi ve akýllý finans araçlarý bir araya getirilmiþ. Bu, mevcut proje ile paralel çünkü kullanýcýya finansal verilerini daha bilinçli yönetme imkâný sunuyor.[13] Olaiya, O. P., vd. (2024) Encryption techniques for financial data security in fintech applications çalýþmasý, finansal verilerin simetrik, asimetrik ve hibrit þifreleme yöntemleriyle korunmasýný inceliyor. Mevcut projeyle iliþkisi, veri güvenliði ve þifreleme uygulamalarý baðlamýnda önem taþýyor.[14] Raihan, A. (2024) Financial Technology Optimization Using AI to Accomplish SDGs çalýþmasý, AI destekli FinTech çözümlerinin sürdürülebilir kalkýnmaya etkilerini ele alýyor. Proje ile iliþkisi, AI destekli finansal sistemlerin hem bireysel hem toplumsal fayda saðlayabileceðini göstermesidir.[15] Gupta, S. ve Rao, V. S. (2024) AI in Behavioral Finance: Understanding Investor Bias Through Machine Learning çalýþmasý, yatýrýmcý davranýþlarýný makine öðrenmesi ile analiz etmiþ. Mevcut projeyle paralellik, kullanýcý davranýþlarýnýn modellenerek daha bilinçli finansal öneriler sunulmasýdýr.[16] Adhikari, P., vd. (2024) The impact of AI on personal finance and wealth management in the U.S. çalýþmasý, AI araçlarýnýn bireylerin tasarruf ve finansal karar süreçlerine etkisini incelemiþ. Proje ile iliþkisi, kullanýcý odaklý ve akýllý finans yönetimi yaklaþýmýný desteklemesidir.[17] Ahmad Khairi, P. K. J. ve Yasin, S. M. (2024) AstroWealth: Personal Finance Management Web Application çalýþmasýnda, üniversite öðrencilerine yönelik web tabanlý bir finans yönetim sistemi geliþtirilmiþ. Bu çalýþmanýn mevcut proje ile iliþkisi, web tabanlý yönetim yaklaþýmýný benimsemesi ve modüler bir yapýnýn saðlanmasýdýr.[18] Ravalji, V. Y. ve Prasad, M. S. (2024) Secure and Scalable .NET Core-Based APIs for Financial Transaction Processing Systems çalýþmasý, ASP.NET Core ve Entity Framework Core kullanýlarak geliþtirilmiþ güvenli ve ölçeklenebilir API’leri ele alýyor. Mevcut proje ile baðlantýsý, backend mimarisi ve güvenli veri iþleme açýsýndan örnek teþkil etmesidir.[19] Antoniuk, vd. (2021) Using a Business Simulator with Elements of Machine Learning to Develop Personal Finance Management Skills çalýþmasýnda, ML bileþenleri içeren web tabanlý bir iþ simülatörü ile finansal beceriler geliþtirilmiþ. Bu, mevcut proje ile paralellik taþýyor çünkü etkileþimli sistemlerle kullanýcýlarýn finansal farkýndalýk kazanmasýný saðlýyor.[20] Solomon (2024) Optimizing Full-Stack Development for Fintech Applications çalýþmasý, kullanýcý deneyimi ve backend performansýnýn birlikte optimize edilmesinin önemini vurguluyor. Mevcut proje ile iliþkisi, web tabanlý finansal uygulamalarda performans ve kullanýcý deneyiminin dengeli biçimde ele alýnmasýdýr.[21] Antoniuk, vd. (2024) Enhancing Personal Financial Management Skills through a Machine Learning-Powered Business Simulator çalýþmasý, ML destekli simülatör ile kullanýcýlarýn finansal farkýndalýðýný artýrmayý hedeflemiþ. Mevcut proje ile iliþkisi, AI tabanlý analizler ve web tabanlý uygulamalar aracýlýðýyla karar destek mekanizmalarýný güçlendirmesidir.[22] Pothumsetty (2020) Implementation of Artificial Intelligence and Machine Learning in Financial Services çalýþmasý, AI ve ML’nin finansal hizmetlerde risk analizi, kredi deðerlendirme ve karar destek süreçlerinde kullanýmýný incelemiþ. Mevcut projeyle paralellik, AI destekli otomasyon ve finansal analiz yöntemlerinin uygulanmasýdýr.[23] Bako (2025) Effects of AI-Driven Financial Literacy Chatbot on Financial Management Skills of Home Economics Students çalýþmasýnda, AI tabanlý chatbot kullanýmýyla öðrencilerin finansal becerileri geliþtirilmiþ. Mevcut proje ile iliþkisi, yapay zekâ destekli araçlarýn finansal farkýndalýðý artýrma ve karar destek süreçlerine katkýsýdýr.[24] Islam, vd. (2024) The Role of AI in Strengthening Data Privacy for Cloud Banking çalýþmasý, AI tabanlý tekniklerle veri gizliliði ve güvenliðinin artýrýlmasýný incelemiþ. Proje ile benzerliði, finansal verilerin þifrelenerek güvenli bir þekilde saklanmasý ve veri gizliliðine öncelik verilmesidir.[25] Aro (2024) Predictive Analytics in Financial Management: Enhancing Decision-Making and Risk Management çalýþmasý, predictive analytics kullanarak bütçeleme ve finansal planlamada geleceðe yönelik tahminler yapmayý ele almýþ. Bu yönüyle çalýþma, projede kullanýlan harcama tahmini yaklaþýmýný desteklemektedir.
+     Ýncelenen çalýþmalarda yapay zekâ destekli kiþisel finans yönetimi, harcama takibi ve bütçeleme konularýna odaklanýldýðý görülmektedir. Ancak bu çalýþmalarda harcama analizi, gelecek tahmini ve veri güvenliði gibi özellikler birlikte ele alýnmamýþ ve her biri farklý çalýþmalarda yapýlmýþtýr.
+Bu proje kapsamýnda ise yapay zekâ destekli analizler, harcama tahminleri ve güvenli veri yönetimi, web ve mobil platformlarda çalýþmasý gibi birçok özellik tek bir sistem içerisinde bir araya getirilmiþtir. Ayrýca kullanýcýlarýn finansal verilerini daha kolay takip edebilmesi için basit bir arayüz ve yapay zekâ destekli özellikler eklenmiþtir. Bu yönüyle çalýþma, mevcut uygulamalara göre daha çeþitli özelliklere sahip bir kiþisel finans yönetim uygulamasý sunmaktadýr.
+
+        Ýkinci bölüm 
+ 2.1 Sistem Mimarisi
+     Bu çalýþmada kiþisel finans yönetim uygulamasý; kullanýcý giriþ ve kayýt iþlemleri, manuel gelir ve harcama ekleme, harcamalarýn otomatik olarak kategorilendirilmesi, finansal analiz, gelecek aya yönelik harcama tahmini, doðal dil iþleme kullanýlarak hýzlý bilgi ve kiþisel tasarruf önerileri sunan chatbot ile kullanýcýlarýn tasarruf hedefi belirleyebilmesi gibi bileþenlerden oluþmaktadýr.
+     Kullanýcýlar uygulamaya giriþ yaptýktan sonra ana sayfa üzerinden bütçe özetlerini ve genel finansal durumlarýný inceleyebilmektedir. Kullanýcý tarafýndan eklenen gelir ve harcama bilgileri sistem tarafýndan kaydedilmekte, harcama açýklamalarý yapay zekâ tabanlý Transaction Categorization modülü aracýlýðýyla otomatik olarak kategorilere ayrýlmaktadýr.
+     Analiz ekranýnda, kullanýcýnýn geçmiþ finansal verileri makine öðrenmesi yöntemleri kullanýlarak analiz edilmektedir ve elde edilen sonuçlar grafikler aracýlýðýyla kullanýcýya sunulmaktadýr. Bunun yaný sýra Predictive Analytics modülü, geçmiþ harcama verilerini inceleyerek bir sonraki aya yönelik harcama tahminleri üretmekte ve bu tahminlere baðlý olarak tasarruf önerileri sunmaktadýr.
+     Uygulamada yer alan chatbot bileþeni, doðal dil iþleme (NLP) teknikleri kullanýlarak geliþtirilmiþ olup kullanýcýlarýn finansal durumlarý hakkýnda hýzlý bilgi almasýna ve kiþisel öneriler elde etmesine yardýmcý olmaktadýr.
+     Fiþ okuma (OCR) bileþeni ile kullanýcýlar fiþ görsellerini sisteme yükleyebilmektedir. Yüklenen görsellerden çýkarýlan metinler üzerinden tutar, tarih ve açýklama gibi iþlem bilgileri otomatik olarak algýlar ve gelir-gider kayýt sürecini hýzlandýracak þekilde kullanýcýya sunulmaktadýr.
+     Sistem; frontend katmanýnda React, backend katmanýnda .NET Core API ve veri tabaný katmanýnda MSSQL kullanýlarak geliþtirilmiþtir. Kullanýcýlara ait finansal veriler güvenlik amacýyla þifrelenerek saklanmaktadýr. Uygulamanýn genel iþleyiþi, sistem akýþ diyagramýnda özetlenmiþtir
+     
+     
+     [ÞEKÝL 2.2 Sistem Veri Akýþ Diyagramý Eklenecek]
+
+     2.2 Frontend Katmaný
+     Bu projede frontend katmaný hem web hem de mobil platformlarda çalýþacak þekilde tasarlanmýþtýr. Web tarafýnda React, mobil tarafýnda React Native teknolojileri kullanýlmýþtýr. Frontend yapýsý component tabanlý mimari kullanýlarak geliþtirilmiþtir. Bu mimaride, uygulamadaki her ekran ve iþlevsel yapý baðýmsýz bir component olarak ele alýnmaktadýr. Böylece her bir bileþen belirli bir görevi yerine getirmekte ve uygulamanýn yönetimi daha kolay hale gelmektedir. Frontend katmaný, API üzerinden alýnan finansal verileri görsel olarak kullanýcýya sunan bir yapýya sahiptir. Oluþturulan Frontend Component Diyagramý hem web hem de mobil arayüzün temel bileþenlerini ve bu sistemle olan etkileþimlerini göstermektedir.
+     Web arayüzü tarafýnda AuthComponent, kullanýcý giriþ ve kayýt iþlemlerinin gerçekleþtirildiði arayüzdür. DashboardComponent, anasayfada bütçe kartlarýný ve finansal verilerin grafiklerini sunar. TransactionFormComponent, kullanýcýlarýn harcama ve gelir ekleyebildikleri form bileþenidir. AnalysisComponent, tarih filtresi kullanýlarak finansal verilerin grafiksel analizlerini saðlar. ChatbotComponent ise kullanýcýlarýn AI tabanlý finansal chatbot ile iletiþim kurduðu bileþendir. Buna ek olarak Receipt bileþeni ile kullanýcýlar fiþ görseli yükleyebilmekte, OCR sonucunda elde edilen iþlem bilgileri form alanlarýna otomatik olarak aktarýlabilmektedir.
+Mobil tarafta ise ayný mimari React Native bileþenleri ile uygulanmýþtýr. MobileAuthComponent, MobileDashboardComponent, MobileTransactionFormComponent, MobileAnalysisComponent ve MobileChatbotComponent bileþenleri web tarafýndaki iþlevlerin mobil arayüze uyarlanmýþ versiyonlarýný temsil eder. MobileReceiptComponent ile fiþ görseli mobil cihazdan alýnarak OCR iþlemine gönderilmekte ve elde edilen veriler gelir-gider ekleme akýþýnda kullanýlmaktadýr. Her iki platformda da bileþenler kullanýcýlarýn benzer bir deneyim yaþamasý hedeflenerek paralel bir yapýda tasarlanmýþtýr.
+     Tüm web ve mobil bileþenleri sistem ile iletiþimi ortak bir backend üzerinden yürütülmektedir. Diyagramda alt bölümde gösterilen API Interface, frontend bileþenlerinin backend katmanýnda gerçekleþtirdiði HTTP isteklerini temsil etmektedir. Kullanýcý doðrulama, yeni gelir/gider ekleme, finansal veri grafikselleþtirme, chatbot iletiþimleri ve fiþ okuma iþlemleri gibi süreçler ilgili componentlerden API Interface’e yönlendirilmekte ve .NET Core API tarafýndan iþlenmektedir.
+     
+     
+     
+     2.2.1 Giriþ Yap Sayfasý
+     Giriþ Yap ekraný, kullanýcýlarýn sisteme güvenli bir þekilde eriþebilmesi amacýyla geliþtirilmiþtir. Kullanýcýlar e-posta ve þifre bilgilerini kullanarak hem web hem de mobil uygulama üzerinden kimlik doðrulama iþlemlerini gerçekleþtirebilmektedir. Baþarýlý giriþ sonrasýnda kullanýcýlar uygulamanýn ana sayfasýna yönlendirilmektedir. Web ve mobil platformlarda benzer arayüzler sunulmuþ olup kullanýcý deneyiminin tutarlý olmasý hedeflenmiþtir.
+
+
+     
+     2.2.2 Kayýt Ol Sayfasý
+     Kayýt Ol ekraný, yeni kullanýcýlarýn sisteme hesap oluþturabilmesi amacýyla geliþtirilmiþtir. Kullanýcýdan alýnan bilgiler doðrulandýktan sonra backend katmanýna iletilmekte ve veri tabanýna kaydedilmektedir. Bu ekran hem web hem de mobil uygulama üzerinde yer almakta olup kullanýcýlarýn farklý platformlardan sisteme katýlýmýný saðlamaktadýr. 
+     
+2.2.3 Þifremi Unuttum Sayfasý
+Þifremi Unuttum ekraný, kullanýcýlarýn hesaplarýna tekrar eriþebilmelerini saðlamak amacýyla geliþtirilmiþtir. Kullanýcýlar kayýtlý e-posta adreslerini kullanarak þifre sýfýrlama iþlemlerini gerçekleþtirebilmektedir. Bu özellik hem web hem de mobil platformlarda desteklenmektedir.
+      
+     
+     2.2.4 Onboarding (Seni Tanýyalým)
+     Onboarding ekraný, kullanýcýlarýn sisteme ilk giriþlerinde temel finansal bilgilerinin alýnmasý amacýyla tasarlanmýþtýr. Kullanýcýnýn gelir durumu, finansal hedefleri ve sabit giderleri gibi bilgiler toplanarak kiþiselleþtirilmiþ bir deneyim oluþturulmasý hedeflenmiþtir. Bu yapý hem web hem de mobil uygulamada benzer þekilde uygulanmýþtýr.
+
+
+     2.2.5 Anasayfa
+     Anasayfa ekraný, kullanýcýlarýn finansal durumlarýný genel olarak özetini görüntüleyebildikleri ana kontrol panelidir. Bu ay, son 3 ay, son 6 ay, tümü gibi zaman dilimleri seçilerek toplam gelir, toplam gider, bütçe durumu ve finansal özet bilgileri bu ekranda sunulmaktadýr. Ayrýca grafikler ve çeþitli finansal göstergeler kullanýlarak kullanýcýlarýn verilerini daha kolay yorumlayabilmesi ve hýzlýca ai özelliklerini kullanabilmeleri saðlanmýþtýr. Web ve mobil uygulamalarda ayný veriler farklý ekran boyutlarýna uygun þekilde gösterilmektedir.
+
+
+     2.2.6 Ýþlemlerim Sayfasý
+Ýþlemlerim ekraný, kullanýcýlarýn gelir ve gider kayýtlarýný yönetebildikleri bölümdür. Kullanýcýlar hýzlýca yeni iþlem ekleyebilmekte, mevcut iþlemleri güncelleyebilmekte ve silebilmektedir. Tüm iþlemler merkezi veri tabanýnda saklanmakta ve hem web hem de mobil uygulama üzerinden senkronize þekilde görüntülenebilmektedir.
+
+     
+     2.2.7 Analizlerim Sayfasý
+Analizlerim ekraný, kullanýcýlarýn finansal verilerini grafiksel ve istatistiksel olarak inceleyebilmelerine olanak saðlamaktadýr. Gelir-gider daðýlýmlarý, kategori bazlý harcamalar ve belirli tarih aralýklarýna ait analizler bu ekran üzerinde gösterilmektedir. Ayrýca yapay zekâ destekli analiz sonuçlarý da kullanýcýlara sunulmaktadýr. 
+
+ 
+2.2.8 Ayarlarým Sayfasý
+Ayarlar ekraný, kullanýcýlarýn hesap bilgilerini ve uygulama tercihlerini yönetebildikleri bölümdür. Profil bilgileri güncellenebilmekte ve þifre güncellenebilmektedir. Bu iþlevler hem web hem de mobil uygulamalarda sunulmaktadýr.
+
+
+     
+     2.2.9 Chatbot Bileþeni
+Chatbot bileþeni, kullanýcýlarýn finansal konularda yapay zekâ desteði alabilmesi amacýyla geliþtirilmiþtir. Kullanýcýlar doðal dil kullanarak finansal sorular sorabilmekte ve sistem tarafýndan üretilen cevaplarý görüntüleyebilmektedir. Chatbot özelliði hem web hem de mobil uygulamalarda kullanýlabilmektedir.
+
+
+     
+     2.2.10 OCR (Fiþ Okuma) Bileþeni
+OCR modülü, kullanýcýlarýn fiþ görsellerini sisteme yükleyerek otomatik olarak gelir/gider eklemelerini saðlamaktadýr. Web uygulamasýnda dosya yükleme yöntemi kullanýlýrken, mobil uygulamada cihaz kamerasý veya galeri üzerinden görsel seçimi yapýlabilmektedir. 
+     [ÞEKÝL 2.12 OCR Ekraný Eklenecek]
+
+     2.3 Backend Katmaný
+Bu projede kullanýcýlarýn gelir ve giderlerini güvenli þekilde yönetilebilmesi için katmanlý bir backend yapýsý tercih edilmiþtir. Backend geliþtirme sürecinde ASP.NET Core kullanýlmýþtýr ve sistem; Controller, Service, Repository, Data Access ve Security katmanlarýndan oluþacak þekilde tasarlanmýþtýr. Bu yapý sayesinde kodun daha düzenli, okunabilir ve yönetilebilir olmasý amaçlanmýþtýr.
+     Oluþturulan backend mimarisi diyagramýnda, katmanlar arasý iliþki ve veri akýþý yukarýdan aþaðýya olacak þekilde gösterilmiþtir. Bu diyagram, backend tarafýnda kullanýlan katmanlý mimariyi görsel olarak ifade etmek amacýyla hazýrlanmýþtýr.
+     2.3.1 Controller Katmaný
+     API Katmaný, istemciden (React frontend) gelen HTTP isteklerini karþýlayan ilk katmandýr. Bu katmanda kullanýcý kimlik doðrulama, gelir/gider iþlemleri, analiz verileri, yapay zekâ iþlemleri ve fiþ okuma (OCR) iþlemleri için gerekli endpoint’ler tanýmlanmýþtýr.
+     Projede kullanýlan controllerlar þunlardýr:
+     AuthController: Kullanýcý kayýt ve giriþ iþlemleri
+     TransactionController: Gelir ve gider ekleme, silme ve listeleme iþlemleri
+     AnalysisController: Kullanýcýya ait finansal analiz ve grafik verilerinin sunulmasý
+     AIController: Harcama açýklamalarýnýn kategorilendirilmesi ve tahmin iþlemleri
+     ChatbotController: OpenAI API ile kullanýcýya yanýt üretilmesi
+     ReceiptController: Fiþ görsellerinin OCR sürecine alýnmasý ve iþlem bilgilerinin çýkarýlmasý
+     Bu katman, gelen istekleri ilgili servis katmanýna yönlendiren bir ara katman olarak görev yapmaktadýr.
+     [ÞEKÝL 2.13 Backend Katmanlý Mimari Diyagramý Eklenecek]
+     
+     2.3.2 Service Katmaný
+     Service katmaný, uygulamanýn tüm iþ mantýðýnýn yürütüldüðü bölümdür. Kullanýcýdan gelen verilerin doðrulanmasý, hesaplamalarýnýn yapýlmasý, finansal analizlerin hazýrlanmasý, AI modülleriyle iletiþim ve fiþ okuma (OCR) süreçleri bu katmanda gerçekleþtirilir. Ayrýca Service katmaný, Controller ve Repository katmanlarý arasýnda bir köprü görevi görür.
+     Projede kullanýlan servisler þunlardýr:
+     AuthService
+     TransactionService
+     FinanceAnalysisService
+     AICategorizationService
+     AIPredictionService
+     ChatbotService
+     ReceiptAnalysisService
+     
+     2.3.3 Repository Katmaný
+     Repository Katmaný, veri tabaný iþlemlerini soyutlamak amacýyla kullanýlmýþtýr. Bu katman sayesinde Service katmaný veri tabanýnýn nasýl çalýþtýðýný bilmeden sadece gerekli veriye eriþebilir.
+     Kullanýlan repositoryler þunlardýr:
+     UserRepository
+     TransactionRepository
+     CategoryRepository
+     FinanceSummaryRepository
+     PredictionRepository
+     Tüm veri tabaný sorgularý bu katmanda gerçekleþtirilmektedir.
+     
+     2.3.4 Data Access Katmaný (DbContext)
+     Bu bölümde veri tabaný tablolarý, tablolar arasý iliþkiler ve migration iþlemleri bulunmaktadýr.
+     AppDbContext, Entity Framework Core aracýlýðýyla MSSQL Server ile baðlantý kurmaktadýr.
+     Kullanýlan Tablolar: Users, Transactions, Categories, FinanceSummaries, Predictions vb.
+     Veri iþlemleri LINQ ve EF Core fonksiyonlarý ile gerçekleþtirilmiþtir. MSSQL Server, ASP.NET Core ile uyumlu olmasý sebebiyle tercih edilmiþtir.
+     2.3.5 Security & Encryption Katmaný
+     Kullanýcýya ait hem kimlik bilgileri hem de finansal veriler güvenli þekilde saklanmaktadýr.
+     Kullanýlan güvenlik yöntemleri þunlardýr:
+     AES þifreleme: Kullanýcý finansal verilerinin veri tabanýnda þifreli biçimde saklanmasý
+     BCrypt hashing: Kullanýcý parolasýnýn geri döndürülemez þekilde saklanmasý
+     JWT Authentication: Kullanýcý giriþlerinde token tabanlý kimlik doðrulama yapýlmasý
+     Bu yöntemler sayesinde hem kimlik bilgileri hem de finansal veriler güvenli þekilde depolanmaktadýr.
+     
+     2.4 Veri Tabaný Tasarýmý
+     Projede veri tabaný katmaný, kullanýcýlarýn gelir ve gider verilerinin güvenli ve düzenli bir þekilde yönetilebilmesi amacýyla oluþturulmuþtur. Uygulamanýn backend katmanýnda ASP.NET Core teknolojisi kullanýldýðýndan, veri tabaný yönetim sistemi olarak bu teknolojiyle yüksek uyumluluk sunan Microsoft SQL Server tercih edilmiþtir. Veri tabaný iþlemleri Entity Framework Core aracýlýyla yönetilmiþtir.
+     Veri tabaný tasarým sürecinde, veri bütünlüðü korunmasý ve yapay zekâ destekli analiz modüllerinin ihtiyaç duyduðu verilerin doðru þekilde korunmasý temel hedef olarak belirlenmiþtir. Bu sebeple iliþkisel veri tabaný yaklaþýmý benimsenmiþ ve tablolar arasýnda primary key ve foreign key iliþkileri tanýmlanmýþtýr.
+     Hazýrlanan ER (Entity-Relationship) Diyagramý, sistemde yer alan tablolarý, bu tablolara ait alanlarý ve tablolar arasýndaki iliþkileri görsel olarak göstermek amacýyla kullanýlmýþtýr. Bu diyagram sayesinde veri tabaný yapýsý daha anlaþýlýr hale getirilmiþtir.
+     
+     2.4.1 Users Tablosu
+Users tablosu uygulamaya kaydolan kullanýcýlarýn temel bilgilerini tutmak amacýyla oluþturulmuþtur. Bu tabloda yer alan userId alaný, her kullanýcýyý benzersiz þekilde tanýmlayan birincil anahtar (primary key) olarak kullanýlmýþtýr. Kullanýcýnýn adý name alanýnda saklanýrken email alaný kullanýcýlarýn sisteme giriþ yapabilmesi için kullanýlmýþ ve benzersiz (unique) olarak tanýmlanmýþtýr. Güvenlik açýðý oluþmamasý amacýyla kullanýcý þifreleri açýk metin olarak deðil passwordHash alanýnda þifrelenmiþ þekilde saklanmaktadýr. Kullanýcýnýn sisteme kayýtlý olduðu tarih bilgisi ise createdAt alanýnda tutulmaktadýr.
+
+     2.4.2 Categories Tablosu
+     Categories tablosu, kullanýcýlarýn gelir ve gider iþlemlerini sýnýflandýrmak amacýyla oluþturulmuþtur. Her kategori kaydý, categoryId alaný ile benzersiz þekilde tanýmlanmýþtýr. Kategori adý categoryName alanýnda tutulurken, kategorinin gelir veya gider türünde olduðunu belirtmek için categoryType alaný kullanýlmýþtýr. Bu alan yalnýzca “Income” veya “Expense” deðerlerini alacak þekilde oluþturulmuþtur. Her kategori, userId alaný aracýlýðýyla ilgili kullanýcýya baðlanmýþ ve böylece kategorilerin kullanýcýya özel olmasý saðlanmýþtýr.
+        
+     2.4.3 Transactions Tablosu
+     Kullanýcýlarýn gerçekleþtirdiði tüm finansal iþlemler Transactions tablosunda saklanmaktadýr. Bu tabloda yer alan transactionId alaný her bir iþlemi benzersiz þekilde tanýmlamaktadýr. Ýþlemin hangi kullanýcýya ait olduðunu belirtmek için userId alaný, hangi kategoriye ait olduðunu belirtmek için ise categoryId alaný kullanýlmýþtýr. Ýþlem tutarý amount alanýnda, kullanýcý tarafýndan girilen açýklama bilgisi description alanýnda ve iþlemin gerçekleþtiði tarih bilgisi date alanýnda saklanmaktadýr. Gelir ve gider ayrýmý kategori tablosu üzerinden yapýlmýþ, böylece ayný bilginin iþlem kayýtlarýnda tekrar edilmesi engellenmiþtir.
+     
+     2.4.4 FinanceSummaries Tablosu
+     Ana sayfada kullanýcýya sunulan bütçe bilgileri ve finansal özetler, FinanceSummaries tablosu aracýlýðýyla yönetilmektedir. Bu tabloda her özet kaydý summaryId ile tanýmlanmakta ve userId alaný ile kullanýcýya baðlanmaktadýr. Kullanýcýnýn belirli bir döneme ait toplam gelir bilgisi totalIncome, toplam gider bilgisi totalExpense alanlarýnda tutulmaktadýr. Özetin ait olduðu dönem bilgisi ise summaryDate alaný ile ifade edilmektedir. Bu tablo, performans ve raporlama amacýyla oluþturulmuþtur.
+
+     2.4.5 Predictions Tablosu
+     Yapay zekâ destekli tahminleme iþlemleri sonucunda elde edilen veriler Predictions tablosunda saklanmaktadýr. Her tahmin kaydý predictionId alaný ile tanýmlanmakta ve userId alaný aracýlýðýyla kullanýcýya baðlanmaktadýr. Tahmin edilen harcama tutarý predictedAmount alanýnda, tahminin ait olduðu dönem ise predictedMonth alanýnda tutulmaktadýr. Tahmin kaydýnýn oluþturulma zamaný createdAt alanýnda saklanarak tahmin sonuçlarýnýn izlenebilirliði saðlanmýþtýr.
+     
+
+     
+     [ÞEKÝL 2.16 Veri Tabaný Tablolarý Eklenecek]
+     
+     2.5 Yapay Zekâ Modülleri
+     Bu projede yapay zekâ teknolojileri kullanýcýlarýn finansal verilerini daha kolay anlayabilmesi, manuel iþlem yükünün azaltýlmasý ve geleceðe yönelik tahminler sunulmasý amacýyla kullanýlmýþtýr. Yapay zekâ modülleri backend katmanýnda Service yapýsý içerisinde geliþtirilmiþ olup, frontend ve veri tabaný katmanlarý ile birlikte çalýþmaktadýr. Uygulamada kullanýlan yapay zekâ modülleri; otomatik iþlem kategorilendirme, makine öðrenmesi tabanlý finansal analiz, harcama tahmini, doðal dil iþleme tabanlý chatbot ve fiþ okuma (OCR) bileþenlerinden oluþmaktadýr.
+     2.5.1 Otomatik Ýþlem Kategorilendirme
+     
+     Transaction Categorization (Otomatik Ýþlem Kategorilendirme)
+     Kullanýcý tarafýndan yeni bir gelir veya gider iþlemi eklendiðinde, iþlem açýklamasý alanýna girilen metin otomatik iþlem modülüne iletilmektedir. Bu modül, doðal dil iþleme (NLP) teknikleri kullanarak girilen açýklama metnini analiz eder ve iþlemi uygun kategori ile eþleþtirir.
+     Kategorilendirme iþlemi backend katmanýnda yer alan AICategorizationService tarafýndan gerçekleþtirilmekte olup, OpenAI API üzerinden saðlanan dil modeli kullanýlarak açýklama metni deðerlendirilir. OpenAI API anahtarý bulunmadýðý durumlarda sistem kural/anahtar kelime tabanlý fallback yaklaþýmý ile çalýþmaya devam etmektedir. Yapay zekâ tarafýndan belirlenen kategori bilgisi, kullanýcýya ait Categories tablosu ile eþleþtirilerek ilgili iþlem kaydýyla eþleþir. Bu sayede kullanýcýnýn manuel kategori seçme yükü azaltýlmýþtýr.]
+     
+     2.5.2 Financial Analysis (Makine Öðrenmesi Tabanlý Finansal Analiz)
+     Kullanýcýnýn geçmiþ gelir ve gider verileri, analiz ekranýnda grafiksel olarak sunulmadan önce makine öðrenmesi (ML) tabanlý analiz sürecinden geçirilmektedir. Bu süreç FinanceAnalysisService aracýlýðýyla yürütülmektedir.
+     Analiz modülü, kullanýcýnýn belirlediði tarih aralýklarýna (1 ay, son 6 ay, son 1 yýl veya tüm zamanlar) göre finansal verileri filtrelemekte ve bu veriler üzerinden toplam gelir, toplam gider ve harcama daðýlýmlarý hesaplamaktadýr. Elde edilen analiz sonuçlarý frontend katmanýna aktarýlmakta ve grafikler aracýlýðýyla kullanýcýya sunulmaktadýr. Bu sayede kullanýcý harcama alýþkanlýklarýný detaylý þekilde inceleyebilmekte, gelir-gider dengesini görsel olarak takip edebilmektedir.
+
+     2.5.3 Predictive Analytics (Gelecek Harcama Tahmini)
+     Predictive Analytics modülü, kullanýcýnýn geçmiþ harcama verilerini kullanarak gelecek aya yönelik harcama tahminleri üretmektedir. Bu süreç backend katmanýnda yer alan tahmin servisleri üzerinden yürütülmekte; özellikle ay sonu ve gelecek ay öngörüleri, geçmiþ dönem verileri ile makine öðrenmesi temelli analizlerin birlikte deðerlendirilmesiyle oluþturulmaktadýr.
+     
+     Tahminleme sürecinde, kullanýcýnýn önceki aylardaki harcama alýþkanlýklarý, kategori bazlý daðýlýmlar ve dönemsel eðilimleri analiz edilmektedir. Model, düzenli tekrar eden gider kalýplarýný ve ortalama harcama davranýþýný dikkate alarak bir sonraki aya iliþkin yaklaþýk toplam harcama öngörüsü üretmektedir. Sistem, tahmin kalitesini artýrmak amacýyla makine öðrenmesi çýktýlarý ile istatistiksel/fallback hesaplamalarý birlikte kullanmaktadýr. Elde edilen sonuçlar backend katmanýnda iþlenerek frontend katmanýna aktarýlmakta; burada kullanýcýya özet metrikler ve karþýlaþtýrmalý göstergeler halinde sunulmaktadýr.
+Bu özellik, kullanýcýnýn bütçe planlamasýný daha bilinçli yapmasýna, olasý bütçe aþým risklerini erken fark etmesine ve harcama kararlarýný proaktif biçimde yönetmesine katký saðlamaktadýr. 
+     
+     2.5.4 Chatbot Modülü
+     Chatbot modülü, kullanýcýlarýn finansal sorularýna anlýk yanýt alabilmelerini ve kiþisel tasarruf önerileri edinebilmelerini saðlayan doðal dil iþleme (NLP) tabanlý bir sistemdir. Kullanýcýlar, uygulama arayüzü üzerinde metin bazlý sorular sorabilmekte ve chatbot bu sorularý iþlemektedir.
+     ChatbotService, backend katmanýnda çalýþmakta olup kullanýcýdan gelen sorularý alýr, NLP modeli ile anlamlandýrýr ve uygun yanýt üretir. OpenAI API anahtarý bulunduðunda yanýtlar OpenAI modeli üzerinden üretilmekte, anahtar bulunmadýðýnda ise FAQ/kural tabanlý fallback servis ile yanýt verilmektedir. Üretilen yanýtlar finansal durum özetleri, harcama bilgileri ve tasarruf önerileri gibi konularda kullanýcýya sunulur. Chatbot etkileþimleri veri tabanýnda saklanmamakta olup sistem frontend ve backend katmanlarýyla bütünleþmiþ þekilde çalýþmaktadýr.
+     
+     2.5.5 OCR Modülü
+     Fiþ okuma modülü, kullanýcýlarýn yüklediði fiþ görsellerinden metin çýkarýmý yaparak iþlem bilgisini otomatik elde etmeyi amaçlamaktadýr. Bu süreç backend katmanýnda yer alan ReceiptAnalysisService aracýlýðýyla yürütülmektedir.
+     OCR sonucunda tutar, tarih ve açýklama gibi alanlar ayrýþtýrýlmakta ve kullanýcýya kontrol edilerek gelir-gider kaydýna dönüþtürme imkâný sunulmaktadýr. Fiþ görselleri kalýcý olarak saklanmamakta, doðrulanan iþlem verileri doðrudan gelir-gider kayýt akýþýnda kullanýlmaktadýr.
+     Sonuç olarak, yapay zekâ modülleri sayesinde kullanýcýlar finansal verilerini daha iyi analiz edebilmekte, geleceðe yönelik tahminler görebilmekte, fiþ verilerini daha hýzlý iþleyebilmekte ve uygulama ile daha etkileþimli bir deneyim yaþamaktadýr.
+
+     2.6 Kullanýlan Teknolojiler
+Bu projede web ve mobil platformlarda çalýþabilen, yapay zekâ destekli bir kiþisel finans yönetim uygulamasý geliþtirilmiþtir. Uygulama geliþtirilirken frontend, backend, veri tabaný ve yapay zekâ bileþenlerini kapsayan çok katmanlý bir yapý kullanýlmýþtýr. Her katmanda projenin ihtiyacýna uygun teknolojiler tercih edilmiþtir. Bu bölümde projede kullanýlan temel teknolojiler ve kütüphaneler açýklanmaktadýr.
+
+HTML (HyperText Markup Language)
+HTML, web arayüzünün temel yapýsýný oluþturmak için kullanýlmýþtýr. Formlar, butonlar ve sayfa bölümleri HTML ile hazýrlanmýþtýr. HTML’in tercih edilme nedeni, tüm modern tarayýcýlarda desteklenmesi ve React bileþenlerinin düzenli bir yapýda oluþturulmasýna katký saðlamasýdýr.
+
+CSS (Cascading Style Sheets)
+CSS, arayüzün görsel tasarýmýný düzenlemek için kullanýlmýþtýr. Renkler, yazý tipleri, boþluklar ve responsive tasarým düzenlemeleri CSS ile yapýlmýþtýr. CSS’in tercih edilme nedeni, kullanýcý dostu ve sade bir arayüz oluþturmayý kolaylaþtýrmasýdýr.
+
+Tailwind CSS
+Web tarafýnda daha hýzlý ve tutarlý stil geliþtirmek için Tailwind CSS kullanýlmýþtýr. Tailwind’in tercih edilme nedeni, bileþen bazlý çalýþmayý kolaylaþtýrmasý ve arayüz geliþtirme sürecini hýzlandýrmasýdýr.
+
+JavaScript
+JavaScript, frontend tarafýndaki dinamik iþlemler için kullanýlmýþtýr. Kullanýcý etkileþimleri, form kontrolleri ve API çaðrýlarý JavaScript ile yönetilmiþtir. JavaScript’in tercih edilme nedeni hem web hem mobil tarafla uyumlu ve yaygýn bir dil olmasýdýr.
+
+TypeScript
+Projede hem web hem mobil tarafta TypeScript kullanýlmýþtýr. TypeScript sayesinde tip kontrolü saðlanmýþ ve API veri yapýlarýnda hata riski azaltýlmýþtýr. TypeScript’in tercih edilme nedeni, kodun sürdürülebilirliðini ve güvenilirliðini artýrmasýdýr.
+
+ React Kütüphanesi
+Web arayüzü React ile geliþtirilmiþtir. React’ýn component tabanlý yapýsý sayesinde ekranlar modüler þekilde oluþturulmuþtur. React’ýn tercih edilme nedeni, kodun daha düzenli yönetilmesini ve arayüzün dinamik güncellenmesini kolaylaþtýrmasýdýr.
+
+React Router
+Web tarafýnda sayfalar arasý geçiþler React Router ile yönetilmiþtir. Login, register ve uygulama içi yönlendirme akýþlarý bu yapý ile kurulmuþtur. React Router’ýn tercih edilme nedeni, sayfa geçiþlerini düzenli ve kontrollü þekilde yönetebilmesidir.
+
+Vite
+Web uygulamasýnda geliþtirme ve build süreci için Vite kullanýlmýþtýr. Vite’ýn tercih edilme nedeni, hýzlý geliþtirme sunucusu ve kýsa build süreleri saðlamasýdýr.
+
+React Native
+Mobil uygulama React Native ile geliþtirilmiþtir. React Native’in tercih edilme nedeni, web tarafýndaki React mantýðýna yakýn bir yapý sunarak platformlar arasý tutarlýlýk saðlamasýdýr.
+
+Expo
+Mobil geliþtirme sürecinde Expo kullanýlmýþtýr. Expo’nun tercih edilme nedeni, uygulamanýn hýzlý çalýþtýrýlmasý ve cihaz üzerinde kolay test edilmesidir.
+
+React Navigation
+Mobil uygulamada ekran geçiþleri React Navigation ile yönetilmiþtir. Login/Register ve diðer ekran akýþlarý bu yapý ile düzenlenmiþtir. React Navigation’ýn tercih edilme nedeni, mobilde navigasyon yönetimini kolaylaþtýrmasýdýr.
+
+React Native Paper
+Mobil arayüz bileþenlerinde React Native Paper kullanýlmýþtýr. Form, buton ve kart gibi bileþenler bu kütüphane ile geliþtirilmiþtir. Tercih edilme nedeni, daha tutarlý ve düzenli mobil arayüz geliþtirmeyi saðlamasýdýr.
+
+AsyncStorage
+Mobil tarafta kullanýcý oturum verilerinin cihazda saklanmasý için AsyncStorage kullanýlmýþtýr. AsyncStorage’ýn tercih edilme nedeni, token saklama ve oturum devamlýlýðý için pratik bir çözüm sunmasýdýr.
+
+Axios Kütüphanesi
+Axios, frontend ile backend arasýndaki veri iletiþimi için kullanýlmýþtýr. API’ye istek gönderme, yanýt alma ve hata yönetimi süreçleri Axios ile yürütülmüþtür. Axios’un tercih edilme nedeni, asenkron veri alýþveriþini kolaylaþtýrmasýdýr.
+
+Chart.js Kütüphanesi
+Chart.js, finansal verilerin grafikle gösterimi için kullanýlmýþtýr. Gelir-gider daðýlýmý ve analiz sonuçlarý grafiklerle görselleþtirilmiþtir. Chart.js’in tercih edilme nedeni, verileri kullanýcýya daha anlaþýlýr þekilde sunabilmesidir.
+
+C# ve ASP.NET Core
+Backend geliþtirme sürecinde C# ve ASP.NET Core kullanýlmýþtýr. Bu teknoloji ile güvenli, ölçeklenebilir ve katmanlý bir API yapýsý kurulmuþtur. ASP.NET Core’un tercih edilme nedeni, yüksek performanslý API geliþtirmeye uygun olmasýdýr.
+
+JWT (JSON Web Token)
+Kullanýcý kimlik doðrulama ve yetkilendirme iþlemleri JWT ile yapýlmýþtýr. Giriþ sonrasý üretilen token, korumalý endpoint eriþimlerinde doðrulama için kullanýlmýþtýr. JWT’nin tercih edilme nedeni, güvenli ve performanslý oturum yönetimi saðlamasýdýr.
+
+Microsoft SQL Server ve Entity Framework Core
+Veritabaný yönetiminde MSSQL kullanýlmýþtýr. Veri tabaný iþlemleri Entity Framework Core ile yürütülmüþ, tablo iliþkileri EF Core üzerinden yönetilmiþtir. Bu yapýnýn tercih edilme nedeni, ASP.NET Core ile uyumlu ve güvenilir olmasýdýr.
+
+Swagger / Swashbuckle
+Backend API endpoint’lerinin test edilmesi ve dokümantasyonu için Swagger kullanýlmýþtýr. Geliþtirme sýrasýnda endpoint doðrulamalarý Swagger üzerinden yapýlmýþtýr. Swagger’ýn tercih edilme nedeni, test ve dokümantasyonu ayný ortamda sunmasýdýr.
+
+Güvenlik ve Veri Þifreleme Teknolojileri
+Projede kullanýcý güvenliði ve veri gizliliði ön planda tutulmuþtur.
+Uygulanan yöntemler:
+AES þifreleme: Finansal verilerin veri tabanýnda þifreli saklanmasý
+BCrypt hashing: Kullanýcý parolalarýnýn güvenli þekilde hash’lenmesi
+JWT Authentication: Token tabanlý kimlik doðrulama
+Bu yöntemler sayesinde kullanýcý verileri yetkisiz eriþimlere karþý korunmuþtur.
+
+ML.NET
+Finansal analiz ve tahmin modüllerinde ML.NET kullanýlmýþtýr. Harcama tahmini ve veri analizi iþlemleri bu altyapý ile desteklenmiþtir. ML.NET’in tercih edilme nedeni, .NET ekosistemi ile uyumlu olmasýdýr.
+
+Tesseract OCR
+Fiþ/veri okuma iþlemleri için Tesseract OCR kullanýlmýþtýr. Görsellerden metin çýkarýmý yapýlarak veri iþleme süreçleri desteklenmiþtir. Tesseract’ýn tercih edilme nedeni, açýk kaynak ve pratik bir OCR çözümü sunmasýdýr.
+
+OpenAI API (Yapay Zekâ Entegrasyonu)
+Projede chatbot ve iþlem açýklamasýna göre kategori önerisi gibi yapay zekâ destekli iþlemler için OpenAI API desteði kullanýlmýþtýr. OpenAI API anahtarý bulunduðunda yanýtlar OpenAI üzerinden üretilmektedir. Anahtar bulunmadýðýnda ise sistemin çalýþmaya devam etmesi için kural/FAQ tabanlý fallback servis devreye girmektedir. Bu yapý hem esneklik hem de süreklilik saðladýðý için tercih edilmiþtir.
+
+        Üçüncü bölüm 
+     
+     3.1 Test Süreci
+     Geliþtirilen yapay zekâ destekli kiþisel finans yönetim uygulamasýnýn tüm bileþenleri, belge temelli API testleri ve kullanýcý senaryolarý üzerinden ayrý ayrý doðrulanmýþtýr. Test süreci sýrasýnda backend hizmetleri Swagger ve PowerShell üzerinden çalýþtýrýlarak:
+     
+* Kimlik doðrulama,
+* Gelir-gider yönetimi,
+* Finansal analiz,
+* Yapay zekâ destekli kategori sýnýflandýrma ve chatbot,
+* OCR fiþ okuma
+gibi modüllerin beklenen davranýþý sergilediði kontrol edilmiþtir.
+     
+     Projede birim testi veya otomatik test sýnýfý bulunmamakla birlikte, TEST-REHBERI.md ve TEST-SENARYOSU.md dosyalarýnda adým adým test akýþý tanýmlanmýþtýr. Bu dokümanlar, testlerin sistematik biçimde uygulanmasýna ve sonuçlarýn tutarlý þekilde raporlanmasýna olanak vermiþtir.
+     
+     3.2 Kullanýcý Kayýt ve Giriþ Testleri
+     Kimlik doðrulama modülü, kullanýcýlarýn yeni hesap oluþturma ve sisteme giriþ yapma yeteneði üzerinde test edilmiþtir. Aþaðýdaki senaryolar doðrulanmýþtýr:
+* Geçerli bilgilerle giriþ yapýldýðýnda sistemin baþarýlý þekilde oturum açmasý
+* Hatalý þifre veya eksik alan girildiðinde uygun hata mesajlarýnýn gösterilmesi
+* Yeni kullanýcý kaydý sýrasýnda hesabýn veritabanýna kaydedilmesi
+* Boþ veya eksik alanlarýn form doðrulamasý tarafýndan engellenmesi
+     Bu testler sonucunda kimlik doðrulama akýþýnýn tutarlý çalýþtýðý ve kullanýcý giriþlerinin güvenli biçimde yönetildiði gözlenmiþtir.
+     
+     3.3 Gelir ve Gider Yönetimi Testleri
+     Gelir ve gider yönetimi bölümünde, kullanýcý iþlemlerinin eklenmesi, güncellenmesi ve silinmesi test edilmiþtir. Testler þunlarý doðrulamýþtýr:
+* Gelir kaydý ekleme iþlemleri sorunsuz gerçekleþiyor
+* Gider kaydý ekleme iþlemleri doðru kategori ve tutar ile veritabanýna yazýlýyor
+* Mevcut iþlem üzerinde güncelleme yapýldýðýnda veriler güncelleniyor
+* Silme iþlemleri sonrasý kayýtlar veritabanýndan kaldýrýlýyor
+     Ayrýca eklenen iþlemlerin UI tarafýnda doðru þekilde listelendiði ve raporlarda yer aldýðý kontrol edilmiþtir.
+     
+     3.4 Finansal Analiz Modülü Testleri
+     Finansal analiz modülü, kullanýcýya gelir-gider verilerini görselleþtirerek sunduðu için özellikle toplam hesaplamalar ve filtreleme iþlevleri test edilmiþtir. Doðrulanan noktalar:
+* Grafiklerde veri görselleþtirmesinin doðru çalýþmasý
+* Tarih aralýðý seçimine göre filtreleme yapýldýðýnda doðru sonuçlarýn dönmesi
+* Toplam gelir, toplam gider ve bakiye hesaplamalarýnýn doðru olmasý
+     Bu testler, analitik ekranlarýn kullanýcýya doðru finansal özet sunduðunu ve filtreleme fonksiyonlarýnýn beklendiði gibi davrandýðýný göstermiþtir.
+     3.5 Yapay Zekâ Destekli Chatbot Testleri
+     Chatbot modülü, kullanýcý sorularýný anlamak ve yanýtlamak için test edilmiþtir. Test senaryolarý þunlardýr:
+* Kullanýcýnýn soru gönderdiðinde sistemin yanýt üretmesi
+* Finansal öneri ve bütçe yönetimi ile ilgili doðru önerilerin sunulmasý
+* Hatalý veya anlamsýz giriþlerde kullanýcýyý yönlendiren uyarý mesajlarýnýn verilmesi
+     Örnek bir test sorgusu olarak “Aylýk harcamalarýmý nasýl azaltabilirim?” ifadesi gönderilmiþ ve sistemin “Düzenli olmayan harcamalarýnýzý analiz ederek bütçe planý oluþturabilirsiniz.” gibi uygun bir öneri sunmasý beklenmiþtir.
+     
+     3.6 OCR Modülü Testleri
+     OCR modülü, fiþ görsellerinden tarih, tutar ve açýklama bilgilerini çýkarmak üzere sýnanmýþtýr. Doðrulanan özellikler:
+* Kullanýcýnýn yüklediði fiþ görselinin kabul edilmesi
+* OCR iþlemi ile metin çýkarýmý yapýlmasý
+* Çýkarýlan verilerin uygun olarak eþleþtirilmesi ve ilgili alanlara aktarýlmasý
+     Bu testler, fiþ okuma fonksiyonunun gerçek dünyadaki kullaným için yeterli düzeyde iþlediðini ortaya koymuþtur.
+     
+DÖRDÜNCÜ BÖLÜM 
+                                            SONUÇ VE ÖNERÝLER
+     4.1 Sonuç
+     Bu çalýþmada, yapay zekâ destekli bir kiþisel finans yönetim uygulamasý baþarýyla tasarlanmýþ ve geliþtirilmiþtir. Proje; backend API, web ve mobil arayüzler, yapay zekâ destekli kategori sýnýflandýrma, chatbot, finansal analiz ve OCR tabanlý fiþ okuma modüllerini bir araya getiren  bir sistem sunmaktadýr.
+     Test süreci sonucunda:
+* Kullanýcý kayýt ve giriþ akýþý güvenli ve kararlý çalýþmýþ,
+* Gelir-gider yönetimi doðru þekilde veri kaydetmiþ ve güncellemiþ,
+* Finansal analiz modülü gelir-gider özetlerini düzgün hesaplayýp görselleþtirmiþ,
+* Chatbot modülü finansal sorulara anlamlý yanýtlar üretmiþ,
+* OCR modülü fiþ verilerini baþarýyla tespit etmiþ,
+* JWT tabanlý güvenlik mekanizmalarý yetkisiz eriþimleri engellemiþ,
+bulunmuþtur.
+     
+Bu sonuçlar, geliþtirilen sistemin temel iþlevleri için yeterli bir olgunluk düzeyine ulaþtýðýný göstermektedir. Uygulama, bireysel kullanýcýlarýn finansal verilerini izleme ve analiz etme ihtiyaçlarýna modern bir çözümsel yaklaþým sunmaktadýr.
+     4.2 Öneriler
+Web ve mobil arasýnda veri senkronizasyonunu güçlendirmek ve chatbot ile kategori tahminlerini kullanýcýya daha kiþiselleþtirilmiþ biçimde sunmak uygulamanýn faydasýný artýrýr. Ayrýca güvenlik ve eriþilebilirlik iyileþtirmeleri, projenin sürdürülebilirliðini ve kullanýcý memnuniyetini yükseltir.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+KAYNAKÇA
+Adhikari, P., Smith, J. ve Brown, L. (2024). The impact of AI on personal finance and wealth management in the U.S. Financial Innovation Journal.
+Agarwal, V., Mehta, S. ve Sharma, P. (2024). An AI-powered personal finance assistant: Enhancing financial literacy and management. IEEE Access.
+Ahmad Khairi, P. K. J. ve Yasin, S. M. (2024). AstroWealth: Personal finance management web application. International Journal of Web-Based Applications.
+Antoniuk, O., Petrenko, I. ve Koval, M. (2021). Using a business simulator with elements of machine learning to develop personal finance management skills. Education and Information Technologies.
+Antoniuk, O., Petrenko, I. ve Koval, M. (2024). Enhancing personal financial management skills through a machine learning-powered business simulator. International Journal of AI in Education.
+Aro, J. (2024). Predictive analytics in financial management: Enhancing decision-making and risk management. Journal of Financial Analytics.
+Bako, A. (2025). Effects of AI-driven financial literacy chatbot on financial management skills of home economics students. Journal of Educational Technology.
+Bashshar, S. A., Al-Sabah, M. ve Noor, H. (2025). Artificial intelligence-driven personal finance solution. Journal of Financial Innovation.
+Gorai, S. K. ve Maurya, A. (2023). Artificial intelligence in personal finance management: Opportunities and challenges. International Journal of AI and Data Science.
+Gupta, S. ve Rao, V. S. (2024). AI in behavioral finance: Understanding investor bias through machine learning. Journal of Behavioral Finance.
+Islam, M., Rahman, A. ve Hossain, S. (2024). The role of AI in strengthening data privacy for cloud banking. Journal of Cloud Computing and Security.
+Miji?, M. ve ?ebi?, B. (2023). Mobile applications for personal finance management: Technology acceptance perspective. Journal of Financial Technology.
+Nayak, M. ve Jayakumar, K. (2024). An AI-powered mobile application for intelligent personal finance management and decision support. Procedia Computer Science.
+Olaiya, O. P., Adeyemi, T. ve Lawal, K. (2024). Encryption techniques for financial data security in fintech applications. Journal of Cyber Security Technology.
+Pande, A. D., Singh, R. ve Kulkarni, V. (2025). AI-powered loan approval prediction and smart finance management system using machine learning. Journal of Intelligent Financial Systems.
+Pawar, S., Patil, A. ve Deshmukh, R. (2024). ExpenseXpert: Transforming financial management with AI-driven predictive analytics and efficient tracking. International Journal of Advanced Computing.
+Pothumsetty. (2020). Implementation of artificial intelligence and machine learning in financial services. International Journal of Financial Services Technology.
+Raihan, A. (2024). Financial technology optimization using AI to accomplish sustainable development goals. Journal of Sustainable FinTech.
+Ravalji, V. Y. ve Prasad, M. S. (2024). Secure and scalable .NET Core-based APIs for financial transaction processing systems. IEEE Software.
+Solomon, D. (2024). Optimizing full-stack development for fintech applications. Journal of Software Engineering and Applications.
+Subasri, N., Kannan, R. ve Kumar, S. (2025). AI powered personal finance management system. Journal of FinTech and Intelligent Systems.
+Talasila, S. D. (2024). AI-driven personal finance management: Revolutionizing budgeting and financial planning. International Journal of Artificial Intelligence Applications.
+Wah, J. N. K. (2025). AI-powered wealth management: Transforming financial literacy, personalized investments, and risk assessment. Journal of Wealth Management.
+Wong, C. K. ve Salleh, M. N. (2023). Personal finance and budgeting mobile application “CashSave”. Journal of Mobile Computing and Applications.
+Zelani, F. H., Setiawan, A. ve Nugraha, R. (2024). Financial application for the STMIK Mardira Indonesia educational institution. International Journal of Information Systems.
+
+
+EKLER
+BÝTÝRME PROJESÝ KÜNYESÝ
+1. Bitirme Tezinin Adý (Name of the Graduation Project): AI Destekli Kiþisel Finans Yönetim Uygulamasý: RusWallet
+2. Tezin Amacý (Purpose): Projenin amacý kullanýcýnýn gelir ve giderlerini düzenli þekilde takip edebileceði, tasarruf süreçlerini yönetebileceði bir yapay zekâ destekli kiþisel finans uygulamasý geliþtirmektir. Ve bu çalýþma kiþilerin manuel olarak girdiði harcamalarýný analiz ederek grafiksel modeller ile göstermeyi, yapýlan analizlere göre kiþisel tasarruf önerileri sunmayý ve chatbot özelliði ile kullanýcýnýn hazýr sorular üzerinden finansal durumunu deðerlendirmesine ve finansal planlama yapmasýna destek olmayý hedeflemektedir.
+3. Öðrenci Numarasý, Adý ve Soyadý (Student Number, Name and Surname): 230411007, Aleyna TOMBAÞ
+4. Öðrencinin Daimi E-Posta Adresi (Student’s E-mail Address): aleynatombass8@gmail.com
+5. Öðrencinin Bölümü (Student’s Department): Yazýlým Mühendisliði
+6. Bitirme Tezinin Juri Tarihi (Jury Date): 22.06.2026
+7. Bitirme Tezinin Dönemi (Period): 2025-2026
+8. Bitirme Tezi Danýþman Öðretim Üyesi (Advisor Faculty Member): Dr. Öðr. Üyesi Gökçe KARACAYILMAZ
+9. Yazýlým, veritabaný vb. Ortamlar / Araçlar (Software, Database, Environments / Tools): HTML, CSS, Tailwind CSS, JavaScript, TypeScript, React, Vite, React Native, Expo, Axios, Chart.js, C#, ASP.NET Core, JWT, Microsoft SQL Server (MSSQL), Entity Framework Core, Swagger, BCrypt, ML.NET, Tesseract OCR, OpenAI API.
+10. Mühendislik Tasarýmý (Engineering Design): Yapay zekâ destekli kiþisel finans yönetim sistemi; React, React Native, ASP.NET Core ve MSSQL teknolojileri kullanýlarak çok katmanlý ve modüler bir mimaride tasarlanmýþtýr. Sistem; güvenli kimlik doðrulama, finansal analiz, harcama tahmini, OCR ve chatbot modüllerini destekleyecek þekilde ölçeklenebilir ve kullanýcý odaklý olarak geliþtirilmiþtir.
+11.  Sistemin Akýþ Diyagramý (Flow Chart of the System): 
+
+
+12. Güncellik Deðerlendirilmesi (Evaluation of the Current Status of the Project): Bu proje, güncel yazýlým mühendisliði standartlarýna ve modern teknoloji yýðýnlarýna uygun olarak geliþtirilmiþtir. Uygulamanýn backend tarafýnda yüksek performans, güvenlik ve modülerlik saðlayan .NET Core Web API mimarisi tercih edilmiþtir. Frontend ise bileþen tabanlý yapýsý ve hýzýyla öne çýkan React (Vite) ve Tailwind CSS kullanýlarak dinamik, kullanýcý dostu ve modern bir arayüz tasarlanmýþtýr. Projeye entegre edilen yapay zekâ modülleri, veritabaný yönetiminde kullanýlan güncel iliþkisel sistemler ve API entegrasyonlarý, sistemin yenilikçi, ölçeklenebilir ve çaðdaþ yazýlým mimarilerine tam uyumlu bir yapýda olmasýný saðlamaktadýr.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ÖZGEÇMÝÞ
+Kiþisel Bilgiler
+Adý, Soyadý 			: Aleyna TOMBAÞ
+Uyruðu 			: Türkiye Cumhuriyeti Vatandaþý
+Doðum tarihi ve yeri 		:25.07.2004 – Gaziosmanpaþa
+Telefon 			: 0533 088 8122
+Faks 				: -
+e-mail 				: aleynatombass8@gmail.com
+
+Eðitim
+Derece 	Eðitim Birimi 				Mezuniyet Tarihi
+Lisans		Yazýlým Mühendisliði				2026
+Lise 		Açýk Öðretim Lisesi				2022
+
+     !!! TEZÝN EN SONUNDA EK BÝR TEMÝZ SAYFA OLMALIDIR !!!
+
+
+viii
+
+
+
+
+
+N-1
+
+8
+

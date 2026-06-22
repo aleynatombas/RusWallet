@@ -1,0 +1,309 @@
+<mxGraphModel background="#ffffff" grid="0" page="0">
+  <root>
+    <mxCell id="0"/><mxCell id="1" parent="0"/>
+
+    <!-- BAŞLIK -->
+    <mxCell id="title" value="RusWallet — Veritabanı ER Diyagramı"
+      style="rounded=1;fillColor=#0d1321;fontColor=#ffffff;strokeColor=#1a7a9e;strokeWidth=2;fontSize=14;fontStyle=1;align=center;"
+      vertex="1" parent="1">
+      <mxGeometry x="172" y="5" width="480" height="38" as="geometry"/>
+    </mxCell>
+
+    <!-- ═══ USERS (merkez üst) ═══ -->
+    <mxCell id="u_h" value="USERS"
+      style="fillColor=#0d1321;fontColor=#ffffff;strokeColor=#1a7a9e;strokeWidth=2;fontSize=12;fontStyle=1;align=center;"
+      vertex="1" parent="1">
+      <mxGeometry x="300" y="60" width="240" height="35" as="geometry"/>
+    </mxCell>
+    <mxCell id="u_r0" value="PK   UserId  :  INT"
+      style="fillColor=#1a7a9e;fontColor=#ffffff;strokeColor=#1a7a9e;strokeWidth=0.5;fontSize=10;align=left;spacingLeft=8;"
+      vertex="1" parent="1">
+      <mxGeometry x="300" y="95" width="240" height="28" as="geometry"/>
+    </mxCell>
+    <mxCell id="u_r1" value="       FirstName  :  NVARCHAR"
+      style="fillColor=#ffffff;fontColor=#0d1321;strokeColor=#b8dde8;strokeWidth=0.5;fontSize=10;align=left;spacingLeft=8;"
+      vertex="1" parent="1">
+      <mxGeometry x="300" y="123" width="240" height="28" as="geometry"/>
+    </mxCell>
+    <mxCell id="u_r2" value="       LastName  :  NVARCHAR"
+      style="fillColor=#ffffff;fontColor=#0d1321;strokeColor=#b8dde8;strokeWidth=0.5;fontSize=10;align=left;spacingLeft=8;"
+      vertex="1" parent="1">
+      <mxGeometry x="300" y="151" width="240" height="28" as="geometry"/>
+    </mxCell>
+    <mxCell id="u_r3" value="       Email  :  NVARCHAR  (UNIQUE)"
+      style="fillColor=#ffffff;fontColor=#0d1321;strokeColor=#b8dde8;strokeWidth=0.5;fontSize=10;align=left;spacingLeft=8;"
+      vertex="1" parent="1">
+      <mxGeometry x="300" y="179" width="240" height="28" as="geometry"/>
+    </mxCell>
+    <mxCell id="u_r4" value="       PhoneNumber  :  NVARCHAR"
+      style="fillColor=#ffffff;fontColor=#0d1321;strokeColor=#b8dde8;strokeWidth=0.5;fontSize=10;align=left;spacingLeft=8;"
+      vertex="1" parent="1">
+      <mxGeometry x="300" y="207" width="240" height="28" as="geometry"/>
+    </mxCell>
+    <mxCell id="u_r5" value="       PasswordHash  :  NVARCHAR"
+      style="fillColor=#ffffff;fontColor=#0d1321;strokeColor=#b8dde8;strokeWidth=0.5;fontSize=10;align=left;spacingLeft=8;"
+      vertex="1" parent="1">
+      <mxGeometry x="300" y="235" width="240" height="28" as="geometry"/>
+    </mxCell>
+    <mxCell id="u_r6" value="       CreatedAt  :  DATETIME"
+      style="fillColor=#ffffff;fontColor=#0d1321;strokeColor=#b8dde8;strokeWidth=0.5;fontSize=10;align=left;spacingLeft=8;"
+      vertex="1" parent="1">
+      <mxGeometry x="300" y="263" width="240" height="28" as="geometry"/>
+    </mxCell>
+    <mxCell id="u_r7" value="       OnboardingStepIndex  :  INT"
+      style="fillColor=#ffffff;fontColor=#0d1321;strokeColor=#b8dde8;strokeWidth=0.5;fontSize=10;align=left;spacingLeft=8;"
+      vertex="1" parent="1">
+      <mxGeometry x="300" y="291" width="240" height="28" as="geometry"/>
+    </mxCell>
+    <mxCell id="u_r8" value="  🔒  FinancialProfileJson  :  NVARCHAR (AES-256)"
+      style="fillColor=#ffffff;fontColor=#0d1321;strokeColor=#b8dde8;strokeWidth=0.5;fontSize=10;align=left;spacingLeft=8;"
+      vertex="1" parent="1">
+      <mxGeometry x="300" y="319" width="240" height="28" as="geometry"/>
+    </mxCell>
+    <mxCell id="u_r9" value="  🔒  MonthlyIncomeNet  :  NVARCHAR (AES-256)"
+      style="fillColor=#f0f8fc;fontColor=#0d1321;strokeColor=#1a7a9e;strokeWidth=1.5;fontSize=10;align=left;spacingLeft=8;"
+      vertex="1" parent="1">
+      <mxGeometry x="300" y="347" width="240" height="28" as="geometry"/>
+    </mxCell>
+
+    <!-- ═══ SOL SÜTUN ÜST: CATEGORIES (x=20, y=460) ═══ -->
+    <mxCell id="cat_h" value="CATEGORIES"
+      style="fillColor=#0d1321;fontColor=#ffffff;strokeColor=#1a7a9e;strokeWidth=2;fontSize=12;fontStyle=1;align=center;"
+      vertex="1" parent="1">
+      <mxGeometry x="20" y="460" width="215" height="35" as="geometry"/>
+    </mxCell>
+    <mxCell id="cat_r0" value="PK   CategoryId  :  INT"
+      style="fillColor=#1a7a9e;fontColor=#ffffff;strokeColor=#1a7a9e;strokeWidth=0.5;fontSize=10;align=left;spacingLeft=8;"
+      vertex="1" parent="1">
+      <mxGeometry x="20" y="495" width="215" height="28" as="geometry"/>
+    </mxCell>
+    <mxCell id="cat_r1" value="       Name  :  NVARCHAR"
+      style="fillColor=#ffffff;fontColor=#0d1321;strokeColor=#b8dde8;strokeWidth=0.5;fontSize=10;align=left;spacingLeft=8;"
+      vertex="1" parent="1">
+      <mxGeometry x="20" y="523" width="215" height="28" as="geometry"/>
+    </mxCell>
+    <mxCell id="cat_r2" value="       IsIncome  :  BIT"
+      style="fillColor=#ffffff;fontColor=#0d1321;strokeColor=#b8dde8;strokeWidth=0.5;fontSize=10;align=left;spacingLeft=8;"
+      vertex="1" parent="1">
+      <mxGeometry x="20" y="551" width="215" height="28" as="geometry"/>
+    </mxCell>
+    <mxCell id="cat_r3" value="FK   UserId  :  INT"
+      style="fillColor=#e8f5fa;fontColor=#1a7a9e;strokeColor=#1a7a9e;strokeWidth=1;fontSize=10;align=left;spacingLeft=8;fontStyle=2;"
+      vertex="1" parent="1">
+      <mxGeometry x="20" y="579" width="215" height="28" as="geometry"/>
+    </mxCell>
+    <mxCell id="cat_bot" value="" style="fillColor=#1a7a9e;strokeColor=#1a7a9e;" vertex="1" parent="1">
+      <mxGeometry x="20" y="607" width="215" height="3" as="geometry"/>
+    </mxCell>
+
+    <!-- ═══ SOL SÜTUN ALT: TRANSACTIONS (x=20, y=640) ═══ -->
+    <mxCell id="tr_h" value="TRANSACTIONS"
+      style="fillColor=#0d1321;fontColor=#ffffff;strokeColor=#1a7a9e;strokeWidth=2;fontSize=12;fontStyle=1;align=center;"
+      vertex="1" parent="1">
+      <mxGeometry x="20" y="640" width="215" height="35" as="geometry"/>
+    </mxCell>
+    <mxCell id="tr_r0" value="PK   TransactionId  :  INT"
+      style="fillColor=#1a7a9e;fontColor=#ffffff;strokeColor=#1a7a9e;strokeWidth=0.5;fontSize=10;align=left;spacingLeft=8;"
+      vertex="1" parent="1">
+      <mxGeometry x="20" y="675" width="215" height="28" as="geometry"/>
+    </mxCell>
+    <mxCell id="tr_r1" value="  🔒  Amount  :  NVARCHAR (AES-256)"
+      style="fillColor=#ffffff;fontColor=#0d1321;strokeColor=#b8dde8;strokeWidth=0.5;fontSize=10;align=left;spacingLeft=8;"
+      vertex="1" parent="1">
+      <mxGeometry x="20" y="703" width="215" height="28" as="geometry"/>
+    </mxCell>
+    <mxCell id="tr_r2" value="  🔒  Description  :  NVARCHAR (AES-256)"
+      style="fillColor=#ffffff;fontColor=#0d1321;strokeColor=#b8dde8;strokeWidth=0.5;fontSize=10;align=left;spacingLeft=8;"
+      vertex="1" parent="1">
+      <mxGeometry x="20" y="731" width="215" height="28" as="geometry"/>
+    </mxCell>
+    <mxCell id="tr_r3" value="       TransactionDate  :  DATETIME"
+      style="fillColor=#ffffff;fontColor=#0d1321;strokeColor=#b8dde8;strokeWidth=0.5;fontSize=10;align=left;spacingLeft=8;"
+      vertex="1" parent="1">
+      <mxGeometry x="20" y="759" width="215" height="28" as="geometry"/>
+    </mxCell>
+    <mxCell id="tr_r4" value="       IsIncome  :  BIT"
+      style="fillColor=#ffffff;fontColor=#0d1321;strokeColor=#b8dde8;strokeWidth=0.5;fontSize=10;align=left;spacingLeft=8;"
+      vertex="1" parent="1">
+      <mxGeometry x="20" y="787" width="215" height="28" as="geometry"/>
+    </mxCell>
+    <mxCell id="tr_r5" value="       PaymentMethod  :  NVARCHAR"
+      style="fillColor=#ffffff;fontColor=#0d1321;strokeColor=#b8dde8;strokeWidth=0.5;fontSize=10;align=left;spacingLeft=8;"
+      vertex="1" parent="1">
+      <mxGeometry x="20" y="815" width="215" height="28" as="geometry"/>
+    </mxCell>
+    <mxCell id="tr_r6" value="FK   UserId  :  INT"
+      style="fillColor=#e8f5fa;fontColor=#1a7a9e;strokeColor=#1a7a9e;strokeWidth=1;fontSize=10;align=left;spacingLeft=8;fontStyle=2;"
+      vertex="1" parent="1">
+      <mxGeometry x="20" y="843" width="215" height="28" as="geometry"/>
+    </mxCell>
+    <mxCell id="tr_r7" value="FK   CategoryId  :  INT"
+      style="fillColor=#e8f5fa;fontColor=#1a7a9e;strokeColor=#1a7a9e;strokeWidth=1;fontSize=10;align=left;spacingLeft=8;fontStyle=2;"
+      vertex="1" parent="1">
+      <mxGeometry x="20" y="871" width="215" height="28" as="geometry"/>
+    </mxCell>
+    <mxCell id="tr_bot" value="" style="fillColor=#1a7a9e;strokeColor=#1a7a9e;" vertex="1" parent="1">
+      <mxGeometry x="20" y="899" width="215" height="3" as="geometry"/>
+    </mxCell>
+
+    <!-- ═══ SAĞ SÜTUN ÜST: FINANCE_SUMMARIES (x=590, y=460) ═══ -->
+    <mxCell id="fs_h" value="FINANCE_SUMMARIES"
+      style="fillColor=#0d1321;fontColor=#ffffff;strokeColor=#1a7a9e;strokeWidth=2;fontSize=12;fontStyle=1;align=center;"
+      vertex="1" parent="1">
+      <mxGeometry x="590" y="460" width="220" height="35" as="geometry"/>
+    </mxCell>
+    <mxCell id="fs_r0" value="PK   FinanceSummaryId  :  INT"
+      style="fillColor=#1a7a9e;fontColor=#ffffff;strokeColor=#1a7a9e;strokeWidth=0.5;fontSize=10;align=left;spacingLeft=8;"
+      vertex="1" parent="1">
+      <mxGeometry x="590" y="495" width="220" height="28" as="geometry"/>
+    </mxCell>
+    <mxCell id="fs_r1" value="FK   UserId  :  INT"
+      style="fillColor=#e8f5fa;fontColor=#1a7a9e;strokeColor=#1a7a9e;strokeWidth=1;fontSize=10;align=left;spacingLeft=8;fontStyle=2;"
+      vertex="1" parent="1">
+      <mxGeometry x="590" y="523" width="220" height="28" as="geometry"/>
+    </mxCell>
+    <mxCell id="fs_r2" value="  🔒  TotalIncome  :  NVARCHAR (AES-256)"
+      style="fillColor=#ffffff;fontColor=#0d1321;strokeColor=#b8dde8;strokeWidth=0.5;fontSize=10;align=left;spacingLeft=8;"
+      vertex="1" parent="1">
+      <mxGeometry x="590" y="551" width="220" height="28" as="geometry"/>
+    </mxCell>
+    <mxCell id="fs_r3" value="  🔒  TotalExpense  :  NVARCHAR (AES-256)"
+      style="fillColor=#ffffff;fontColor=#0d1321;strokeColor=#b8dde8;strokeWidth=0.5;fontSize=10;align=left;spacingLeft=8;"
+      vertex="1" parent="1">
+      <mxGeometry x="590" y="579" width="220" height="28" as="geometry"/>
+    </mxCell>
+    <mxCell id="fs_r4" value="  🔒  Balance  :  NVARCHAR (AES-256)"
+      style="fillColor=#ffffff;fontColor=#0d1321;strokeColor=#b8dde8;strokeWidth=0.5;fontSize=10;align=left;spacingLeft=8;"
+      vertex="1" parent="1">
+      <mxGeometry x="590" y="607" width="220" height="28" as="geometry"/>
+    </mxCell>
+    <mxCell id="fs_r5" value="       StartDate  :  DATETIME"
+      style="fillColor=#ffffff;fontColor=#0d1321;strokeColor=#b8dde8;strokeWidth=0.5;fontSize=10;align=left;spacingLeft=8;"
+      vertex="1" parent="1">
+      <mxGeometry x="590" y="635" width="220" height="28" as="geometry"/>
+    </mxCell>
+    <mxCell id="fs_r6" value="       EndDate  :  DATETIME"
+      style="fillColor=#f0f8fc;fontColor=#0d1321;strokeColor=#1a7a9e;strokeWidth=1.5;fontSize=10;align=left;spacingLeft=8;"
+      vertex="1" parent="1">
+      <mxGeometry x="590" y="663" width="220" height="28" as="geometry"/>
+    </mxCell>
+    <mxCell id="fs_bot" value="" style="fillColor=#1a7a9e;strokeColor=#1a7a9e;" vertex="1" parent="1">
+      <mxGeometry x="590" y="691" width="220" height="3" as="geometry"/>
+    </mxCell>
+
+    <!-- ═══ SAĞ SÜTUN ALT: PREDICTIONS (x=590, y=720) ═══ -->
+    <mxCell id="pr_h" value="PREDICTIONS"
+      style="fillColor=#0d1321;fontColor=#ffffff;strokeColor=#1a7a9e;strokeWidth=2;fontSize=12;fontStyle=1;align=center;"
+      vertex="1" parent="1">
+      <mxGeometry x="590" y="720" width="220" height="35" as="geometry"/>
+    </mxCell>
+    <mxCell id="pr_r0" value="PK   PredictionId  :  INT"
+      style="fillColor=#1a7a9e;fontColor=#ffffff;strokeColor=#1a7a9e;strokeWidth=0.5;fontSize=10;align=left;spacingLeft=8;"
+      vertex="1" parent="1">
+      <mxGeometry x="590" y="755" width="220" height="28" as="geometry"/>
+    </mxCell>
+    <mxCell id="pr_r1" value="FK   UserId  :  INT"
+      style="fillColor=#e8f5fa;fontColor=#1a7a9e;strokeColor=#1a7a9e;strokeWidth=1;fontSize=10;align=left;spacingLeft=8;fontStyle=2;"
+      vertex="1" parent="1">
+      <mxGeometry x="590" y="783" width="220" height="28" as="geometry"/>
+    </mxCell>
+    <mxCell id="pr_r2" value="  🔒  PredictedAmount  :  NVARCHAR (AES-256)"
+      style="fillColor=#ffffff;fontColor=#0d1321;strokeColor=#b8dde8;strokeWidth=0.5;fontSize=10;align=left;spacingLeft=8;"
+      vertex="1" parent="1">
+      <mxGeometry x="590" y="811" width="220" height="28" as="geometry"/>
+    </mxCell>
+    <mxCell id="pr_r3" value="       PredictedMonth  :  DATETIME"
+      style="fillColor=#ffffff;fontColor=#0d1321;strokeColor=#b8dde8;strokeWidth=0.5;fontSize=10;align=left;spacingLeft=8;"
+      vertex="1" parent="1">
+      <mxGeometry x="590" y="839" width="220" height="28" as="geometry"/>
+    </mxCell>
+    <mxCell id="pr_r4" value="       CreatedAt  :  DATETIME"
+      style="fillColor=#f0f8fc;fontColor=#0d1321;strokeColor=#1a7a9e;strokeWidth=1.5;fontSize=10;align=left;spacingLeft=8;"
+      vertex="1" parent="1">
+      <mxGeometry x="590" y="867" width="220" height="28" as="geometry"/>
+    </mxCell>
+    <mxCell id="pr_bot" value="" style="fillColor=#1a7a9e;strokeColor=#1a7a9e;" vertex="1" parent="1">
+      <mxGeometry x="590" y="895" width="220" height="3" as="geometry"/>
+    </mxCell>
+
+    <!-- ═══ İLİŞKİLER ═══ -->
+    <!-- USERS(1) → CATEGORIES(N) — sol boşluktan geç (x=268) -->
+    <mxCell id="rel1" value="1 : N"
+      style="edgeStyle=orthogonalEdgeStyle;strokeColor=#1a7a9e;strokeWidth=2;endArrow=ERmany;endFill=0;startArrow=ERone;startFill=0;fontSize=10;fontStyle=1;fontColor=#1a7a9e;labelBackgroundColor=#ffffff;"
+      edge="1" source="u_r0" target="cat_r3" parent="1">
+      <mxGeometry relative="1" as="geometry">
+        <Array as="points">
+          <mxPoint x="268" y="109"/>
+          <mxPoint x="268" y="593"/>
+        </Array>
+      </mxGeometry>
+    </mxCell>
+    <!-- USERS(1) → TRANSACTIONS(N) — sol boşluktan geç (x=275) -->
+    <mxCell id="rel2" value="1 : N"
+      style="edgeStyle=orthogonalEdgeStyle;strokeColor=#1a7a9e;strokeWidth=2;endArrow=ERmany;endFill=0;startArrow=ERone;startFill=0;fontSize=10;fontStyle=1;fontColor=#1a7a9e;labelBackgroundColor=#ffffff;"
+      edge="1" source="u_r0" target="tr_r6" parent="1">
+      <mxGeometry relative="1" as="geometry">
+        <Array as="points">
+          <mxPoint x="275" y="109"/>
+          <mxPoint x="275" y="857"/>
+        </Array>
+      </mxGeometry>
+    </mxCell>
+    <!-- USERS(1) → FINANCE_SUMMARIES(N) — sağ boşluktan geç (x=562) -->
+    <mxCell id="rel3" value="1 : N"
+      style="edgeStyle=orthogonalEdgeStyle;strokeColor=#1a7a9e;strokeWidth=2;endArrow=ERmany;endFill=0;startArrow=ERone;startFill=0;fontSize=10;fontStyle=1;fontColor=#1a7a9e;labelBackgroundColor=#ffffff;"
+      edge="1" source="u_r0" target="fs_r1" parent="1">
+      <mxGeometry relative="1" as="geometry">
+        <Array as="points">
+          <mxPoint x="562" y="109"/>
+          <mxPoint x="562" y="537"/>
+        </Array>
+      </mxGeometry>
+    </mxCell>
+    <!-- USERS(1) → PREDICTIONS(N) — sağ boşluktan geç (x=570) -->
+    <mxCell id="rel4" value="1 : N"
+      style="edgeStyle=orthogonalEdgeStyle;strokeColor=#1a7a9e;strokeWidth=2;endArrow=ERmany;endFill=0;startArrow=ERone;startFill=0;fontSize=10;fontStyle=1;fontColor=#1a7a9e;labelBackgroundColor=#ffffff;"
+      edge="1" source="u_r0" target="pr_r1" parent="1">
+      <mxGeometry relative="1" as="geometry">
+        <Array as="points">
+          <mxPoint x="570" y="109"/>
+          <mxPoint x="570" y="797"/>
+        </Array>
+      </mxGeometry>
+    </mxCell>
+    <!-- CATEGORIES(1) → TRANSACTIONS(N) — sol dışından geç (x=242) -->
+    <mxCell id="rel5" value="1 : N"
+      style="edgeStyle=orthogonalEdgeStyle;strokeColor=#4cbdda;strokeWidth=2;endArrow=ERmany;endFill=0;startArrow=ERone;startFill=0;fontSize=10;fontStyle=1;fontColor=#4cbdda;labelBackgroundColor=#ffffff;"
+      edge="1" source="cat_r0" target="tr_r7" parent="1">
+      <mxGeometry relative="1" as="geometry">
+        <Array as="points">
+          <mxPoint x="242" y="509"/>
+          <mxPoint x="242" y="885"/>
+        </Array>
+      </mxGeometry>
+    </mxCell>
+
+    <!-- ═══ AÇIKLAMA ═══ -->
+    <mxCell id="leg_pk" value="PK = Birincil Anahtar (Primary Key)"
+      style="fillColor=#1a7a9e;fontColor=#ffffff;strokeColor=#1a7a9e;fontSize=9;align=left;spacingLeft=8;rounded=1;"
+      vertex="1" parent="1">
+      <mxGeometry x="20" y="940" width="220" height="22" as="geometry"/>
+    </mxCell>
+    <mxCell id="leg_fk" value="FK = Yabancı Anahtar (Foreign Key)"
+      style="fillColor=#e8f5fa;fontColor=#1a7a9e;strokeColor=#1a7a9e;fontSize=9;align=left;spacingLeft=8;rounded=1;fontStyle=2;"
+      vertex="1" parent="1">
+      <mxGeometry x="255" y="940" width="220" height="22" as="geometry"/>
+    </mxCell>
+    <mxCell id="leg_enc" value="🔒 = AES-256-CBC ile şifrelenmiş alan"
+      style="fillColor=#fff3cd;fontColor=#664d03;strokeColor=#ffca2c;fontSize=9;align=left;spacingLeft=8;rounded=1;"
+      vertex="1" parent="1">
+      <mxGeometry x="20" y="968" width="220" height="22" as="geometry"/>
+    </mxCell>
+    <mxCell id="leg_rel" value="1 : N = Bire-Çok İlişki"
+      style="fillColor=#ffffff;fontColor=#0d1321;strokeColor=#1a7a9e;fontSize=9;align=left;spacingLeft=8;rounded=1;"
+      vertex="1" parent="1">
+      <mxGeometry x="490" y="940" width="180" height="22" as="geometry"/>
+    </mxCell>
+
+  </root>
+</mxGraphModel>

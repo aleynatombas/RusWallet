@@ -13,6 +13,11 @@ export interface AnalysisInsight {
 /** Üst şeritte değil, kategori grafiği ile birlikte gösterilir. */
 export const INSIGHT_ID_DISTRIBUTION_TOP_TWO = 'compare-top-two';
 
+/** Kira, fatura, sigorta, kredi gibi zorunlu kategoriler anomali olarak işaretlenmez. */
+function isMandatoryCategory(categoryName: string): boolean {
+  return /kira|fatura|sigorta|kredi|vergi/i.test(categoryName);
+}
+
 /** Bütçe + anomali verisinden okunabilir öneri kartları üretir (sunucuda üretilmiş ML/istatistik + metin). */
 export function buildAnalysisInsights(
   budget: BudgetSuggestionsResponseDto | null,
@@ -23,6 +28,7 @@ export function buildAnalysisInsights(
   if (anomalies?.anomalies?.length) {
     for (let i = 0; i < anomalies.anomalies.length; i++) {
       const a = anomalies.anomalies[i];
+      if (isMandatoryCategory(a.categoryName)) continue;
       list.push({
         id: `anomaly-${a.categoryName}-${i}`,
         title: `${a.categoryName}: olağandışı harcama`,

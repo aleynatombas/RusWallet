@@ -3,6 +3,8 @@ using RusWallet.Core.Entities;
 using RusWallet.Core.DTOs.Auth;
 using RusWallet.Core.Validation;
 using RusWallet.Infrastructure.Security;
+using System.Security.Cryptography;
+using System.Text;
 
 namespace RusWallet.Infrastructure.Services
 {
@@ -11,15 +13,18 @@ namespace RusWallet.Infrastructure.Services
         private readonly IUserRepository _userRepository;
         private readonly JwtService _jwtService;
         private readonly IOnboardingService _onboardingService;
+        private readonly IEmailSender _emailSender;
 
         public AuthService(
             IUserRepository userRepository,
             JwtService jwtService,
-            IOnboardingService onboardingService)
+            IOnboardingService onboardingService,
+            IEmailSender emailSender)
         {
             _userRepository = userRepository;
             _jwtService = jwtService;
             _onboardingService = onboardingService;
+            _emailSender = emailSender;
         }
 
         public async Task<AuthResponseDto> RegisterAsync(RegisterRequestDto dto)
@@ -38,7 +43,7 @@ namespace RusWallet.Infrastructure.Services
             if (existingUser != null)
                 throw new Exception("Bu e-posta adresi zaten kayıtlı. Giriş yapın veya başka bir e-posta kullanın.");
 
-            string hashedPassword = BCrypt.Net.BCrypt.HashPassword(dto.Password);
+            string hashedPassword = BCrypt.Net.BCrypt.HashPassword(dto.Password, workFactor: 10);
 
             var user = new User
             {
@@ -77,7 +82,7 @@ namespace RusWallet.Infrastructure.Services
                 throw new Exception("Şifreniz yanlış, tekrar deneyin.");
 
             if (user.OnboardingCompletedAt != null)
-                await _onboardingService.SyncProfileBaselinesAsync(user.UserId);
+                _ = Task.Run(() => _onboardingService.SyncProfileBaselinesAsync(user.UserId));
 
             var token = _jwtService.GenerateToken(user);
 
@@ -104,7 +109,79 @@ namespace RusWallet.Infrastructure.Services
             if (user == null)
                 throw new Exception("Bu e-posta ile kayıtlı hesap bulunamadı.");
 
-            user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(dto.NewPassword);
+            user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(dto.NewPassword, workFactor: 10);
+            user.PasswordResetToken = null;
+            user.PasswordResetTokenExpires = null;
+            await _userRepository.UpdateAsync(user);
+        }
+
+        // ── Şifremi Unuttum — 2 adımlı OTP akışı ───────────────────────────────
+
+        public async Task ForgotPasswordAsync(ForgotPasswordRequestDto dto)
+        {
+            var email = (dto.Email ?? "").Trim();
+            if (!AuthInputValidation.IsValidEmailFormat(email))
+                throw new Exception("Geçerli bir e-posta adresi girin (örn. ad@alan.com).");
+
+            var user = await _userRepository.GetByEmailCaseInsensitiveAsync(email);
+            // Kullanıcı bulunamasa da hata döndürme — e-posta numaralandırma saldırısını önler
+            if (user == null) return;
+
+            // 6 haneli OTP üret
+            var code = Random.Shared.Next(100_000, 1_000_000).ToString();
+            // DB'de hash'ini sakla (düz kodu değil)
+            var codeHash = Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(code)));
+
+            user.PasswordResetToken = codeHash;
+            user.PasswordResetTokenExpires = DateTime.UtcNow.AddMinutes(15);
+            await _userRepository.UpdateAsync(user);
+
+            var html = $"""
+                <div style="font-family:sans-serif;max-width:480px;margin:0 auto">
+                  <h2 style="color:#0d1321">RusWallet — Şifre Sıfırlama</h2>
+                  <p>Şifrenizi sıfırlamak için aşağıdaki kodu kullanın:</p>
+                  <div style="font-size:32px;font-weight:bold;letter-spacing:8px;
+                              color:#1a7a9e;padding:16px 0">{code}</div>
+                  <p style="color:#666">Bu kod <strong>15 dakika</strong> geçerlidir.</p>
+                  <p style="color:#999;font-size:12px">
+                    Bu isteği siz yapmadıysanız bu e-postayı görmezden gelebilirsiniz.
+                  </p>
+                </div>
+                """;
+
+            await _emailSender.SendAsync(
+                to: email,
+                subject: "RusWallet — Şifre Sıfırlama Kodunuz",
+                htmlBody: html);
+        }
+
+        public async Task ResetPasswordWithCodeAsync(ResetPasswordWithCodeRequestDto dto)
+        {
+            var email = (dto.Email ?? "").Trim();
+            var code = (dto.Code ?? "").Trim();
+
+            if (!AuthInputValidation.IsValidEmailFormat(email))
+                throw new Exception("Geçerli bir e-posta adresi girin.");
+            if (string.IsNullOrWhiteSpace(code))
+                throw new Exception("Doğrulama kodu gerekli.");
+            if (!AuthInputValidation.TryValidatePassword(dto.NewPassword, out var pwdError))
+                throw new Exception(pwdError);
+
+            var user = await _userRepository.GetByEmailCaseInsensitiveAsync(email);
+            if (user == null)
+                throw new Exception("Geçersiz veya süresi dolmuş kod.");
+
+            // Token ve süre kontrolü
+            if (string.IsNullOrEmpty(user.PasswordResetToken) ||
+                user.PasswordResetTokenExpires == null ||
+                user.PasswordResetTokenExpires < DateTime.UtcNow)
+                throw new Exception("Kodun süresi dolmuş. Lütfen yeni kod isteyin.");
+
+            var codeHash = Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(code)));
+            if (!string.Equals(codeHash, user.PasswordResetToken, StringComparison.OrdinalIgnoreCase))
+                throw new Exception("Kod hatalı. Lütfen tekrar kontrol edin.");
+
+            user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(dto.NewPassword, workFactor: 10);
             user.PasswordResetToken = null;
             user.PasswordResetTokenExpires = null;
             await _userRepository.UpdateAsync(user);
@@ -159,7 +236,7 @@ namespace RusWallet.Infrastructure.Services
             if (!AuthInputValidation.TryValidatePassword(dto.NewPassword, out var pwdError))
                 throw new Exception(pwdError);
 
-            user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(dto.NewPassword);
+            user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(dto.NewPassword, workFactor: 10);
             await _userRepository.UpdateAsync(user);
         }
 

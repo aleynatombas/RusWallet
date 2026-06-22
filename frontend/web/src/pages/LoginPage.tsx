@@ -39,20 +39,8 @@ export function LoginPage() {
             <h2 className="font-display text-2xl font-semibold tracking-tight text-foreground sm:text-3xl">
               Şifremi unuttum
             </h2>
-            <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-              Hesabına kayıtlı e-postayı ve yeni şifreni gir; ardından giriş yapabilirsin.
-            </p>
           </div>
-          <EmailPasswordUpdatePanel idPrefix="login-email-pwd" appearance="authSplit" className="mt-0" />
-          <p className="text-center text-sm text-muted-foreground">
-            <button
-              type="button"
-              onClick={closePasswordHelp}
-              className="font-medium text-primary underline-offset-4 hover:underline"
-            >
-              Girişe dön
-            </button>
-          </p>
+          <EmailPasswordUpdatePanel idPrefix="login-email-pwd" appearance="authSplit" className="mt-0" onBack={closePasswordHelp} />
         </div>
       </AuthShell>
     );

@@ -18,8 +18,8 @@ import {
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
+import { useTheme } from 'react-native-paper';
 import { api, getApiErrorMessage } from '../services/api';
-import { darkPaperTheme } from '../theme/paperThemes';
 import type { ChatAskResponse, ChatMessage } from '../types/chat';
 import { MobileAiAssistantMark, MobileAiAssistantMarkShell } from './ai/MobileAiAssistantMark';
 
@@ -59,6 +59,7 @@ export function MobileFloatingChatbot({
   fabPlacement = 'floating-right',
 }: MobileFloatingChatbotProps) {
   const insets = useSafeAreaInsets();
+  const theme = useTheme();
   const { width: windowWidth, height: windowHeight } = useWindowDimensions();
   const [open, setOpen] = useState(false);
   const [input, setInput] = useState('');
@@ -157,8 +158,8 @@ export function MobileFloatingChatbot({
     };
   }, []);
 
-  /** Uygulama temasından bağımsız: her zaman koyu (web) sohbet paleti */
-  const c = darkPaperTheme.colors;
+  /** Uygulama temasına uygun sohbet paleti */
+  const c = theme.colors;
   const card = c.surface;
   const border = c.outline;
   const muted = c.surfaceVariant;
@@ -167,8 +168,8 @@ export function MobileFloatingChatbot({
   const primary = c.primary;
   const onPrimary = c.onPrimary;
   const inputBg = c.background;
-  const headerBg = 'rgba(255,255,255,0.06)';
-  const footerBg = 'rgba(255,255,255,0.03)';
+  const headerBg = theme.dark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.03)';
+  const footerBg = theme.dark ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.02)';
   const shortcutBorder = 'rgba(125, 211, 252, 0.35)';
   const shortcutBgA = 'rgba(36, 173, 219, 0.12)';
   const shortcutBgB = 'rgba(36, 173, 219, 0.08)';

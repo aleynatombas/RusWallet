@@ -8,10 +8,11 @@ import {
   StyleSheet,
   View,
   ActivityIndicator,
+  DeviceEventEmitter,
   type LayoutChangeEvent,
 } from 'react-native';
 import { useTheme } from 'react-native-paper';
-import { useRoute, useNavigation } from '@react-navigation/native';
+import { useRoute, useNavigation, useFocusEffect } from '@react-navigation/native';
 import type { RouteProp } from '@react-navigation/native';
 import type { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
 import axios from 'axios';
@@ -92,10 +93,17 @@ export function MobileAnalysisComponent() {
       } catch {
         setOnboardingProfile(null);
       }
-    } catch (err) {
-      const msg = axios.isAxiosError(err)
-        ? String(err.response?.data?.message ?? err.message)
-        : 'Veri yüklenemedi.';
+    } catch (err: unknown) {
+      let msg = 'Veri yüklenemedi.';
+      if (axios.isAxiosError(err)) {
+        // axios type guard — err is AxiosError in this branch
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const axErr = err as any;
+        const apiMsg: unknown = axErr?.response?.data?.message;
+        msg = typeof apiMsg === 'string' && apiMsg ? apiMsg : (String(axErr?.message || '') || msg);
+      } else if (err instanceof Error) {
+        msg = err.message;
+      }
       setError(msg);
       setRoadmap(null);
       setOnboardingProfile(null);
@@ -108,6 +116,21 @@ export function MobileAnalysisComponent() {
   useEffect(() => {
     void load();
   }, [load]);
+
+  // İşlem sekmesinde gelir/gider eklenince analizi yenile (sekme arka planda kalsa bile)
+  useEffect(() => {
+    const sub = DeviceEventEmitter.addListener('ruswallet-transactions-changed', () => {
+      void load();
+    });
+    return () => sub.remove();
+  }, [load]);
+
+  // Analiz sekmesine her odaklanıldığında taze veri yükle
+  useFocusEffect(
+    useCallback(() => {
+      void load();
+    }, [load])
+  );
 
   const surplusMonthlyFromOnboarding = useMemo(() => {
     if (!onboardingProfile) return 0;

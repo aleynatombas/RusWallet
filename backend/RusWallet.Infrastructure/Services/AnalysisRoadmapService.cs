@@ -242,8 +242,10 @@ public sealed class AnalysisRoadmapService : IAnalysisRoadmapService
 
         if (hits.Count == 0)
         {
+            // Esnek filtresi olmadan tüm giderler arasından en yüksek kategoriyi göster,
+            // böylece herhangi bir gider eklenince "Bu ay öne çıkan" hemen güncellenir.
             var topMonth = expenses
-                .Where(t => t.TransactionDate >= monthStart && t.TransactionDate < today.AddDays(1) && !t.IsIncome && IsFlexibleSpend(t))
+                .Where(t => t.TransactionDate >= monthStart && t.TransactionDate < today.AddDays(1) && !t.IsIncome)
                 .GroupBy(t => CatName(t))
                 .Select(g => (Name: g.Key, Sum: g.Sum(x => x.Amount)))
                 .OrderByDescending(x => x.Sum)

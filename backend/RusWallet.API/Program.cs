@@ -13,6 +13,12 @@ using Microsoft.Extensions.Logging;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// ── Finansal alan şifreleme — AES-256 servisi başlatılıyor ──────────────────
+var encryptionKey = builder.Configuration["Encryption:Key"]
+    ?? throw new InvalidOperationException("Encryption:Key appsettings'te tanımlanmamış.");
+FieldEncryptionService.Initialize(encryptionKey);
+// ────────────────────────────────────────────────────────────────────────────
+
 // --- Services ---
 // Service ve Repository bağımlılıklarını ekliyoruz
 builder.Services.AddScoped<ICategoryService, CategoryService>();

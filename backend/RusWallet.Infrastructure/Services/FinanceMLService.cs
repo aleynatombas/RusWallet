@@ -13,6 +13,22 @@ public class FinanceMLService : IFinanceMLService
         _transactionRepository = transactionRepository;
     }
 
+    private static readonly string[] MandatoryKeys =
+    {
+        "kira", "konut", "mortgage", "aidat", "apartman",
+        "fatura", "elektrik", "su", "doğalgaz", "dogalgaz", "internet", "telefon",
+        "vergi", "sigorta", "kasko", "kredi", "taksit",
+        "okul", "kreş", "kres", "üniversite", "universite",
+        "abonelik", "üyelik", "uyelik", "netflix", "spotify", "youtube", "apple", "prime", "disney"
+    };
+
+    private static bool IsMandatoryCategory(string? categoryName)
+    {
+        if (string.IsNullOrWhiteSpace(categoryName)) return false;
+        var n = categoryName.Trim().ToLowerInvariant();
+        return MandatoryKeys.Any(k => n.Contains(k, StringComparison.Ordinal));
+    }
+
     public async Task<BudgetSuggestionsResponseDto> GetBudgetSuggestionsAsync(int userId, int lastMonths = 6)
     {
         var end = DateTime.Today;
@@ -84,11 +100,20 @@ public class FinanceMLService : IFinanceMLService
         var currentTransactions = await _transactionRepository.GetByUserAndDateRangeAsync(userId, periodStart, periodEnd, isIncome: false);
         var historicalTransactions = await _transactionRepository.GetByUserAndDateRangeAsync(userId, historyStart, periodStart, isIncome: false);
 
-        var currentByCategory = currentTransactions
+        // Amaç: "anomali"yi daha çok esnek/keyfi harcamalarda yakalamak.
+        var currentDiscretionary = currentTransactions
+            .Where(t => !IsMandatoryCategory(t.Category?.Name))
+            .ToList();
+
+        var historicalDiscretionary = historicalTransactions
+            .Where(t => !IsMandatoryCategory(t.Category?.Name))
+            .ToList();
+
+        var currentByCategory = currentDiscretionary
             .GroupBy(t => new { CategoryId = t.Category != null ? t.CategoryId : 0, Name = t.Category?.Name ?? "Kategorisiz" })
             .ToDictionary(g => g.Key, g => g.Sum(x => x.Amount));
 
-        var historicalByCategory = historicalTransactions
+        var historicalByCategory = historicalDiscretionary
             .GroupBy(t => new { t.TransactionDate.Year, t.TransactionDate.Month, CategoryId = t.Category != null ? t.CategoryId : 0, Name = t.Category?.Name ?? "Kategorisiz" })
             .Select(g => new { g.Key.CategoryId, g.Key.Name, Sum = g.Sum(x => x.Amount) })
             .GroupBy(x => new { x.CategoryId, x.Name })
@@ -114,8 +139,8 @@ public class FinanceMLService : IFinanceMLService
 
             string severity = (mlSpike ? 3.0 : zScore) >= 3 ? "Yüksek" : "Orta";
             string message = std > 0
-                ? $"{key.Name} bu ay ortalamadan {zScore:F1} standart sapma fazla (ortalama: {mean:F0} TL, bu ay: {currentAmount:F0} TL)."
-                : $"{key.Name} bu ay {currentAmount:F0} TL (geçmişe göre yüksek).";
+                ? $"{key.Name} (esnek harcama) bu ay ortalamadan {zScore:F1} standart sapma fazla (ortalama: {mean:F0} TL, bu ay: {currentAmount:F0} TL)."
+                : $"{key.Name} (esnek harcama) bu ay {currentAmount:F0} TL (geçmişe göre yüksek).";
 
             anomalies.Add(new AnomalyAlertDto
             {
@@ -132,8 +157,8 @@ public class FinanceMLService : IFinanceMLService
         }
 
         // Toplam harcama anomalisi: ML spike veya z-score
-        var currentTotal = currentTransactions.Sum(t => t.Amount);
-        var historicalMonthlyTotals = historicalTransactions
+        var currentTotal = currentDiscretionary.Sum(t => t.Amount);
+        var historicalMonthlyTotals = historicalDiscretionary
             .GroupBy(t => new { t.TransactionDate.Year, t.TransactionDate.Month })
             .OrderBy(g => g.Key.Year).ThenBy(g => g.Key.Month)
             .Select(g => g.Sum(x => x.Amount))
@@ -149,14 +174,14 @@ public class FinanceMLService : IFinanceMLService
             {
                 anomalies.Add(new AnomalyAlertDto
                 {
-                    CategoryName = "Toplam",
+                    CategoryName = "Toplam Esnek",
                     CategoryId = null,
                     CurrentAmount = currentTotal,
                     HistoricalAverage = (decimal)totalMean,
                     StandardDeviation = (decimal)totalStd,
                     ZScore = totalZ,
                     Severity = (totalMlSpike ? 3.0 : totalZ) >= 3 ? "Yüksek" : "Orta",
-                    Message = $"Toplam harcama bu ay ortalamadan {totalZ:F1} standart sapma fazla (ortalama: {totalMean:F0} TL, bu ay: {currentTotal:F0} TL).",
+                    Message = $"Toplam esnek harcama bu ay ortalamadan {totalZ:F1} standart sapma fazla (ortalama: {totalMean:F0} TL, bu ay: {currentTotal:F0} TL).",
                     DetectedByML = totalMlSpike
                 });
             }

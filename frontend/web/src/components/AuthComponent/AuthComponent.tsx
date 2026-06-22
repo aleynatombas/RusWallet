@@ -61,6 +61,15 @@ export function AuthComponent({
   const [lastName, setLastName] = useState('');
   const [phoneE164, setPhoneE164] = useState<string | undefined>(undefined);
 
+  function mapLoginErrorMessage(rawMessage: string): string {
+    const normalized = rawMessage.toLowerCase();
+    if (normalized.includes('kullanıcı bulunamadı')) return 'Kullanıcı bulunamadı';
+    if (normalized.includes('şifreniz yanlış') || normalized.includes('sifreniz yanlis')) {
+      return 'Şifreniz yanlış, tekrar deneyin.';
+    }
+    return rawMessage;
+  }
+
   async function handleLogin(e: React.FormEvent) {
     e.preventDefault();
     setError('');
@@ -72,7 +81,8 @@ export function AuthComponent({
       await login({ email: email.trim(), password } as LoginRequest);
       onSuccess?.();
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : 'Giriş başarısız.');
+      const raw = err instanceof Error ? err.message : 'Giriş başarısız.';
+      setError(mapLoginErrorMessage(raw));
     }
   }
 
@@ -135,7 +145,10 @@ export function AuthComponent({
                 type="email"
                 placeholder="ornek@email.com"
                 value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                onChange={(e) => {
+                  setEmail(e.target.value);
+                  if (error) setError('');
+                }}
                 className={fieldShell}
                 required
               />
@@ -147,7 +160,10 @@ export function AuthComponent({
               <PasswordInput
                 id="password"
                 value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                onChange={(e) => {
+                  setPassword(e.target.value);
+                  if (error) setError('');
+                }}
                 autoComplete="current-password"
                 className={fieldShell}
                 required
@@ -197,7 +213,10 @@ export function AuthComponent({
                 type="email"
                 placeholder="ornek@email.com"
                 value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                onChange={(e) => {
+                  setEmail(e.target.value);
+                  if (error) setError('');
+                }}
                 required
               />
             </div>
@@ -206,7 +225,10 @@ export function AuthComponent({
               <PasswordInput
                 id="password"
                 value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                onChange={(e) => {
+                  setPassword(e.target.value);
+                  if (error) setError('');
+                }}
                 autoComplete="current-password"
                 required
               />

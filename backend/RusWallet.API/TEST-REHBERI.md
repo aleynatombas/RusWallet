@@ -55,12 +55,22 @@ Cevaptaki **token** değerini kopyala (örn. `eyJhbGciOiJIUzI1NiIs...`). Bunu a�
 
 Sonra sırayla dene:
 
-| Ne test ediyorsun | Method | Endpoint | Body / Parametre |
-|-------------------|--------|----------|-------------------|
-| **Chatbot** | POST | `/api/Chatbot/ask` | `{ "message": "Bütçe nasıl yapılır?" }` |
-| **AI kategori önerisi** | POST | `/api/AI/suggest-category` | `{ "description": "Migros market alışverişi" }` |
-| **Analiz (özet)** | GET | `/api/Analysis/summary` | (body yok) |
-| **Tahmin** | GET | `/api/Prediction/monthly?month=2025-03-01` | (body yok, sadece query) |
+- **Chatbot**
+  - Method: POST
+  - Endpoint: `/api/Chatbot/ask`
+  - Body: `{ "message": "Bütçe nasıl yapılır?" }`
+- **AI kategori önerisi**
+  - Method: POST
+  - Endpoint: `/api/AI/suggest-category`
+  - Body: `{ "description": "Migros market alışverişi" }`
+- **Analiz (özet)**
+  - Method: GET
+  - Endpoint: `/api/Analysis/summary`
+  - Body: (body yok)
+- **Tahmin**
+  - Method: GET
+  - Endpoint: `/api/Prediction/monthly?month=2025-03-01`
+  - Body: (body yok, sadece query)
 
 Her birinde **Execute** dediğinde 200 ve cevap JSON’u görmelisin.
 

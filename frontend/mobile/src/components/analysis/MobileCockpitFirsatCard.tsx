@@ -1,95 +1,85 @@
-import { View, Text, StyleSheet, Pressable } from 'react-native';
-import { useTheme } from 'react-native-paper';
+import { View, Text, StyleSheet } from 'react-native';
 import { AnalysisCard } from './AnalysisCard';
-import { cockpitInsightLine } from '../../lib/cockpitInsightStack';
 import type { FinancialCockpitDto } from '../../types/financialRoadmap';
 import { useAnalysisPalette } from '../../theme/useAnalysisPalette';
 import { CockpitSkeletonLines, fmtTry } from './cockpitPrimitives';
 
-export function MobileCockpitFirsatCard({
-  cockpit,
-  onHarcamaEkle,
-}: {
-  cockpit: FinancialCockpitDto;
-  onHarcamaEkle: () => void;
-}) {
-  const theme = useTheme();
+export function MobileCockpitFirsatCard({ cockpit }: { cockpit: FinancialCockpitDto }) {
   const p = useAnalysisPalette();
   const o = cockpit.opportunities;
-  const onPrimary = theme.colors.onPrimary;
+  const totalMonthlyPotential = o.tiles.reduce((sum, t) => sum + (t.estimatedSaving ?? 0), 0);
+  const totalYearlyPotential = totalMonthlyPotential > 0 ? totalMonthlyPotential * 12 : 0;
 
   return (
-    <AnalysisCard title="ML — tasarruf ve kazanç" subtitle="Fırsat sinyalleri" headerBorder>
-      <Text style={[styles.insightHint, { color: p.muted }]}>{cockpitInsightLine(o.insightStack, 'ml_opportunity')}</Text>
-      <View style={[styles.inner, { borderColor: p.border, backgroundColor: p.dashedBoxBg }]}>
-        {o.isLearning ? (
-          <>
-            <CockpitSkeletonLines />
+    <AnalysisCard title="Tasarruf Fırsatları" headerBorder>
+      {o.isLearning ? (
+        <View style={styles.inner}>
+          <CockpitSkeletonLines />
+          <View style={[styles.learningBox, { borderColor: p.border, backgroundColor: p.dashedBoxBg }]}>
             <Text style={[styles.shortMsg, { color: p.muted }]}>{o.shortMessage}</Text>
-          </>
-        ) : (
-          <>
-            <View style={styles.tileWrap}>
-              {o.tiles.map((tile, i) => (
-                <View key={`${tile.label}-${i}`} style={[styles.tile, { borderColor: p.border, backgroundColor: p.firsatTileBg }]}>
-                  <Text style={[styles.tileTitle, { color: p.fg }]}>
-                    {tile.iconEmoji ? `${tile.iconEmoji} ` : ''}
-                    {tile.label}
-                  </Text>
-                  {tile.subtitle ? <Text style={[styles.tileSub, { color: p.muted }]}>{tile.subtitle}</Text> : null}
-                  {tile.estimatedSaving != null ? (
-                    <Text style={[styles.tileSave, { color: p.fg }]}>≈ {fmtTry(tile.estimatedSaving)}</Text>
-                  ) : null}
+          </View>
+        </View>
+      ) : (
+        <View style={styles.inner}>
+          <View style={styles.tileWrap}>
+            {o.tiles.map((tile, i) => {
+              const detail = [tile.subtitle?.trim()].filter(Boolean).join('. ');
+              return (
+                <View key={`${tile.label}-${i}`} style={[styles.detailRow, { borderBottomColor: p.border }]}>
+                  <Text style={[styles.detailText, { color: p.fg }]}>{detail || tile.label}</Text>
                 </View>
-              ))}
+              );
+            })}
+          </View>
+
+          <View style={[styles.summaryBox, { borderColor: p.border, backgroundColor: p.dashedBoxBg }]}>
+            <Text style={[styles.firsatMsg, { color: p.fg }]}>{o.shortMessage}</Text>
+            <View style={styles.summaryGrid}>
+              <Text style={[styles.summaryLine, { color: p.muted }]}>
+                Aylık potansiyel:{' '}
+                <Text style={[styles.summaryValue, { color: p.fg }]}>
+                  {totalMonthlyPotential > 0 ? fmtTry(totalMonthlyPotential) : '-'}
+                </Text>
+              </Text>
+              <Text style={[styles.summaryLine, { color: p.muted }]}>
+                Yıllık potansiyel:{' '}
+                <Text style={[styles.summaryValue, { color: p.fg }]}>
+                  {totalYearlyPotential > 0 ? fmtTry(totalYearlyPotential) : '-'}
+                </Text>
+              </Text>
             </View>
-            <Text style={[styles.firsatMsg, { color: p.fg }]} numberOfLines={8}>
-              {o.shortMessage}
-            </Text>
-          </>
-        )}
-        <Pressable
-          onPress={onHarcamaEkle}
-          style={({ pressed }) => [
-            styles.primaryBtn,
-            { backgroundColor: p.accent, opacity: pressed ? 0.9 : 1 },
-          ]}
-          accessibilityRole="button"
-        >
-          <Text style={[styles.primaryBtnText, { color: onPrimary }]}>Harcama ekle</Text>
-        </Pressable>
-      </View>
+          </View>
+        </View>
+      )}
     </AnalysisCard>
   );
 }
 
 const styles = StyleSheet.create({
-  insightHint: { fontSize: 10, lineHeight: 14, marginBottom: 8 },
-  inner: {
-    borderRadius: 12,
-    borderWidth: 1,
-    padding: 12,
-    gap: 10,
-  },
-  tileWrap: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
-  tile: {
-    flexGrow: 1,
-    minWidth: '45%',
-    padding: 12,
-    borderRadius: 12,
-    borderWidth: 1,
-  },
-  tileTitle: { fontSize: 12, fontWeight: '600' },
-  tileSub: { fontSize: 10, marginTop: 4 },
-  tileSave: { fontSize: 12, fontWeight: '700', marginTop: 8 },
-  firsatMsg: { fontSize: 11, lineHeight: 16 },
-  shortMsg: { fontSize: 11, lineHeight: 16 },
-  primaryBtn: {
-    paddingVertical: 12,
+  inner: { gap: 10 },
+  learningBox: {
     borderRadius: 10,
-    alignItems: 'center',
-    marginTop: 4,
-    width: '100%',
+    borderWidth: StyleSheet.hairlineWidth,
+    paddingHorizontal: 10,
+    paddingVertical: 8,
   },
-  primaryBtnText: { fontSize: 12, fontWeight: '700' },
+  tileWrap: { gap: 0 },
+  detailRow: {
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    paddingBottom: 10,
+    marginBottom: 10,
+  },
+  detailText: { fontSize: 13, lineHeight: 19 },
+  summaryBox: {
+    borderRadius: 10,
+    borderWidth: StyleSheet.hairlineWidth,
+    paddingHorizontal: 10,
+    paddingVertical: 8,
+    gap: 8,
+  },
+  firsatMsg: { fontSize: 13, lineHeight: 19 },
+  summaryGrid: { gap: 4 },
+  summaryLine: { fontSize: 12, lineHeight: 17 },
+  summaryValue: { fontWeight: '700' },
+  shortMsg: { fontSize: 11, lineHeight: 16 },
 });

@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet, ScrollView } from 'react-native';
 import Slider from '@react-native-community/slider';
 import { useTheme } from 'react-native-paper';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
@@ -29,6 +29,7 @@ export interface MobileGoalHourglassSimulatorProps {
   monthlyDisposableCap: number;
   disposableSource: 'records' | 'onboarding';
   defaultAllocation: number;
+  forecastNextMonthSpending?: number | null;
 }
 
 /**
@@ -41,6 +42,7 @@ export function MobileGoalHourglassSimulator({
   monthlyDisposableCap,
   disposableSource,
   defaultAllocation,
+  forecastNextMonthSpending,
 }: MobileGoalHourglassSimulatorProps) {
   const theme = useTheme();
   const p = useAnalysisPalette();
@@ -114,35 +116,49 @@ export function MobileGoalHourglassSimulator({
             </View>
           </View>
         </View>
+
         <View style={styles.varisCol}>{varışPanel}</View>
       </View>
 
       <View style={styles.sliderBlock}>
-        <Text style={[styles.sliderLabel, { color: p.muted }]}>Her ay hedefe ayıracağın tutar</Text>
-        <Text style={[styles.sliderAmt, { color: p.fg }]}>
-          {disposableSource === 'records'
-            ? formatGoalMoneyTry(allocationClamped, 2)
-            : formatGoalAmountTry(allocationClamped)}
-        </Text>
-        {remaining > 0 && allocationClamped > 0 && monthsNeeded != null ? (
-          <Text style={[styles.sliderHint, { color: p.muted }]}>
-            Bu tempoda yaklaşık <Text style={{ fontWeight: '700', color: p.fg }}>{monthsNeeded} ay</Text> sürebilir.
-          </Text>
-        ) : null}
+        <ScrollView
+          style={styles.scrollBlock}
+          contentContainerStyle={styles.scrollContent}
+          showsVerticalScrollIndicator
+          persistentScrollbar
+          nestedScrollEnabled
+        >
+          <Text style={[styles.sliderLabel, { color: p.muted }]}>Her ay hedefe ayıracağın tutar</Text>
+          <View style={styles.amountRow}>
+            <Text style={[styles.sliderAmt, { color: p.fg }]}>
+              {disposableSource === 'records' ? formatGoalMoneyTry(allocationClamped, 2) : formatGoalAmountTry(allocationClamped)}
+            </Text>
 
-        {maxSlider > 0 ? (
-          <Slider
-            style={styles.slider}
-            minimumValue={0}
-            maximumValue={maxSlider}
-            step={sliderStep}
-            value={allocationClamped}
-            onValueChange={(v) => setAllocation(v)}
-            minimumTrackTintColor={p.accent}
-            maximumTrackTintColor={p.sliderTrackMax}
-            thumbTintColor={p.sliderThumb}
-          />
-        ) : null}
+            <View style={styles.amountMetaCol}>
+              {remaining > 0 && allocationClamped > 0 && monthsNeeded != null ? (
+                <Text style={[styles.sliderHint, { color: p.muted }]}>Bu tempoda yaklaşık <Text style={{ fontWeight: '700', color: p.fg }}>{monthsNeeded} ay</Text> sürebilir.</Text>
+              ) : null}
+
+              {forecastNextMonthSpending != null && forecastNextMonthSpending > 0 ? (
+                <Text style={[styles.sliderHint, { color: p.muted }]}>Gelecek ay tahmin: <Text style={{ fontWeight: '700', color: p.fg }}>{formatGoalAmountTry(forecastNextMonthSpending)}</Text></Text>
+              ) : null}
+            </View>
+          </View>
+
+          {maxSlider > 0 ? (
+            <Slider
+              style={styles.slider}
+              minimumValue={0}
+              maximumValue={maxSlider}
+              step={sliderStep}
+              value={allocationClamped}
+              onValueChange={(v) => setAllocation(v)}
+              minimumTrackTintColor={p.accent}
+              maximumTrackTintColor={p.sliderTrackMax}
+              thumbTintColor={p.sliderThumb}
+            />
+          ) : null}
+        </ScrollView>
       </View>
     </View>
   );
@@ -192,6 +208,10 @@ const styles = StyleSheet.create({
   sliderBlock: { gap: 6, paddingTop: 4 },
   sliderLabel: { fontSize: 12, fontWeight: '600' },
   sliderAmt: { fontSize: 22, fontWeight: '700', letterSpacing: -0.3 },
+  amountRow: { flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'space-between', gap: 8 },
+  amountMetaCol: { flex: 1, minWidth: 0, alignItems: 'flex-end', gap: 2, paddingTop: 2 },
   sliderHint: { fontSize: 11, lineHeight: 16 },
   slider: { width: '100%', height: 36 },
+  scrollBlock: { height: 128 },
+  scrollContent: { paddingTop: 4, paddingBottom: 6 },
 });

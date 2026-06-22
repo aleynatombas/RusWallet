@@ -49,7 +49,7 @@ export type OnboardingPanelProps = {
 export function OnboardingPanel({ variant = 'page', onClose, onDialogPhaseChange }: OnboardingPanelProps) {
   const navigate = useNavigate();
   const routerLocation = useLocation();
-  const { user, setOnboardingCompletedLocal, voluntaryProfileUpdate, setVoluntaryProfileUpdate } = useAuth();
+  const { setOnboardingCompletedLocal, voluntaryProfileUpdate, setVoluntaryProfileUpdate } = useAuth();
   const [lines, setLines] = useState<ChatLine[]>([]);
   const [input, setInput] = useState('');
   const [sending, setSending] = useState(false);
@@ -67,7 +67,7 @@ export function OnboardingPanel({ variant = 'page', onClose, onDialogPhaseChange
   /** /Onboarding/state (ve gerekirse abort-reopen) bitene kadar içerik gösterme — “Seni tanıyalım” bir karelik flaşını önler. */
   const [dialogStateReady, setDialogStateReady] = useState(false);
 
-  const name = user?.firstName?.trim() || 'Merhaba';
+  const name = 'Aleyna';
 
   const pushAssistant = useCallback((text: string) => {
     setLines((prev) => [...prev, { role: 'assistant', text }]);
@@ -81,17 +81,17 @@ export function OnboardingPanel({ variant = 'page', onClose, onDialogPhaseChange
     (data: OnboardingStateDto, mode: 'welcome' | 'resume' | 'update') => {
       const intro =
         mode === 'welcome'
-          ? `Merhaba, ${name}! **Akıllı tanıtım** ile birkaç soruda profilini oluşturalım.`
+          ? `Merhaba, Aleyna! **Akıllı Tanıtım** ile birkaç soruda profilini oluşturalım.`
           : mode === 'resume'
-            ? `${name}, **Akıllı tanıtım**a kaldığın yerden devam edelim.`
-            : `${name}, **Akıllı tanıtım** ile bilgilerini güncelleyelim.`;
+            ? `Aleyna, **Akıllı Tanıtım**'a kaldığın yerden devam edelim.`
+            : `Aleyna, **Akıllı Tanıtım** ile bilgilerini güncelleyelim.`;
       setLines([
         { role: 'assistant', text: intro },
         { role: 'assistant', text: data.assistantMessage },
       ]);
       setHubMode(false);
     },
-    [name]
+    []
   );
 
   useEffect(() => {
@@ -334,9 +334,9 @@ export function OnboardingPanel({ variant = 'page', onClose, onDialogPhaseChange
       className={cn(
         isDialog && 'flex min-h-0 w-full flex-1 flex-col overflow-hidden px-4 pb-4 pt-2',
         !isDialog &&
-          (hubMode
-            ? 'relative w-full px-4 py-4 sm:py-6'
-            : 'relative w-full px-4 pb-4 pt-1.5 sm:pb-6 sm:pt-2'),
+        (hubMode
+          ? 'relative w-full px-4 py-4 sm:py-6'
+          : 'relative w-full px-4 pb-4 pt-1.5 sm:pb-6 sm:pt-2'),
       )}
     >
       {!isDialog ? (

@@ -35,13 +35,11 @@ interface GoalHourglassSimulatorProps {
   monthlyDisposableCap: number;
   /** Üst sınırın veri kaynağı (sürgü adımı için). */
   disposableSource: 'records' | 'onboarding';
-  defaultAllocation: number;
-  className?: string;
+  defaultAllocation: number; forecastNextMonthSpending?: number | null; className?: string;
 }
 
 /** Dış kart tek çerçeve; içerik düz blok — ek kutu yok */
-const goalSummaryBlockClass =
-  'flex min-h-[5.5rem] flex-col justify-center gap-1 sm:min-h-0';
+const goalSummaryBlockClass = 'flex min-h-[3.25rem] flex-col justify-center gap-1';
 
 /**
  * Üstte hedef + tahmini varış yan yana; altta aylık tutar ve sürgü (kaydırılabilir).
@@ -53,6 +51,7 @@ export function GoalHourglassSimulator({
   monthlyDisposableCap,
   disposableSource,
   defaultAllocation,
+  forecastNextMonthSpending,
   className,
 }: GoalHourglassSimulatorProps) {
   const [allocation, setAllocation] = useState(defaultAllocation);
@@ -93,15 +92,13 @@ export function GoalHourglassSimulator({
     <>
       {remaining <= 0 ? (
         <div className={goalSummaryBlockClass}>
-          <p className="text-center text-sm leading-snug text-sky-800 dark:text-sky-200 sm:text-left">
-            {formatPageTitleDisplay('Kayıtlı bakiyene göre hedef tutarına ulaşılmış görünüyor.')}
+          <p className="text-center text-sm font-medium text-sky-800 dark:text-sky-200 sm:text-left">
+            Hedefe ulaştın.
           </p>
         </div>
       ) : allocationClamped <= 0 ? (
         <div className={goalSummaryBlockClass}>
-          <p className="text-center text-sm leading-snug text-muted-foreground sm:text-left">
-            {formatPageTitleDisplay('Aylık tutarı artırdığında tahmini varış güncellenir.')}
-          </p>
+          <p className="text-center text-sm text-muted-foreground sm:text-left">Aylık tutarı artırınca güncellenir.</p>
         </div>
       ) : monthsNeeded != null && etaLabel ? (
         <div
@@ -120,12 +117,8 @@ export function GoalHourglassSimulator({
               <Sparkles className="h-4 w-4 sm:h-5 sm:w-5" strokeWidth={2} />
             </div>
             <div className="min-w-0 flex-1">
-              <p className="text-[11px] font-medium leading-tight text-sky-800/95 dark:text-sky-200/95 sm:text-xs">
-                {formatPageTitleDisplay('Hedefe varış tarihin')}
-              </p>
-              <p className="mt-0.5 text-sm font-bold tabular-nums leading-tight text-sky-950 dark:text-sky-50 sm:text-base">
-                {etaLabel}
-              </p>
+              <p className="text-[11px] font-medium leading-tight text-sky-800/95 dark:text-sky-200/95 sm:text-xs">Tahmini varış</p>
+              <p className="mt-0.5 text-sm font-semibold tabular-nums leading-tight text-sky-950 dark:text-sky-50 sm:text-base">{etaLabel}</p>
             </div>
           </div>
         </div>
@@ -163,40 +156,53 @@ export function GoalHourglassSimulator({
       </div>
 
       <div className="shrink-0 overflow-x-hidden">
-        <div className="flex flex-col gap-2 pb-0.5 pr-0.5">
-          <div className="space-y-1 px-0.5 pt-1 sm:px-0">
-            <p className="text-xs font-medium leading-snug text-muted-foreground">
-              {formatPageTitleDisplay('Her ay hedefe ayıracağın tutar')}
-            </p>
-            <p className="text-xl font-bold tabular-nums tracking-tight text-foreground sm:text-2xl">
-              {disposableSource === 'records'
-                ? formatGoalMoneyTry(allocationClamped, 2)
-                : formatGoalAmountTry(allocationClamped)}
-            </p>
-
-            {remaining > 0 && allocationClamped > 0 && monthsNeeded != null ? (
-              <p className="text-xs leading-snug text-muted-foreground">
-                {formatPageTitleDisplay('Bu tempoda yaklaşık')}{' '}
-                <span className="font-semibold tabular-nums text-foreground">{monthsNeeded} ay</span>{' '}
-                {formatPageTitleDisplay('sürebilir')}.
+        <div className="max-h-44 sm:max-h-52 overflow-y-auto">
+          <div className="flex flex-col gap-2 pb-0.5 pr-0.5">
+            <div className="px-0.5 pt-1 sm:px-0">
+              <p className="text-xs font-medium leading-snug text-muted-foreground">
+                {formatPageTitleDisplay('Her ay hedefe ayıracağın tutar')}
               </p>
-            ) : null}
-          </div>
 
-          <div className="w-full space-y-1 px-0.5 pb-0.5">
-            <Slider
-              id="goal-alloc-slider"
-              aria-label="Aylık hedef birikim tutarı"
-              value={[allocationClamped]}
-              onValueChange={(v) => setAllocation(v[0] ?? 0)}
-              min={0}
-              max={maxSlider}
-              step={sliderStep}
-              className="w-full py-0.5"
-              trackClassName="h-1 bg-neutral-200 dark:bg-zinc-800"
-              rangeClassName="bg-neutral-900 dark:bg-white"
-              thumbClassName="h-3.5 w-3.5 border-0 bg-neutral-900 shadow-sm dark:bg-white dark:shadow-none focus-visible:ring-2 focus-visible:ring-neutral-400 focus-visible:ring-offset-1 focus-visible:ring-offset-background dark:focus-visible:ring-white/50"
-            />
+              <div className="mt-1 flex items-start justify-between gap-3">
+                <p className="text-xl font-bold tabular-nums tracking-tight text-foreground sm:text-2xl">
+                  {disposableSource === 'records'
+                    ? formatGoalMoneyTry(allocationClamped, 2)
+                    : formatGoalAmountTry(allocationClamped)}
+                </p>
+
+                <div className="min-w-0 flex-1 space-y-1 pt-1 text-right">
+                  {remaining > 0 && allocationClamped > 0 && monthsNeeded != null ? (
+                    <p className="text-xs leading-snug text-muted-foreground">
+                      {formatPageTitleDisplay('Bu tempoda yaklaşık')}{' '}
+                      <span className="font-semibold tabular-nums text-foreground">{monthsNeeded} ay</span>{' '}
+                      {formatPageTitleDisplay('sürebilir')}.
+                    </p>
+                  ) : null}
+
+                  {forecastNextMonthSpending != null && forecastNextMonthSpending > 0 ? (
+                    <p className="text-[11px] leading-snug text-muted-foreground">
+                      Gelecek ay tahmin: <span className="font-semibold">{formatGoalAmountTry(forecastNextMonthSpending)}</span>
+                    </p>
+                  ) : null}
+                </div>
+              </div>
+            </div>
+
+            <div className="w-full space-y-1 px-0.5 pb-0.5">
+              <Slider
+                id="goal-alloc-slider"
+                aria-label="Aylık hedef birikim tutarı"
+                value={[allocationClamped]}
+                onValueChange={(v) => setAllocation(v[0] ?? 0)}
+                min={0}
+                max={maxSlider}
+                step={sliderStep}
+                className="w-full py-0.5"
+                trackClassName="h-1 bg-neutral-200 dark:bg-zinc-800"
+                rangeClassName="bg-neutral-900 dark:bg-white"
+                thumbClassName="h-3.5 w-3.5 border-0 bg-neutral-900 shadow-sm dark:bg-white dark:shadow-none focus-visible:ring-2 focus-visible:ring-neutral-400 focus-visible:ring-offset-1 focus-visible:ring-offset-background dark:focus-visible:ring-white/50"
+              />
+            </div>
           </div>
         </div>
       </div>

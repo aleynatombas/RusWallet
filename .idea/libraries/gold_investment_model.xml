@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="gold-investment-model">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/backend/RusWallet.API/bin/Debug/net10.0/Data/gold-investment-model.zip!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

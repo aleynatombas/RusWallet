@@ -30,6 +30,16 @@ builder.Services.AddScoped<JwtService>(); // artık doğru namespace ile referan
 builder.Services.AddControllers();
 builder.Services.AddScoped<IFinanceAnalysisService, FinanceAnalysisService>();
 builder.Services.AddScoped<IFinanceMLService, FinanceMLService>();
+builder.Services.AddScoped<IMonthEndPredictiveService, MonthEndPredictiveService>();
+builder.Services.AddScoped<RuleBasedCockpitMonthEndInsightService>();
+builder.Services.AddScoped<ICockpitMonthEndInsightService>(sp =>
+{
+    var config = sp.GetRequiredService<IConfiguration>();
+    var fallback = sp.GetRequiredService<RuleBasedCockpitMonthEndInsightService>();
+    if (!string.IsNullOrWhiteSpace(config["OpenAI:ApiKey"]?.Trim()))
+        return new RusWallet.API.Services.OpenAICockpitMonthEndInsightService(config, fallback);
+    return fallback;
+});
 builder.Services.AddScoped<IAnalysisRoadmapService, AnalysisRoadmapService>();
 
 builder.Services.AddScoped<IPredictionService, PredictionService>();

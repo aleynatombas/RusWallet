@@ -54,8 +54,8 @@ export function useAnalysisPalette() {
       outlineBtnBorder: d ? themeColorAlpha(onSurf, 0.2) : themeColorAlpha(onSurf, 0.2),
       varisDateLight: d ? theme.colors.onSurface : prim,
       varisLabelLight: d ? theme.colors.primary : prim,
-      lifestyleBarMandatory: d ? 'rgba(248,250,252,0.82)' : '#0f172a',
-      lifestyleBarDiscretionary: d ? 'rgba(148,163,184,0.42)' : '#94a3b8',
+      lifestyleBarMandatory: prim,
+      lifestyleBarDiscretionary: themeColorAlpha(prim, d ? 0.5 : 0.35),
     };
   }, [theme]);
 }

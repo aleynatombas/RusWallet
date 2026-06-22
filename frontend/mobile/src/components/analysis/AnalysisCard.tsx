@@ -50,12 +50,12 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     borderWidth: 1,
     overflow: 'visible',
-    marginBottom: 12,
+    marginBottom: 14,
   },
   header: {
-    paddingHorizontal: 14,
-    paddingTop: 12,
-    paddingBottom: 10,
+    paddingHorizontal: 15,
+    paddingTop: 13,
+    paddingBottom: 11,
   },
   headerBorder: {
     borderBottomWidth: StyleSheet.hairlineWidth,
@@ -71,12 +71,12 @@ const styles = StyleSheet.create({
     lineHeight: 16,
   },
   body: {
-    paddingHorizontal: 14,
-    paddingBottom: 14,
-    paddingTop: 4,
+    paddingHorizontal: 15,
+    paddingBottom: 16,
+    paddingTop: 6,
   },
   bodyFlush: {
-    paddingHorizontal: 14,
-    paddingVertical: 14,
+    paddingHorizontal: 15,
+    paddingVertical: 16,
   },
 });

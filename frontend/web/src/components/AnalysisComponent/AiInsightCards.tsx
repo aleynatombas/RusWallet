@@ -7,7 +7,7 @@ interface AiInsightCardsProps {
 }
 
 function IconFor({ tone }: { tone: AnalysisInsight['tone'] }) {
-  if (tone === 'warning') return <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0 text-amber-600" aria-hidden />;
+  if (tone === 'warning') return <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0 text-primary" aria-hidden />;
   if (tone === 'positive') return <Leaf className="mt-0.5 h-5 w-5 shrink-0 text-primary" aria-hidden />;
   return <Sparkles className="mt-0.5 h-5 w-5 shrink-0 text-primary" aria-hidden />;
 }
@@ -29,7 +29,7 @@ export function AiInsightCards({ insights }: AiInsightCardsProps) {
             <Card
               className={
                 ins.tone === 'warning'
-                  ? 'border-amber-500/35 bg-amber-500/5'
+                  ? 'border-primary/35 bg-primary/5'
                   : ins.tone === 'positive'
                     ? 'border-primary/35 bg-primary/5'
                     : 'border-border'

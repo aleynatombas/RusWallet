@@ -74,7 +74,7 @@ namespace RusWallet.Infrastructure.Services
                 throw new Exception("Kullanıcı bulunamadı");
 
             if (!BCrypt.Net.BCrypt.Verify(dto.Password, user.PasswordHash))
-                throw new Exception("Şifre yanlış");
+                throw new Exception("Şifreniz yanlış, tekrar deneyin.");
 
             if (user.OnboardingCompletedAt != null)
                 await _onboardingService.SyncProfileBaselinesAsync(user.UserId);

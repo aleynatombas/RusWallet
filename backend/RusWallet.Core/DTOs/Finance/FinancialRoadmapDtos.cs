@@ -50,6 +50,17 @@ public sealed class FinancialCockpitDto
 
 public sealed class MonthEndExpectationCockpitDto
 {
+    /// <summary>Bu ay bugüne kadar toplam gider (tahmin bağlamı).</summary>
+    public decimal? CurrentMonthSpentMtd { get; set; }
+
+    /// <summary>Bugünkü ay içi gün (1–31).</summary>
+    public int? CurrentMonthDay { get; set; }
+
+    public int? DaysInMonth { get; set; }
+
+    /// <summary>MTD / geçen gün sayısı.</summary>
+    public decimal? DailyAverageSpend { get; set; }
+
     public decimal ProjectedMonthTotal { get; set; }
     public int DaysRemainingInMonth { get; set; }
     /// <summary>0–100: projeksiyon / esnek pay (veya veri yoksa ay ilerlemesi).</summary>
@@ -63,13 +74,27 @@ public sealed class MonthEndExpectationCockpitDto
     /// </summary>
     public bool ProjectedUsesFixedPlusFlexibleSplit { get; set; }
     public string ShortMessage { get; set; } = "";
+    /// <summary>Öngörü uyarısı — kesin tutar değildir.</summary>
+    public string? ForecastDisclaimer { get; set; }
     public string? ActionChatMessage { get; set; }
 
     /// <summary>İstemci etiketi: predictive_analysis (AI + predictive gelecek ay tahmini).</summary>
     public string InsightStack { get; set; } = "predictive_analysis";
 
-    /// <summary>Bir sonraki takvim ayı için toplam gider öngörüsü (predictive: son üç tam ay ortalaması).</summary>
+    /// <summary>Bir sonraki takvim ayı için toplam gider öngörüsü (kategori bazlı ML.NET).</summary>
     public decimal? ForecastNextMonthTotal { get; set; }
+
+    /// <summary>Geçen tam ayın toplam gideri.</summary>
+    public decimal? PreviousMonthTotal { get; set; }
+
+    /// <summary>Son 3 tam ayın ortalama toplam gideri.</summary>
+    public decimal? Last3MonthsAverageTotal { get; set; }
+
+    /// <summary>ml_category_blend | ml_tempo_ratio | ml_linear | ml_flex_series | ml_total_series</summary>
+    public string? PredictionSource { get; set; }
+
+    /// <summary>0–100: tahmin güven skoru.</summary>
+    public int? PredictionConfidencePercent { get; set; }
 }
 
 public sealed class RadarHitsCockpitDto
@@ -109,7 +134,7 @@ public sealed class OpportunityCornerCockpitDto
 
 public sealed class OpportunityTileDto
 {
-    public string IconEmoji { get; set; } = "✨";
+    public string IconEmoji { get; set; } = "";
     public string Label { get; set; } = "";
     public string? Subtitle { get; set; }
     public decimal? EstimatedSaving { get; set; }

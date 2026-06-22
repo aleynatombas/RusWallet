@@ -22,11 +22,11 @@ export function AuthShell({ activeTab, children }: AuthShellProps) {
       'relative pb-3 text-sm font-medium transition-colors',
       activeTab === tab
         ? cn(
-            'text-foreground',
-            'after:absolute after:inset-x-0 after:bottom-0 after:h-0.5 after:rounded-full after:bg-gradient-to-r',
-            'after:from-sky-600/90 after:to-cyan-600/85',
-            'dark:after:from-primary/35 dark:after:to-primary/20'
-          )
+          'text-foreground',
+          'after:absolute after:inset-x-0 after:bottom-0 after:h-0.5 after:rounded-full after:bg-gradient-to-r',
+          'after:from-sky-600/90 after:to-cyan-600/85',
+          'dark:after:from-primary/35 dark:after:to-primary/20'
+        )
         : 'text-muted-foreground hover:text-foreground/90',
     );
 
@@ -53,13 +53,13 @@ export function AuthShell({ activeTab, children }: AuthShellProps) {
 
       <div
         className={cn(
-          'flex flex-1 flex-col bg-background font-display lg:min-w-0 lg:border-l lg:border-slate-200/90 dark:lg:border-border/40',
+          'relative flex flex-1 flex-col bg-background font-display lg:min-w-0',
           isRegister && 'lg:min-h-0 lg:overflow-hidden'
         )}
       >
         <div
           className={cn(
-            'flex flex-1 flex-col justify-center px-5 py-10 sm:px-8 lg:bg-gradient-to-b lg:from-background lg:to-sky-50/25 lg:px-14 lg:py-16 dark:lg:from-background dark:lg:to-background',
+            'relative flex flex-1 flex-col justify-center px-5 py-10 sm:px-8 lg:bg-gradient-to-b lg:from-background lg:via-background lg:to-sky-50/25 lg:px-14 lg:py-16 dark:lg:from-background dark:lg:via-background dark:lg:to-background',
             isRegister && 'lg:min-h-0 lg:flex-1 lg:overflow-hidden lg:py-8 lg:px-10'
           )}
         >

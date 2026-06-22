@@ -184,10 +184,11 @@ export function MobileAnalysisComponent() {
 
   const cockpit = roadmap?.cockpit;
   const cardShadow = getCardShadow(theme.dark);
-
-  function goTransactions() {
-    navigation.navigate('Transactions');
-  }
+  const goOnboarding = useCallback(() => {
+    const parent = navigation.getParent() as { navigate: (name: string, params?: unknown) => void } | undefined;
+    if (!parent) return;
+    parent.navigate('Onboarding', { mode: 'revisit' });
+  }, [navigation]);
 
   return (
     <View style={[styles.screen, { backgroundColor: p.pageBg }]}>
@@ -231,8 +232,6 @@ export function MobileAnalysisComponent() {
             ) : (
               <>
                 <MobileCockpitMonthEndCard cockpit={cockpit!} />
-                <MobileCockpitRadarCard cockpit={cockpit!} />
-                <MobileCockpitFirsatCard cockpit={cockpit!} onHarcamaEkle={goTransactions} />
                 <View onLayout={handleGoalSectionLayout}>
                   <MobileFinancialGoalSection
                     mainGoal={onboardingProfile?.mainGoal}
@@ -241,9 +240,13 @@ export function MobileAnalysisComponent() {
                     monthlyDisposableCap={monthlyDisposableCap}
                     disposableSource={disposableSource}
                     defaultAllocation={defaultAllocation}
+                    forecastNextMonthSpending={roadmap?.cockpit?.monthEnd?.forecastNextMonthTotal ?? null}
+                    onGoOnboarding={goOnboarding}
                   />
                 </View>
+                <MobileCockpitRadarCard cockpit={cockpit!} />
                 {roadmap?.lifestyle ? <MobileYasamTarziCard lifestyle={roadmap.lifestyle} /> : null}
+                <MobileCockpitFirsatCard cockpit={cockpit!} />
                 <MobileMonthSpendSparklineCard sparkline={roadmap?.monthSpendSparkline} />
                 {roadmap?.qaModule ? <MobileKisaSoruCard qa={roadmap.qaModule} /> : null}
               </>

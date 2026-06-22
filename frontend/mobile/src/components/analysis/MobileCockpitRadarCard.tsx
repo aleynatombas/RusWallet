@@ -1,7 +1,6 @@
 import { View, Text, StyleSheet } from 'react-native';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { AnalysisCard } from './AnalysisCard';
-import { cockpitInsightLine } from '../../lib/cockpitInsightStack';
 import type { FinancialCockpitDto } from '../../types/financialRoadmap';
 import { useAnalysisPalette } from '../../theme/useAnalysisPalette';
 import { CockpitSkeletonLines, fmtTry } from './cockpitPrimitives';
@@ -11,8 +10,7 @@ export function MobileCockpitRadarCard({ cockpit }: { cockpit: FinancialCockpitD
   const r = cockpit.radar;
 
   return (
-    <AnalysisCard title="ML — anomali" subtitle="Sıradışı harcama tespiti" headerBorder>
-      <Text style={[styles.insightHint, { color: p.muted }]}>{cockpitInsightLine(r.insightStack, 'ml_anomaly')}</Text>
+    <AnalysisCard title="Anomali Tespiti" headerBorder>
       <View style={[styles.inner, r.isLowData && { opacity: 0.55 }]}>
         {r.hasUnusualSpending ? (
           <View style={[styles.chip, { borderColor: p.border, backgroundColor: p.chipBg }]}>
@@ -64,7 +62,6 @@ export function MobileCockpitRadarCard({ cockpit }: { cockpit: FinancialCockpitD
 }
 
 const styles = StyleSheet.create({
-  insightHint: { fontSize: 10, lineHeight: 14, marginBottom: 8 },
   inner: { gap: 8 },
   chip: {
     flexDirection: 'row',

@@ -355,8 +355,8 @@ public class OnboardingService : IOnboardingService
         0 => "Gelirini not aldım. Şimdi **kira** tutarına bakalım.",
         1 => "Kira tutarını not aldım. **Faturalar** için devam edelim.",
         2 => "Faturaları not aldım. **Abonelikler** toplamına geçelim.",
-        3 => "Hedefini not aldım.",
-        4 => "Hedef tutarını not aldım.",
+        3 => "Abonelikler toplamını not aldım. Şimdi **finansal hedefini** soruyorum.",
+        4 => "Hedefini not aldım.",
         _ => "Tamamdır.",
     };
 

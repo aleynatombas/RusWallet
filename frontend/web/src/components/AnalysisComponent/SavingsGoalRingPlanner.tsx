@@ -69,7 +69,7 @@ export function SavingsGoalRingPlanner({
         </p>
 
         <div className="mt-6 flex flex-col items-center gap-6 lg:flex-row lg:items-center lg:justify-between lg:gap-10">
-    
+
 
           <div className="w-full min-w-0 flex-1 space-y-4">
             <div className="grid gap-2 sm:grid-cols-3">
@@ -80,9 +80,6 @@ export function SavingsGoalRingPlanner({
               <div className="rounded-xl border border-border/50 bg-background/80 px-3 py-2.5 shadow-elevation dark:shadow-sm">
                 <p className="text-[10px] font-medium uppercase tracking-wide text-muted-foreground">Bakiye</p>
                 <p className="mt-0.5 text-sm font-semibold tabular-nums text-foreground">{fmtTry(currentBalance)}</p>
-                <p className="mt-1 text-[10px] leading-tight text-muted-foreground">
-                  Kayıtlı gelirler − giderler (tanıtımdaki sabit gider dahil).
-                </p>
               </div>
               <div className="rounded-xl border border-border/50 bg-background/80 px-3 py-2.5 shadow-elevation dark:shadow-sm sm:col-span-1">
                 <p className="text-[10px] font-medium uppercase tracking-wide text-muted-foreground">Kalan</p>
@@ -107,39 +104,20 @@ export function SavingsGoalRingPlanner({
                 onChange={(e) => setMonthly(Number(e.target.value))}
                 className="mt-3 h-2 w-full cursor-pointer appearance-none rounded-full bg-muted accent-amber-600 dark:accent-amber-500 [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:border-2 [&::-webkit-slider-thumb]:border-background [&::-webkit-slider-thumb]:bg-amber-500 [&::-webkit-slider-thumb]:shadow-md"
               />
-              <p className="mt-2 text-xs leading-relaxed text-muted-foreground">
+              <p className="mt-2 text-xs text-muted-foreground">
                 {monthsNeeded != null ? (
                   <>
-                    Bu tempoda kalan tutar için yaklaşık <strong className="text-foreground">{monthsNeeded}</strong>{' '}
-                    ay.
+                    Yaklaşık <strong className="text-foreground">{monthsNeeded} ay</strong>
                   </>
                 ) : remaining <= 0 ? (
-                  <>Hedefe ulaşıldıysa bu senaryoyu sadece alışkanlık için kullanabilirsin.</>
-                ) : (
-                  <>Aylık tutarı artır; süre hesabı pozitif birikimle görünür.</>
-                )}
+                  <>Hedefe ulaştınız.</>
+                ) : null}
               </p>
-              {monthlyIncomeNet != null && monthlyFixedCosts != null ? (
-                <p className="mt-2 text-[11px] leading-relaxed text-muted-foreground">
-                  Tanıtımdaki tahminler: net gelir{' '}
-                  <strong className="tabular-nums text-foreground">{fmtTry(monthlyIncomeNet)}</strong>, sabit gider{' '}
-                  <strong className="tabular-nums text-foreground">{fmtTry(monthlyFixedCosts)}</strong>
-                  {surplus != null ? (
-                    <>
-                      {' '}
-                      → aylık <strong className="text-foreground">serbest</strong> pay ≈{' '}
-                      <strong className="tabular-nums text-foreground">{fmtTry(surplus)}</strong>
-                    </>
-                  ) : null}
-                  . Bu işlemler ayda bir kez listene işlenir; gelir/gider ekranında{' '}
-                  <strong className="font-normal text-foreground">Maaş</strong> ve{' '}
-                  <strong className="font-normal text-foreground">Faturalar</strong> satırlarına bak.
-                </p>
-              ) : (
+              {monthlyIncomeNet != null && monthlyFixedCosts != null && surplus != null ? (
                 <p className="mt-2 text-[11px] text-muted-foreground">
-                  Net gelir ve sabit gider tanıtımdan gelmediyse iç halka devreye girmez; tanıtımı tamamladığından emin ol.
+                  Serbest pay: <strong className="tabular-nums text-foreground">{fmtTry(surplus)}</strong>
                 </p>
-              )}
+              ) : null}
             </div>
           </div>
         </div>

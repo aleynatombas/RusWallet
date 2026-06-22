@@ -175,7 +175,7 @@ export function AnalysisComponent() {
       )}
     >
       {error ? (
-        <p className="shrink-0 text-sm text-destructive" role="alert">
+        <p className="shrink-0 text-sm text-muted-foreground" role="alert">
           {error}
         </p>
       ) : null}
@@ -195,9 +195,9 @@ export function AnalysisComponent() {
           >
             {roadmapError ? (
               <div className={cn(gridCellClass, 'lg:col-span-2 lg:row-span-3')}>
-                <Card className="border-destructive/30 bg-destructive/5">
+                <Card className="border-primary/30 bg-primary/5">
                   <CardContent className="px-3 py-6 sm:px-3.5">
-                    <p className="text-center text-sm text-destructive" role="alert">
+                    <p className="text-center text-sm text-muted-foreground" role="alert">
                       {roadmapError}
                     </p>
                   </CardContent>
@@ -241,7 +241,7 @@ export function AnalysisComponent() {
 
                   <CardContent className="flex min-h-0 flex-1 flex-col overflow-hidden p-0">
                     {hasGoalSimulator && onboardingProfile?.mainGoal ? (
-                      <div className="flex min-h-0 flex-1 flex-col overflow-hidden px-3 pb-2 pt-2 sm:px-3.5 sm:pb-3 sm:pt-2.5">
+                      <div className="px-3 pb-2 pt-2 sm:px-3.5 sm:pb-3 sm:pt-2.5">
                         <GoalHourglassSimulator
                           className="min-h-0 shrink-0"
                           mainGoalShort={formatGoalTitleDisplay(onboardingProfile.mainGoal.trim().slice(0, 120))}
@@ -250,6 +250,7 @@ export function AnalysisComponent() {
                           monthlyDisposableCap={monthlyDisposableCap}
                           disposableSource={disposableSource}
                           defaultAllocation={defaultAllocation}
+                          forecastNextMonthSpending={roadmap?.cockpit?.monthEnd?.forecastNextMonthTotal ?? null}
                         />
                       </div>
                     ) : (

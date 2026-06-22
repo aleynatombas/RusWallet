@@ -14,6 +14,7 @@ import {
   KeyboardAvoidingView,
   Platform,
   DeviceEventEmitter,
+  Keyboard,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
@@ -65,6 +66,7 @@ export function MobileFloatingChatbot({
   const [messages, setMessages] = useState<ChatMessage[]>(() => [
     { id: 'welcome', role: 'assistant', text: WELCOME_TEXT },
   ]);
+  const [keyboardHeight, setKeyboardHeight] = useState(0);
   const listRef = useRef<ScrollView>(null);
   const inputRef = useRef<TextInput | null>(null);
 
@@ -72,8 +74,13 @@ export function MobileFloatingChatbot({
   const fabBottom =
     fabVariant === 'stack' ? insets.bottom + 24 : insets.bottom + TAB_BAR_APPROX + 8;
   /** Orta sekme + çentik; yüzen FAB yok — panel alt çubuğun hemen üstü (çubuk kısaldıkça güncellenir) */
-  const panelBottom = tabBarCenter ? insets.bottom + 96 : fabBottom + FAB_SIZE + 12;
-  const panelMaxH = Math.min(560, Math.max(280, windowHeight - panelBottom - insets.top - 16));
+  const panelBottomBase = tabBarCenter ? insets.bottom + 96 : fabBottom + FAB_SIZE + 12;
+  /** Klavye üstünde kalsın diye paneli yukarı kaydır */
+  const panelBottom = panelBottomBase + keyboardHeight;
+  const panelMaxH = Math.min(
+    560,
+    Math.max(280, windowHeight - panelBottomBase - keyboardHeight - insets.top - 16)
+  );
   const panelW = Math.min(PANEL_MAX_W, windowWidth - PANEL_RIGHT * 2);
   const panelLeft = tabBarCenter ? Math.max(12, (windowWidth - panelW) / 2) : PANEL_RIGHT;
   const showFloatingFab = fabPlacement === 'floating-right';
@@ -139,6 +146,17 @@ export function MobileFloatingChatbot({
     return () => sub.remove();
   }, []);
 
+  useEffect(() => {
+    const showEvt = Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow';
+    const hideEvt = Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide';
+    const showSub = Keyboard.addListener(showEvt, (e) => setKeyboardHeight(e.endCoordinates.height));
+    const hideSub = Keyboard.addListener(hideEvt, () => setKeyboardHeight(0));
+    return () => {
+      showSub.remove();
+      hideSub.remove();
+    };
+  }, []);
+
   /** Uygulama temasından bağımsız: her zaman koyu (web) sohbet paleti */
   const c = darkPaperTheme.colors;
   const card = c.surface;
@@ -166,8 +184,8 @@ export function MobileFloatingChatbot({
             accessibilityLabel="Arka plan — kapat"
           />
           <KeyboardAvoidingView
-            behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-            keyboardVerticalOffset={Platform.OS === 'ios' ? insets.top + 8 : 0}
+            behavior={Platform.OS === 'ios' ? 'padding' : 'padding'}
+            keyboardVerticalOffset={Platform.OS === 'ios' ? insets.top + 8 : 12}
             style={[
               styles.panelOuter,
               {

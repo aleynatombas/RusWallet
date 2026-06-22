@@ -1,49 +1,97 @@
+import { Bar, BarChart, Cell, XAxis, YAxis } from 'recharts';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  type ChartConfig,
+  ChartContainer,
+  ChartTooltip,
+  ChartTooltipContent,
+} from '@/components/ui/chart';
 import type { AnalysisQaModuleDto, LifestyleProfileDto } from '@/types/financialRoadmap';
 import { ANALYSIS_CARD_TITLE_CLASS, formatPageTitleDisplay } from '@/lib/pageTitle';
 import { cn } from '@/lib/utils';
 
-/** Yuvarlak grafik yerine yatay bölümlü çubuk + esneklik skoru — analiz grid’inde yer kaplamasın diye sıkı */
-function LifestyleShareBar({ lifestyle }: { lifestyle: LifestyleProfileDto }) {
+const lifestyleChartConfig = {
+  zorunlu: {
+    label: 'Zorunlu',
+    theme: {
+      light: 'hsl(var(--primary))',
+      dark: 'hsl(var(--primary))',
+    },
+  },
+  esnek: {
+    label: 'Esnek',
+    theme: {
+      light: 'hsl(var(--primary) / 0.35)',
+      dark: 'hsl(var(--primary) / 0.5)',
+    },
+  },
+} satisfies ChartConfig;
+
+/** Zorunlu / esnek payı — yatay iki çubuk */
+function LifestyleShareChart({ lifestyle }: { lifestyle: LifestyleProfileDto }) {
   const m = Math.min(100, Math.max(0, lifestyle.mandatorySharePercent));
   const d = Math.min(100, Math.max(0, lifestyle.discretionarySharePercent));
-  const score = Math.round(lifestyle.flexibilityScore);
-  const sum = m + d;
-  const mBar = sum > 0 ? (m / sum) * 100 : 50;
-  const dBar = sum > 0 ? (d / sum) * 100 : 50;
+
+  const chartData = [
+    { type: formatPageTitleDisplay('Zorunlu'), value: m, fill: 'var(--color-zorunlu)' },
+    { type: formatPageTitleDisplay('Esnek'), value: d, fill: 'var(--color-esnek)' },
+  ];
+
+  const ariaLabel = `${formatPageTitleDisplay('Zorunlu')} ${m.toFixed(0)} yüzde, ${formatPageTitleDisplay('Esnek')} ${d.toFixed(0)} yüzde`;
 
   return (
-    <div className="min-w-0 space-y-1.5">
-      <div className="flex flex-wrap items-end justify-between gap-x-2 gap-y-0.5">
-        <div>
-          <p className="text-[9px] font-medium uppercase tracking-wide text-muted-foreground">
-            {formatPageTitleDisplay('Esneklik')}
-          </p>
-          <p className="text-lg font-bold tabular-nums leading-none text-foreground sm:text-xl">
-            {score}
-            <span className="ml-0.5 text-xs font-medium tabular-nums text-muted-foreground">/100</span>
-          </p>
-        </div>
-        <div className="flex gap-2 text-[9px] tabular-nums text-muted-foreground sm:text-[10px]">
+    <div className="min-w-0 overflow-hidden" role="img" aria-label={ariaLabel}>
+      <div className="mb-1.5 flex flex-wrap items-end justify-end gap-x-2 gap-y-1">
+        <div className="flex flex-wrap gap-x-2 gap-y-0.5 text-[9px] tabular-nums text-muted-foreground sm:text-[10px]">
           <span className="inline-flex items-center gap-1">
-            <span className="h-1.5 w-1.5 shrink-0 rounded-sm bg-foreground/80" aria-hidden />
+            <span
+              className="h-2 w-2 shrink-0 rounded-sm bg-primary"
+              aria-hidden
+            />
             {formatPageTitleDisplay('Zorunlu')} {m.toFixed(0)}%
           </span>
           <span className="inline-flex items-center gap-1">
-            <span className="h-1.5 w-1.5 shrink-0 rounded-sm bg-muted-foreground/45" aria-hidden />
+            <span
+              className="h-2 w-2 shrink-0 rounded-sm bg-primary/35 dark:bg-primary/50"
+              aria-hidden
+            />
             {formatPageTitleDisplay('Esnek')} {d.toFixed(0)}%
           </span>
         </div>
       </div>
-      <div
-        className="flex h-1.5 w-full overflow-hidden rounded-full bg-muted"
-        role="img"
-        aria-label={`${formatPageTitleDisplay('Zorunlu')} ${m.toFixed(0)} yüzde, ${formatPageTitleDisplay('Esnek')} ${d.toFixed(0)} yüzde`}
-      >
-        <div className="h-full min-w-0 bg-foreground/85 transition-[width] dark:bg-foreground/80" style={{ width: `${mBar}%` }} />
-        <div className="h-full min-w-0 bg-muted-foreground/35" style={{ width: `${dBar}%` }} />
-      </div>
+      <ChartContainer config={lifestyleChartConfig} className="aspect-auto h-[7.25rem] w-full min-w-0 max-w-full">
+        <BarChart
+          layout="vertical"
+          accessibilityLayer
+          data={chartData}
+          barGap={10}
+          margin={{ left: 2, right: 2, top: 2, bottom: 2 }}
+        >
+          <XAxis type="number" hide domain={[0, 100]} />
+          <YAxis
+            type="category"
+            dataKey="type"
+            tickLine={false}
+            axisLine={false}
+            width={56}
+            tick={{ fontSize: 10, fill: 'hsl(var(--muted-foreground))' }}
+          />
+          <ChartTooltip
+            content={
+              <ChartTooltipContent
+                hideLabel
+                formatter={(value) => [`${Number(value).toFixed(0)}%`, undefined]}
+              />
+            }
+          />
+          <Bar dataKey="value" radius={4} maxBarSize={18} isAnimationActive={false}>
+            {chartData.map((entry) => (
+              <Cell key={entry.type} fill={entry.fill} />
+            ))}
+          </Bar>
+        </BarChart>
+      </ChartContainer>
     </div>
   );
 }
@@ -75,13 +123,13 @@ export function YasamTarziCard({
           {formatPageTitleDisplay('Bu ay zorunlu / esnek dağılımı')}
         </p>
       </CardHeader>
-      <CardContent className="flex min-h-0 flex-1 flex-col gap-3 px-2.5 pb-2 pt-2 sm:px-3 lg:flex-row lg:items-start lg:overflow-hidden">
+      <CardContent className="flex min-h-0 flex-1 flex-col gap-2 overflow-hidden px-2.5 pb-2 pt-2 sm:px-3">
         {lifestyle ? (
           <>
-            <div className="w-full min-w-0 shrink-0 lg:max-w-[52%]">
-              <LifestyleShareBar lifestyle={lifestyle} />
+            <div className="w-full min-w-0">
+              <LifestyleShareChart lifestyle={lifestyle} />
             </div>
-            <p className="line-clamp-2 min-w-0 flex-1 text-[10px] leading-snug text-muted-foreground sm:line-clamp-3 sm:text-[11px]">
+            <p className="min-w-0 text-[10px] leading-snug text-muted-foreground sm:text-[11px]">
               {lifestyle.summary}
             </p>
           </>

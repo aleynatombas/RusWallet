@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { View, Text, Pressable, StyleSheet, ScrollView } from 'react-native';
+import { View, Text, Pressable, StyleSheet, ScrollView, KeyboardAvoidingView, Platform } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import type { NavigationProp } from '@react-navigation/native';
@@ -53,11 +53,16 @@ export function MobileAuthLayout({
           <MaterialCommunityIcons name={isDark ? 'white-balance-sunny' : 'weather-night'} size={22} color={v.text} />
         </Pressable>
 
-        <ScrollView
-          keyboardShouldPersistTaps="handled"
-          contentContainerStyle={styles.scrollContent}
-          showsVerticalScrollIndicator={false}
+        <KeyboardAvoidingView
+          style={styles.flex}
+          behavior={Platform.OS === 'ios' ? 'padding' : 'padding'}
+          keyboardVerticalOffset={insets.top + 8}
         >
+          <ScrollView
+            keyboardShouldPersistTaps="handled"
+            contentContainerStyle={styles.scrollContent}
+            showsVerticalScrollIndicator={false}
+          >
           <View style={styles.inner}>
             <View style={[styles.tabRow, { borderBottomColor: v.border }]}>
               <Pressable
@@ -114,7 +119,8 @@ export function MobileAuthLayout({
 
             <View style={styles.formBlock}>{children}</View>
           </View>
-        </ScrollView>
+          </ScrollView>
+        </KeyboardAvoidingView>
       </SafeAreaView>
     </View>
   );

@@ -10,7 +10,6 @@ export function RegisterPage() {
         mode="register"
         variant="split"
         onSuccess={() => navigate('/', { replace: true })}
-        onPasswordHelpClick={() => navigate('/login?yardim=sifre', { replace: true })}
       />
     </AuthShell>
   );

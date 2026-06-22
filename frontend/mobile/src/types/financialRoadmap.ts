@@ -1,6 +1,10 @@
 /** GET /api/Analysis/roadmap — backend FinancialRoadmapResponseDto (web ile aynı) */
 
 export interface MonthEndExpectationCockpitDto {
+  currentMonthSpentMtd?: number | null;
+  currentMonthDay?: number | null;
+  daysInMonth?: number | null;
+  dailyAverageSpend?: number | null;
   projectedMonthTotal: number;
   daysRemainingInMonth: number;
   budgetFillPercent: number;
@@ -8,10 +12,15 @@ export interface MonthEndExpectationCockpitDto {
   hasDisposableReference: boolean;
   projectedUsesFixedPlusFlexibleSplit?: boolean;
   shortMessage: string;
+  forecastDisclaimer?: string | null;
   actionChatMessage?: string | null;
   insightStack?: string;
   /** Sonraki takvim ayı gider öngörüsü (predictive). */
   forecastNextMonthTotal?: number | null;
+  previousMonthTotal?: number | null;
+  last3MonthsAverageTotal?: number | null;
+  predictionSource?: string | null;
+  predictionConfidencePercent?: number | null;
 }
 
 export interface RadarHitItemDto {

@@ -10,6 +10,9 @@ import {
   Pressable,
   Modal,
   DeviceEventEmitter,
+  KeyboardAvoidingView,
+  Keyboard,
+  Platform,
 } from 'react-native';
 import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
 import { useFocusEffect } from '@react-navigation/native';
@@ -75,6 +78,7 @@ export function MobileTransactionsPanel({ onTransactionChange }: MobileTransacti
   const [editCategory, setEditCategory] = useState('');
   const [editCategorySuggestOpen, setEditCategorySuggestOpen] = useState(false);
   const [editSaving, setEditSaving] = useState(false);
+  const [keyboardHeight, setKeyboardHeight] = useState(0);
 
   const muted = theme.colors.onSurfaceVariant;
   const fg = theme.colors.onSurface;
@@ -121,6 +125,17 @@ export function MobileTransactionsPanel({ onTransactionChange }: MobileTransacti
     });
     return () => sub.remove();
   }, [loadMonth, loadCategories]);
+
+  useEffect(() => {
+    const showEvt = Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow';
+    const hideEvt = Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide';
+    const showSub = Keyboard.addListener(showEvt, (e) => setKeyboardHeight(e.endCoordinates.height));
+    const hideSub = Keyboard.addListener(hideEvt, () => setKeyboardHeight(0));
+    return () => {
+      showSub.remove();
+      hideSub.remove();
+    };
+  }, []);
 
   const filtered = useMemo(() => monthTx.filter((t) => transactionMatchesQuery(t, search)), [monthTx, search]);
 
@@ -270,7 +285,8 @@ export function MobileTransactionsPanel({ onTransactionChange }: MobileTransacti
     }
   }
 
-  const bottomPad = tabBarH + Math.max(insets.bottom, 8) + 16;
+  /** Klavye açıkken içerik kaydırılabilir alanda kalsın (Hızlı ekle / arama). */
+  const bottomPad = tabBarH + Math.max(insets.bottom, 8) + 16 + keyboardHeight;
   /** Üst gölge kesilmesin; kart başlıktan biraz ayrılsın (iOS shadow alanı). */
   const scrollTopPad = 12;
 
@@ -502,14 +518,26 @@ export function MobileTransactionsPanel({ onTransactionChange }: MobileTransacti
 
       {editing ? (
         <Modal visible transparent animationType="fade" onRequestClose={closeEdit}>
-          <Pressable
-            style={[styles.modalBackdrop, { backgroundColor: themeColorAlpha(theme.colors.scrim, 0.5) }]}
-            onPress={closeEdit}
+          <KeyboardAvoidingView
+            style={styles.modalKbRoot}
+            behavior={Platform.OS === 'ios' ? 'padding' : 'padding'}
+            keyboardVerticalOffset={Platform.OS === 'ios' ? insets.top + 12 : 12}
           >
             <Pressable
-              style={[styles.modalCard, cardShadow, { backgroundColor: cardBg, borderColor: border }]}
-              onPress={(e) => e.stopPropagation()}
+              style={[
+                styles.modalBackdrop,
+                {
+                  backgroundColor: themeColorAlpha(theme.colors.scrim, 0.5),
+                  justifyContent: keyboardHeight > 0 ? 'flex-end' : 'center',
+                  paddingBottom: keyboardHeight > 0 ? Math.max(insets.bottom, 10) + 8 : 20,
+                },
+              ]}
+              onPress={closeEdit}
             >
+              <Pressable
+                style={[styles.modalCard, cardShadow, { backgroundColor: cardBg, borderColor: border }]}
+                onPress={(e) => e.stopPropagation()}
+              >
               <Text style={[styles.modalTitle, { color: fg }]}>İşlemi güncelle</Text>
               <Text style={[styles.modalSub, { color: muted }]} numberOfLines={2}>
                 {editing.description}
@@ -595,8 +623,9 @@ export function MobileTransactionsPanel({ onTransactionChange }: MobileTransacti
                   Kaydet
                 </Button>
               </View>
+              </Pressable>
             </Pressable>
-          </Pressable>
+          </KeyboardAvoidingView>
         </Modal>
       ) : null}
     </>
@@ -715,7 +744,8 @@ const styles = StyleSheet.create({
   },
   quickBtns: { flexDirection: 'row', gap: 10, marginTop: 8 },
   quickBtnHalf: { flex: 1 },
-  modalBackdrop: { flex: 1, justifyContent: 'center', padding: 20 },
+  modalKbRoot: { flex: 1 },
+  modalBackdrop: { flex: 1, justifyContent: 'center', paddingHorizontal: 20, paddingTop: 20 },
   modalCard: { borderRadius: 16, padding: 20, borderWidth: StyleSheet.hairlineWidth, maxHeight: '90%' },
   modalTitle: { fontSize: 18, fontWeight: '600' },
   modalSub: { fontSize: 14, marginTop: 8, lineHeight: 20 },

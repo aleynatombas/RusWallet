@@ -52,7 +52,9 @@ api.interceptors.request.use((config: InternalAxiosRequestConfig) => {
 api.interceptors.response.use(
   (res) => res,
   (err: AxiosError<ApiErrorBody | string>) => {
-    if (err.response?.status === 401) unauthorizedHandler();
+    const requestUrl = String(err.config?.url ?? '').toLowerCase();
+    const isAuthLoginRequest = requestUrl.includes('/auth/login');
+    if (err.response?.status === 401 && !isAuthLoginRequest) unauthorizedHandler();
     const data = err.response?.data;
     const detail =
       typeof data === 'string'

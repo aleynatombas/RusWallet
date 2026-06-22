@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   Dimensions,
+  Keyboard,
   KeyboardAvoidingView,
   Platform,
   Pressable,
@@ -9,12 +10,13 @@ import {
   View,
   type TextStyle,
 } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
-import { Button, Card, Text, TextInput, useTheme, ActivityIndicator, IconButton } from 'react-native-paper';
+import { Button, Text, TextInput, useTheme, ActivityIndicator, IconButton } from 'react-native-paper';
 import { useNavigation, useRoute, type RouteProp } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAuth } from '../context/AuthContext';
+import { useAppTheme } from '../context/ThemeContext';
 import { api, getApiErrorMessage } from '../services/api';
 import type { AppStackParamList } from '../navigation/types';
 import type { OnboardingAnswerResponseDto, OnboardingStateDto } from '../types/onboarding';
@@ -77,6 +79,7 @@ function stripBold(s: string) {
 
 export function OnboardingScreen() {
   const theme = useTheme();
+  const { mode, toggleTheme } = useAppTheme();
   const insets = useSafeAreaInsets();
   const navigation = useNavigation<Nav>();
   const route = useRoute<R>();
@@ -92,10 +95,11 @@ export function OnboardingScreen() {
   const [summaryLines, setSummaryLines] = useState<string[] | null>(null);
   const [stepIndex, setStepIndex] = useState(0);
   const [stateReady, setStateReady] = useState(false);
+  const [keyboardHeight, setKeyboardHeight] = useState(0);
   const scrollRef = useRef<ScrollView>(null);
 
   const isRevisitEntry = route.params?.mode === 'revisit';
-  const first = user?.firstName?.trim() || 'Merhaba';
+  const first = 'Aleyna';
 
   const pushA = useCallback((t: string) => setLines((p) => [...p, { role: 'assistant', text: t }]), []);
   const pushU = useCallback((t: string) => setLines((p) => [...p, { role: 'user', text: t }]), []);
@@ -108,23 +112,34 @@ export function OnboardingScreen() {
     (data: OnboardingStateDto, variant: 'welcome' | 'resume' | 'update') => {
       const intro =
         variant === 'welcome'
-          ? `Merhaba, ${first}! **Akıllı tanıtım** ile birkaç soruda profilini oluşturalım.`
+          ? `Merhaba, Aleyna! **Akıllı Tanıtım** ile birkaç soruda profilini oluşturalım.`
           : variant === 'resume'
-            ? `${first}, **Akıllı tanıtım**a kaldığın yerden devam edelim.`
-            : `${first}, **Akıllı tanıtım** ile bilgilerini güncelleyelim.`;
+            ? `Aleyna, **Akıllı Tanıtım**'a kaldığın yerden devam edelim.`
+            : `Aleyna, **Akıllı Tanıtım** ile bilgilerini güncelleyelim.`;
       setLines([
         { role: 'assistant', text: intro },
         { role: 'assistant', text: data.assistantMessage },
       ]);
       setHubMode(false);
     },
-    [first]
+    []
   );
 
   useEffect(() => {
     const t = setTimeout(() => scrollRef.current?.scrollToEnd({ animated: true }), 120);
     return () => clearTimeout(t);
   }, [lines, hubMode]);
+
+  useEffect(() => {
+    const showEvt = Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow';
+    const hideEvt = Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide';
+    const showSub = Keyboard.addListener(showEvt, (e) => setKeyboardHeight(e.endCoordinates.height));
+    const hideSub = Keyboard.addListener(hideEvt, () => setKeyboardHeight(0));
+    return () => {
+      showSub.remove();
+      hideSub.remove();
+    };
+  }, []);
 
   const leaveOnboarding = useCallback(() => {
     if (navigation.canGoBack()) navigation.goBack();
@@ -279,26 +294,82 @@ export function OnboardingScreen() {
     [inputKind]
   );
 
-  /** Tam ekran onboarding (revisit değil). Revisit’te KAV ayrı — aşağıdaki `revisitKeyboardOffset`. */
-  const keyboardAvoidingBehavior = Platform.OS === 'ios' ? 'padding' : 'height';
-  const keyboardVerticalOffset = 0;
+  /** Tam ekran onboarding (revisit değil). Android’de `softwareKeyboardLayoutMode: resize` ile padding uyumu daha iyi. */
+  const keyboardAvoidingBehavior = Platform.OS === 'ios' ? 'padding' : 'padding';
+  /** Stack header yok; üst güvenlik + küçük pay — klavye ile çakışmayı azaltır */
+  const keyboardVerticalOffset = Platform.OS === 'ios' ? insets.top + 8 : 12;
 
-  /** iOS: güvenli alan + küçük düzeltme; fazla offset kartı gereksiz yukarı iter */
-  const revisitKeyboardOffset = Platform.OS === 'ios' ? insets.top + 4 : 0;
+  /** Revisit modal: aynı mantık */
+  const revisitKeyboardOffset = Platform.OS === 'ios' ? insets.top + 8 : 12;
 
-  const isDark = theme.dark;
-  /** Gönüllü güncelleme (modal): Paper arka planı; ilk kurulumda hafif açık ton + gradient */
-  const bg = isRevisitEntry ? theme.colors.background : isDark ? theme.colors.background : '#f8fafc';
+  /** Her iki modda da sistem temasıyla uyumlu arka plan */
+  const bg = theme.colors.background;
+  /** İlk onboarding: kart ve gövde tek renk (surface/gradient yok) */
+  const firstRunPanelBg = bg;
+  const footerBg = !isRevisitEntry ? bg : theme.colors.surface;
 
   /** Web `OnboardingPage` / `OnboardingOverlay`: max-w-lg, max-h min(85vh, 100dvh-5rem); sohbet alanı min(56vh, 520px) */
   const { width: winW, height: winH } = Dimensions.get('window');
   const revisitCardMaxW = Math.min(winW - 32, 512);
   const revisitCardMaxH = Math.min(winH * 0.85, winH - 56);
   const revisitChatScrollMaxH = Math.min(winH * 0.56, 520);
+  const firstRunCardMaxW = Math.min(winW - 24, 560);
+  const firstRunCardMaxH = Math.min(winH * 0.88, winH - (insets.top + insets.bottom + 24));
+
+  /** Sohbet modunda klavye yüksekliği kadar kart küçülür; giriş satırı görünür kalır */
+  const outerCardMaxH = useMemo(() => {
+    if (hubMode) {
+      return isRevisitEntry ? revisitCardMaxH : firstRunCardMaxH;
+    }
+    const outerPadding = insets.top + insets.bottom + 36;
+    const available = winH - keyboardHeight - outerPadding;
+    const cap = isRevisitEntry ? revisitCardMaxH : firstRunCardMaxH;
+    /** Klavye + güvenli alan sonrası kalan yükseklik; cap ile sınırlı */
+    return Math.min(cap, available);
+  }, [
+    hubMode,
+    isRevisitEntry,
+    revisitCardMaxH,
+    firstRunCardMaxH,
+    winH,
+    keyboardHeight,
+    insets.top,
+    insets.bottom,
+  ]);
+
+  const chatScrollAreaMaxH = useMemo(() => {
+    if (hubMode) return revisitChatScrollMaxH;
+    const topBarFooterApprox = 52 + 76;
+    return Math.max(96, outerCardMaxH - topBarFooterApprox);
+  }, [hubMode, outerCardMaxH, revisitChatScrollMaxH]);
 
   const closeRevisit = useCallback(() => {
     navigation.goBack();
   }, [navigation]);
+
+  /** Giriş ekranı (`MobileAuthLayout`) ile aynı: tam sayfa sağ üst, sohbet kartının dışında */
+  const firstRunThemeFab =
+    !isRevisitEntry ? (
+      <Pressable
+        onPress={toggleTheme}
+        style={({ pressed }) => [
+          styles.pageThemeFab,
+          {
+            top: insets.top + 6,
+            backgroundColor: mode === 'dark' ? 'rgba(8,24,46,0.88)' : 'rgba(255,255,255,0.92)',
+            borderColor: theme.colors.outline,
+            opacity: pressed ? 0.88 : 1,
+          },
+        ]}
+        accessibilityLabel={mode === 'dark' ? 'Açık tema' : 'Koyu tema'}
+      >
+        <MaterialCommunityIcons
+          name={mode === 'dark' ? 'white-balance-sunny' : 'weather-night'}
+          size={22}
+          color={theme.colors.onSurface}
+        />
+      </Pressable>
+    ) : null;
 
   if (loadError) {
     if (isRevisitEntry) {
@@ -335,6 +406,7 @@ export function OnboardingScreen() {
     }
     return (
       <View style={[styles.center, { backgroundColor: bg }]}>
+        {firstRunThemeFab}
         <Text style={{ color: theme.colors.error }}>{loadError}</Text>
       </View>
     );
@@ -376,6 +448,7 @@ export function OnboardingScreen() {
     }
     return (
       <View style={[styles.center, { backgroundColor: bg }]}>
+        {firstRunThemeFab}
         <ActivityIndicator size="large" color={theme.colors.primary} />
         <Text style={{ marginTop: 12, color: theme.colors.onSurfaceVariant }}>Yükleniyor…</Text>
       </View>
@@ -384,23 +457,8 @@ export function OnboardingScreen() {
 
   const onboardingBody = (
     <>
-      {!isRevisitEntry ? (
-        <LinearGradient
-          colors={
-            isDark
-              ? ['rgba(129, 140, 248, 0.12)', 'rgba(45, 212, 191, 0.06)', bg]
-              : ['rgba(129, 140, 248, 0.18)', 'rgba(45, 212, 191, 0.08)', bg]
-          }
-          locations={[0, 0.45, 1]}
-          start={{ x: 0.5, y: 0 }}
-          end={{ x: 0.5, y: 1 }}
-          style={StyleSheet.absoluteFillObject}
-          pointerEvents="none"
-        />
-      ) : null}
-
       {!hubMode ? (
-        <View style={[styles.topBar, isRevisitEntry && styles.topBarRevisitInCard]}>
+        <View style={[styles.topBar, styles.topBarRevisitInCard]}>
           {allowSkip ? (
             <Button mode="text" compact onPress={() => void onSkip()} textColor={theme.colors.onSurfaceVariant} style={styles.topBarSkip}>
               Şimdilik atla
@@ -509,11 +567,7 @@ export function OnboardingScreen() {
         <>
           <ScrollView
             ref={scrollRef}
-            style={
-              isRevisitEntry
-                ? [styles.scrollRevisitChat, { maxHeight: revisitChatScrollMaxH }]
-                : styles.scroll
-            }
+            style={[styles.scrollRevisitChat, { maxHeight: chatScrollAreaMaxH }]}
             contentContainerStyle={styles.scrollContent}
             keyboardShouldPersistTaps="handled"
             showsVerticalScrollIndicator={false}
@@ -526,18 +580,18 @@ export function OnboardingScreen() {
                   styles.bubble,
                   line.role === 'assistant'
                     ? {
-                        alignSelf: 'stretch',
-                        borderWidth: StyleSheet.hairlineWidth,
-                        borderColor: theme.dark ? 'rgba(255,255,255,0.1)' : 'rgba(15,23,42,0.12)',
-                        backgroundColor: theme.dark ? 'rgba(255,255,255,0.06)' : theme.colors.surfaceVariant,
-                        borderTopLeftRadius: 4,
-                      }
+                      alignSelf: 'stretch',
+                      borderWidth: StyleSheet.hairlineWidth,
+                      borderColor: theme.dark ? 'rgba(255,255,255,0.1)' : 'rgba(15,23,42,0.12)',
+                      backgroundColor: theme.dark ? 'rgba(255,255,255,0.06)' : theme.colors.surfaceVariant,
+                      borderTopLeftRadius: 4,
+                    }
                     : {
-                        alignSelf: 'flex-end',
-                        maxWidth: '88%',
-                        backgroundColor: theme.colors.primaryContainer,
-                        borderTopRightRadius: 4,
-                      },
+                      alignSelf: 'flex-end',
+                      maxWidth: '88%',
+                      backgroundColor: theme.dark ? 'rgba(255,255,255,0.08)' : theme.colors.surfaceVariant,
+                      borderTopRightRadius: 4,
+                    },
                 ]}
               >
                 {line.role === 'assistant' ? (
@@ -546,13 +600,13 @@ export function OnboardingScreen() {
                     color={theme.colors.onSurface}
                   />
                 ) : (
-                  <Text style={{ color: theme.colors.onPrimaryContainer, lineHeight: 22, fontSize: 14 }}>{line.text}</Text>
+                  <Text style={{ color: theme.colors.onSurface, lineHeight: 22, fontSize: 14 }}>{line.text}</Text>
                 )}
               </View>
             ))}
           </ScrollView>
 
-          <View style={[styles.footer, { borderTopColor: theme.colors.outlineVariant, backgroundColor: theme.colors.surface }]}>
+          <View style={[styles.footer, { borderTopColor: theme.colors.outlineVariant, backgroundColor: footerBg }]}>
             <TextInput
               mode="outlined"
               dense
@@ -583,13 +637,17 @@ export function OnboardingScreen() {
         <Pressable style={styles.revisitBackdrop} onPress={closeRevisit} accessibilityRole="button" accessibilityLabel="Kapat" />
         <KeyboardAvoidingView
           style={styles.flex}
-          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+          behavior={keyboardAvoidingBehavior}
           keyboardVerticalOffset={revisitKeyboardOffset}
         >
           <View
             style={[
               styles.revisitCenter,
-              { paddingTop: insets.top + 10, paddingBottom: insets.bottom + 10 },
+              {
+                paddingTop: insets.top + 10,
+                paddingBottom: insets.bottom + 10,
+                justifyContent: hubMode ? 'center' : keyboardHeight > 0 ? 'flex-end' : 'center',
+              },
             ]}
             pointerEvents="box-none"
           >
@@ -600,7 +658,7 @@ export function OnboardingScreen() {
                   backgroundColor: theme.colors.surface,
                   borderColor: theme.colors.outlineVariant,
                   maxWidth: revisitCardMaxW,
-                  maxHeight: revisitCardMaxH,
+                  maxHeight: outerCardMaxH,
                 },
                 hubMode ? styles.revisitCardHub : styles.revisitCardChat,
               ]}
@@ -623,14 +681,40 @@ export function OnboardingScreen() {
   return (
     <SafeAreaView
       style={[styles.flex, { backgroundColor: bg }]}
-      edges={['top', 'left', 'right', 'bottom']}
+      edges={['top', 'left', 'right']}
     >
+      {firstRunThemeFab}
       <KeyboardAvoidingView
         style={styles.flex}
         behavior={keyboardAvoidingBehavior}
         keyboardVerticalOffset={keyboardVerticalOffset}
       >
-        {onboardingBody}
+        <View
+          style={[
+            styles.revisitCenter,
+            {
+              paddingTop: insets.top + 10,
+              paddingBottom: insets.bottom + 10,
+              justifyContent: hubMode ? 'center' : keyboardHeight > 0 ? 'flex-end' : 'center',
+            },
+          ]}
+        >
+          <View
+            style={[
+              styles.revisitCard,
+              {
+                backgroundColor: firstRunPanelBg,
+                borderColor: theme.colors.outlineVariant,
+                maxWidth: firstRunCardMaxW,
+                maxHeight: outerCardMaxH,
+              },
+              hubMode ? styles.revisitCardHub : styles.revisitCardChat,
+            ]}
+            accessibilityLabel={hubMode ? 'Seni tanıyalım, profil özeti' : 'Akıllı tanıtım sohbeti'}
+          >
+            {onboardingBody}
+          </View>
+        </View>
       </KeyboardAvoidingView>
     </SafeAreaView>
   );
@@ -638,6 +722,18 @@ export function OnboardingScreen() {
 
 const styles = StyleSheet.create({
   flex: { flex: 1 },
+  /** `MobileAuthLayout` themeBtn ile uyumlu — kart dışı sağ üst */
+  pageThemeFab: {
+    position: 'absolute',
+    right: 16,
+    zIndex: 10,
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    borderWidth: StyleSheet.hairlineWidth,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   revisitRoot: { flex: 1 },
   revisitBackdrop: {
     ...StyleSheet.absoluteFillObject,

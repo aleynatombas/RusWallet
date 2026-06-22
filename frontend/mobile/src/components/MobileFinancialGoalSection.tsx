@@ -2,7 +2,7 @@
  * Web AnalysisComponent «Hedef ve yol haritası» ile aynı akış: hourglass simülatörü veya boş durum metni.
  */
 import { useMemo } from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet, Pressable } from 'react-native';
 import type { UserFinancialProfilePayload } from '../types/onboarding';
 import { parseSavingsTargetFromGoalText } from '../lib/parseSavingsTargetFromGoalText';
 import { formatGoalTitleDisplay } from '../lib/formatDisplayName';
@@ -17,6 +17,8 @@ export interface MobileFinancialGoalSectionProps {
   monthlyDisposableCap: number;
   disposableSource: 'records' | 'onboarding';
   defaultAllocation: number;
+  forecastNextMonthSpending?: number | null;
+  onGoOnboarding?: () => void;
 }
 
 export function MobileFinancialGoalSection({
@@ -26,6 +28,8 @@ export function MobileFinancialGoalSection({
   monthlyDisposableCap,
   disposableSource,
   defaultAllocation,
+  forecastNextMonthSpending,
+  onGoOnboarding,
 }: MobileFinancialGoalSectionProps) {
   const p = useAnalysisPalette();
   const trimmed = mainGoal?.trim() ?? '';
@@ -39,22 +43,23 @@ export function MobileFinancialGoalSection({
   const hasGoalSimulator = hasGoalSection && effectiveTarget != null && effectiveTarget > 0;
 
   return (
-    <AnalysisCard
-      title="Hedef ve yol haritası"
-      subtitle="Hedef ve tasarruf özeti; veriler profil ve işlemlerden gelir."
-      headerBorder
-    >
-      {!hasGoalSection ? (
-        <View style={[styles.dashed, { borderColor: p.border, backgroundColor: p.dashedBoxBg }]}>
+    <AnalysisCard title="Hedef ve yol haritası" headerBorder>
+      {!hasGoalSimulator ? (
+        <View style={styles.emptyState}>
           <Text style={[styles.muted, { color: p.muted }]}>
-            Profilde hedef metni tanımlandığında bu bölümde simülasyon görünür.
+            Tanıtımda hedef ve tutar eklediğinde simülasyon burada görünür.
           </Text>
-        </View>
-      ) : !hasGoalSimulator ? (
-        <View style={[styles.dashed, { borderColor: p.border, backgroundColor: p.dashedBoxBg }]}>
-          <Text style={[styles.muted, { color: p.muted }]}>
-            Hedef tutarı netleştiğinde simülasyon burada görünür.
-          </Text>
+          {onGoOnboarding ? (
+            <Pressable
+              onPress={onGoOnboarding}
+              style={({ pressed }) => [
+                styles.onboardBtn,
+                { borderColor: p.border, backgroundColor: p.dashedBoxBg, opacity: pressed ? 0.9 : 1 },
+              ]}
+            >
+              <Text style={[styles.onboardBtnText, { color: p.fg }]}>Tanıtıma git</Text>
+            </Pressable>
+          ) : null}
         </View>
       ) : (
         <MobileGoalHourglassSimulator
@@ -64,6 +69,7 @@ export function MobileFinancialGoalSection({
           monthlyDisposableCap={monthlyDisposableCap}
           disposableSource={disposableSource}
           defaultAllocation={defaultAllocation}
+          forecastNextMonthSpending={forecastNextMonthSpending}
         />
       )}
     </AnalysisCard>
@@ -71,11 +77,19 @@ export function MobileFinancialGoalSection({
 }
 
 const styles = StyleSheet.create({
-  dashed: {
-    borderWidth: 1,
-    borderStyle: 'dashed',
-    borderRadius: 12,
-    padding: 14,
+  emptyState: {
+    gap: 10,
   },
   muted: { fontSize: 12, lineHeight: 18 },
+  onboardBtn: {
+    alignSelf: 'flex-start',
+    borderWidth: StyleSheet.hairlineWidth,
+    borderRadius: 10,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+  },
+  onboardBtnText: {
+    fontSize: 12,
+    fontWeight: '600',
+  },
 });

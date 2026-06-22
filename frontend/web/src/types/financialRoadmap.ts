@@ -11,6 +11,10 @@ export interface InsightCardDto {
 }
 
 export interface MonthEndExpectationCockpitDto {
+  currentMonthSpentMtd?: number | null;
+  currentMonthDay?: number | null;
+  daysInMonth?: number | null;
+  dailyAverageSpend?: number | null;
   projectedMonthTotal: number;
   daysRemainingInMonth: number;
   budgetFillPercent: number;
@@ -19,10 +23,17 @@ export interface MonthEndExpectationCockpitDto {
   /** Tanıyalım sabit gider + yalnızca esnek tempo projeksiyonu kullanıldı mı */
   projectedUsesFixedPlusFlexibleSplit?: boolean;
   shortMessage: string;
+  forecastDisclaimer?: string | null;
   actionChatMessage?: string | null;
-  /** predictive_analysis — AI + predictive gelecek ay tahmini */
+  /** predictive_analysis — ML + AI gelecek ay tahmini */
   insightStack?: string;
   forecastNextMonthTotal?: number | null;
+  previousMonthTotal?: number | null;
+  last3MonthsAverageTotal?: number | null;
+  /** ml_tempo_ratio | ml_category_blend | ml_linear vb. */
+  predictionSource?: string | null;
+  /** 0–100 tahmin güven skoru */
+  predictionConfidencePercent?: number | null;
 }
 
 export interface RadarHitItemDto {

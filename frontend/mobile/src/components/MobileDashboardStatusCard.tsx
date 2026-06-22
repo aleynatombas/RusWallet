@@ -1,5 +1,6 @@
 import { View, Text, StyleSheet } from 'react-native';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
+import { webPaletteMobile } from '../theme/webPaletteMobile';
 
 function formatTry(n: number): string {
   return n.toLocaleString('tr-TR', { minimumFractionDigits: 0, maximumFractionDigits: 2 });
@@ -34,16 +35,19 @@ export function MobileDashboardStatusCard({
   const cardBg = isDark ? 'rgba(15, 23, 42, 0.5)' : 'rgba(255, 255, 255, 0.5)';
   const border = isDark ? 'rgba(255,255,255,0.1)' : 'rgba(255,255,255,0.15)';
 
-  const em = isDark ? C.emerald.dark : C.emerald.light;
-  const emBg = isDark ? C.emerald.bgD : C.emerald.bgL;
-  const emBr = isDark ? C.emerald.borderD : C.emerald.borderL;
-  const rd = isDark ? C.red.dark : C.red.light;
-  const rdBg = isDark ? C.red.bgD : C.red.bgL;
-  const rdBr = isDark ? C.red.borderD : C.red.borderL;
+  const primary = isDark ? webPaletteMobile.dark.primary : webPaletteMobile.light.primary;
+  const primaryBg = isDark ? 'rgba(36,173,219,0.08)' : 'rgba(25,117,154,0.08)';
+  const primaryBr = isDark ? 'rgba(36,173,219,0.25)' : 'rgba(25,117,154,0.25)';
+  const em = primary;
+  const emBg = primaryBg;
+  const emBr = primaryBr;
+  const rd = isDark ? '#ef4444' : '#dc2626';
+  const rdBg = isDark ? 'rgba(239,68,68,0.1)' : 'rgba(239,68,68,0.06)';
+  const rdBr = isDark ? 'rgba(239,68,68,0.25)' : 'rgba(239,68,68,0.25)';
   const netPos = monthNet >= 0;
-  const am = isDark ? C.amber.dark : C.amber.light;
-  const amBg = isDark ? C.amber.bgD : C.amber.bgL;
-  const amBr = isDark ? C.amber.borderD : C.amber.borderL;
+  const am = primary;
+  const amBg = primaryBg;
+  const amBr = primaryBr;
 
   return (
     <View style={[styles.wrap, { backgroundColor: cardBg, borderColor: border }]}>

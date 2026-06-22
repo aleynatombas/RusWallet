@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { View, Text, Pressable, StyleSheet, Alert } from 'react-native';
+import { View, Text, Pressable, StyleSheet } from 'react-native';
 import type { NavigationProp } from '@react-navigation/native';
 import { useAppTheme } from '../../context/ThemeContext';
 import { useAuth } from '../../context/AuthContext';
@@ -28,20 +28,30 @@ export function MobileLoginForm({
   const { login, isLoading } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+
+  function mapLoginErrorMessage(rawMessage: string): string {
+    const normalized = rawMessage.toLowerCase();
+    if (normalized.includes('kullanıcı bulunamadı')) return 'Kullanıcı bulunamadı';
+    if (normalized.includes('şifreniz yanlış') || normalized.includes('sifreniz yanlis')) {
+      return 'Şifreniz yanlış, tekrar deneyin.';
+    }
+    return rawMessage;
+  }
 
   async function handleLogin() {
     if (!isValidEmailFormat(email)) {
-      Alert.alert('Hata', 'Geçerli bir e-posta adresi girin (örn. ad@alan.com).');
+      setError('Geçerli bir e-posta adresi girin (örn. ad@alan.com).');
       return;
     }
     if (!password) {
-      Alert.alert('Hata', 'Şifre gerekli.');
+      setError('Şifre gerekli.');
       return;
     }
     try {
       await login({ email: email.trim(), password } as LoginRequest);
     } catch (err) {
-      Alert.alert('Hata', getApiErrorMessage(err, 'Giriş başarısız.'));
+      setError(mapLoginErrorMessage(getApiErrorMessage(err, 'Giriş başarısız.')));
     }
   }
 
@@ -57,7 +67,10 @@ export function MobileLoginForm({
         <MobileAuthTextInput
           isDark={isDark}
           value={email}
-          onChangeText={setEmail}
+          onChangeText={(value) => {
+            setEmail(value);
+            if (error) setError('');
+          }}
           keyboardType="email-address"
           autoCapitalize="none"
           autoComplete="email"
@@ -67,8 +80,16 @@ export function MobileLoginForm({
       </View>
       <View style={styles.fieldGap}>
         <MobileAuthFieldLabel isDark={isDark}>Şifre</MobileAuthFieldLabel>
-        <MobileAuthPasswordInput isDark={isDark} value={password} onChangeText={setPassword} />
+        <MobileAuthPasswordInput
+          isDark={isDark}
+          value={password}
+          onChangeText={(value) => {
+            setPassword(value);
+            if (error) setError('');
+          }}
+        />
       </View>
+      {error ? <Text style={[styles.errorText, { color: v.destructive }]}>{error}</Text> : null}
 
       <View style={styles.ctaBlock}>
         <MobileAuthPrimaryButton
@@ -113,6 +134,11 @@ const styles = StyleSheet.create({
     textAlign: 'left',
   },
   fieldGap: { marginBottom: 16 },
+  errorText: {
+    fontSize: 13,
+    marginTop: -4,
+    marginBottom: 10,
+  },
   ctaBlock: { marginTop: 8, marginBottom: 12 },
   linkCenter: { alignSelf: 'flex-start', paddingVertical: 8 },
   link: { fontSize: 14, fontWeight: '500', textDecorationLine: 'underline' },

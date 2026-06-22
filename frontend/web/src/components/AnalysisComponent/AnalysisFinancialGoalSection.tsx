@@ -50,13 +50,13 @@ export function AnalysisFinancialGoalSection({ mainGoal, profile, balance }: Ana
       <Card
         className={cn(
           'overflow-hidden border-border/60 ',
-          'shadow-elevation shadow-amber-500/10 dark:shadow-lg dark:shadow-amber-500/5 '
+          'shadow-elevation shadow-primary/10 dark:shadow-lg dark:shadow-primary/5 '
         )}
       >
         <CardHeader className="space-y-2 pb-2">
           <div className="flex flex-wrap items-start justify-between gap-3">
             <div className="flex flex-wrap items-center gap-2">
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-amber-500/25 to-amber-600/10 text-amber-800 shadow-inner dark:text-amber-300">
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-primary/25 to-primary/10 text-primary shadow-inner dark:text-primary/300">
                 <Flag className="h-5 w-5" aria-hidden />
               </div>
               <div>
@@ -73,10 +73,10 @@ export function AnalysisFinancialGoalSection({ mainGoal, profile, balance }: Ana
           </div>
         </CardHeader>
         <CardContent className="space-y-4">
-          
+
 
           <div className="flex items-center rounded-xl border border-border/50 bg-card/90 px-4 py-4 text-base leading-relaxed shadow-elevation backdrop-blur-sm dark:shadow-sm">
-            <Sparkles className="h-4 w-4 text-amber-600/80 dark:text-amber-400/90" aria-hidden />
+            <Sparkles className="h-4 w-4 text-primary/80 dark:text-primary/90" aria-hidden />
             <p className="text-foreground capitalize ml-2">{trimmed}</p>
           </div>
 

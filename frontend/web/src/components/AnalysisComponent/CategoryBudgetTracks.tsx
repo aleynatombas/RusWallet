@@ -37,7 +37,7 @@ export function CategoryBudgetTracks({ budget, spentByCategory }: CategoryBudget
           const pct = Math.min(150, (spent / target) * 100);
           const barColor =
             pct >= 100
-              ? 'bg-destructive'
+              ? 'bg-primary/80'
               : pct >= 80
                 ? 'bg-primary'
                 : pct >= 55
@@ -62,9 +62,9 @@ export function CategoryBudgetTracks({ budget, spentByCategory }: CategoryBudget
                 />
               </div>
               {pct >= 100 ? (
-                <p className="mt-1 text-xs text-destructive">Önerilen bütçeyi aştınız.</p>
+                <p className="mt-1 text-xs text-muted-foreground">Önerilen bütçeyi aştınız.</p>
               ) : pct >= 80 ? (
-                <p className="mt-1 text-xs text-amber-700 dark:text-amber-400">Limite yaklaşıyorsunuz.</p>
+                <p className="mt-1 text-xs text-muted-foreground">Limite yaklaşıyorsunuz.</p>
               ) : null}
             </div>
           );

@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react';
 import { View, Text, StyleSheet, Pressable } from 'react-native';
 import Svg, { Circle } from 'react-native-svg';
 import { Card, useTheme } from 'react-native-paper';
+import { webPaletteMobile } from '../theme/webPaletteMobile';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 
 function fmtTry(n: number): string {
@@ -90,13 +91,14 @@ export function MobileSavingsGoalRingPlanner({
   const sliderClamped = Math.min(monthly, sliderMax);
   const step = 500;
 
-  const amber = '#f59e0b';
-  const violet = '#8b5cf6';
+  const primary = theme.dark ? webPaletteMobile.dark.primary : webPaletteMobile.light.primary;
+  const amber = primary; // use primary to keep palette consistent with web
+  const violet = theme.dark ? '#a78bfa' : '#8b5cf6';
   const muted = theme.colors.onSurfaceVariant;
   const fg = theme.colors.onSurface;
 
   return (
-    <Card style={[styles.card, { borderColor: 'rgba(245,158,11,0.25)', backgroundColor: theme.colors.elevation.level1 }]} mode="outlined">
+    <Card style={[styles.card, { borderColor: 'rgba(25,117,154,0.12)', backgroundColor: theme.colors.elevation.level1 }]} mode="outlined">
       <Card.Content>
         <Text style={[styles.h3, { color: fg }]}>Hedef planı</Text>
         <Text style={[styles.legend, { color: muted }]}>
@@ -155,7 +157,7 @@ export function MobileSavingsGoalRingPlanner({
           </View>
         </View>
 
-        <View style={[styles.scenario, { borderColor: 'rgba(245,158,11,0.35)', backgroundColor: theme.dark ? 'rgba(245,158,11,0.08)' : 'rgba(245,158,11,0.06)' }]}>
+        <View style={[styles.scenario, { borderColor: 'rgba(25,117,154,0.18)', backgroundColor: theme.dark ? 'rgba(25,117,154,0.06)' : 'rgba(25,117,154,0.04)' }]}>
           <Text style={[styles.scenarioLbl, { color: fg }]}>
             Aylık biriktirme: <Text style={{ color: amber, fontWeight: '700' }}>{fmtTry(sliderClamped)}</Text>
           </Text>

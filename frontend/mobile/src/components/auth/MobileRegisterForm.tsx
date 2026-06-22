@@ -151,13 +151,6 @@ export function MobileRegisterForm({ navigation }: { navigation: AuthNav }) {
           <Text style={[styles.linkBold, { color: v.linkPrimary }]}>Giriş yap</Text>
         </Pressable>
       </View>
-      <Pressable
-        onPress={() => navigation.navigate('ForgotPassword')}
-        style={styles.forgotRow}
-        accessibilityRole="link"
-      >
-        <Text style={[styles.linkPlain, { color: v.linkPrimary }]}>Şifremi unuttum</Text>
-      </Pressable>
     </View>
   );
 }
@@ -192,6 +185,4 @@ const styles = StyleSheet.create({
   },
   mutedInline: { fontSize: 14 },
   linkBold: { fontSize: 14, fontWeight: '600' },
-  forgotRow: { alignSelf: 'flex-start', paddingVertical: 6 },
-  linkPlain: { fontSize: 14, textDecorationLine: 'underline' },
 });

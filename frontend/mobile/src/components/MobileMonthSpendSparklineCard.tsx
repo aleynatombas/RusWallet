@@ -42,11 +42,11 @@ export function MobileMonthSpendSparklineCard({
 
   const pts: Pt[] = hasData
     ? data.map((d, i) => {
-        const x = PAD_X + (n <= 1 ? innerW / 2 : (i / Math.max(1, n - 1)) * innerW);
-        const t = hi > lo ? (d.expense - lo) / (hi - lo) : 0.5;
-        const y = PAD_Y + innerH - t * innerH;
-        return { x, y };
-      })
+      const x = PAD_X + (n <= 1 ? innerW / 2 : (i / Math.max(1, n - 1)) * innerW);
+      const t = hi > lo ? (d.expense - lo) / (hi - lo) : 0.5;
+      const y = PAD_Y + innerH - t * innerH;
+      return { x, y };
+    })
     : [];
 
   const linePath = pts.length > 0 ? cubicLinePath(pts) : '';
@@ -61,15 +61,27 @@ export function MobileMonthSpendSparklineCard({
   }
 
   const delta = sparkline?.percentChangeVsPreviousMonth;
-  const deltaBadge =
-    delta != null && sparkline?.hasComparableData ? (
-      <View style={[styles.deltaBadge, { backgroundColor: p.deltaBadgeBg }]}>
-        <Text style={[styles.deltaText, { color: p.muted }]}>
-          Önceki aya göre {delta >= 0 ? '+' : ''}
-          {delta.toFixed(1)}%
-        </Text>
-      </View>
-    ) : null;
+  const deltaBadge = (() => {
+    if (!sparkline?.hasComparableData) {
+      return <Text style={[styles.deltaMuted, { color: p.muted }]}>Kayıt az</Text>;
+    }
+    if (delta == null) {
+      return <Text style={[styles.deltaMuted, { color: p.muted }]}>Önceki ay için veri yok</Text>;
+    }
+
+    const abs = Math.abs(delta);
+    const formatted = new Intl.NumberFormat('tr-TR', { maximumFractionDigits: 0 }).format(abs);
+    const worse = delta > 2;
+    const better = delta < -2;
+    const color = worse ? '#ef4444' : better ? p.accent : p.muted;
+    const arrow = delta >= 0 ? '↑' : '↓';
+
+    return (
+      <Text style={[styles.deltaStrong, { color }]}>
+        {arrow} %{formatted}
+      </Text>
+    );
+  })();
 
   return (
     <AnalysisCard title="Son 6 ay — gider eğrisi" subtitle="Aynı güne kadar toplam" headerBorder>
@@ -118,6 +130,6 @@ const styles = StyleSheet.create({
   titleRow: { flexDirection: 'row', justifyContent: 'flex-end', marginBottom: 4, marginTop: -8 },
   chartWrap: { minHeight: CHART_H, paddingTop: 4 },
   empty: { fontSize: 11, textAlign: 'center', paddingVertical: 24 },
-  deltaBadge: { paddingHorizontal: 8, paddingVertical: 4, borderRadius: 8 },
-  deltaText: { fontSize: 10 },
+  deltaMuted: { fontSize: 10, fontWeight: '500' },
+  deltaStrong: { fontSize: 11, fontWeight: '700' },
 });

@@ -11,7 +11,9 @@ import {
   StyleSheet,
   KeyboardAvoidingView,
   Platform,
+  Keyboard,
 } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Button, TextInput, useTheme } from 'react-native-paper';
 import type { ReceiptExtractResponse } from '../types/receipt';
 
@@ -53,10 +55,23 @@ export function MobileReceiptConfirmDialog({
   onConfirm,
 }: MobileReceiptConfirmDialogProps) {
   const theme = useTheme();
+  const insets = useSafeAreaInsets();
+  const [keyboardHeight, setKeyboardHeight] = useState(0);
   const [amount, setAmount] = useState('');
   const [dateStr, setDateStr] = useState('');
   const [place, setPlace] = useState('');
   const [isIncome, setIsIncome] = useState(false);
+
+  useEffect(() => {
+    const showEvt = Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow';
+    const hideEvt = Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide';
+    const showSub = Keyboard.addListener(showEvt, (e) => setKeyboardHeight(e.endCoordinates.height));
+    const hideSub = Keyboard.addListener(hideEvt, () => setKeyboardHeight(0));
+    return () => {
+      showSub.remove();
+      hideSub.remove();
+    };
+  }, []);
 
   useEffect(() => {
     if (!data) return;
@@ -110,8 +125,15 @@ export function MobileReceiptConfirmDialog({
       <View style={styles.root}>
         <Pressable style={styles.backdrop} onPress={onClose} disabled={submitting} accessibilityLabel="Kapat" />
         <KeyboardAvoidingView
-          style={styles.center}
-          behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+          style={[
+            styles.center,
+            {
+              justifyContent: keyboardHeight > 0 ? 'flex-end' : 'center',
+              paddingBottom: keyboardHeight > 0 ? Math.max(insets.bottom, 10) + 8 : 12,
+            },
+          ]}
+          behavior={Platform.OS === 'ios' ? 'padding' : 'padding'}
+          keyboardVerticalOffset={Platform.OS === 'ios' ? insets.top + 8 : 12}
           pointerEvents="box-none"
         >
           <View

@@ -25,7 +25,9 @@ api.interceptors.request.use((config: InternalAxiosRequestConfig) => {
 api.interceptors.response.use(
   (res) => res,
   (err: AxiosError<{ message?: string; title?: string }>) => {
-    if (err.response?.status === 401) {
+    const requestUrl = String(err.config?.url ?? '').toLowerCase();
+    const isAuthLoginRequest = requestUrl.includes('/auth/login');
+    if (err.response?.status === 401 && !isAuthLoginRequest) {
       localStorage.removeItem('token');
       window.location.href = '/login';
     }

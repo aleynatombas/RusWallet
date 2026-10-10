@@ -116,5 +116,13 @@ namespace RusWallet.Infrastructure.Services
 
             await _transactionRepository.UpdateAsync(t);
         }
+
+        public async Task DeleteTransactionAsync(int userId, int transactionId)
+        {
+            var t = await _transactionRepository.GetByIdAsync(transactionId);
+            if (t == null || t.UserId != userId)
+                throw new InvalidOperationException("İşlem bulunamadı.");
+            await _transactionRepository.DeleteAsync(transactionId);
+        }
     }
 }

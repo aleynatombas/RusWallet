@@ -14,6 +14,8 @@ namespace RusWallet.Core.Interfaces
         Task<AuthResponseDto> UpdateProfileAsync(int userId, UpdateProfileRequestDto dto);
         Task ChangePasswordAsync(int userId, ChangePasswordRequestDto dto);
         Task DeleteAccountAsync(int userId);
+        Task<AuthResponseDto> RefreshAsync(RefreshTokenRequestDto dto);
+        Task LogoutAsync(int userId);
     }
 }
 

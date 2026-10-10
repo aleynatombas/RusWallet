@@ -1,7 +1,8 @@
 /**
  * Global navbar — logo, modül sekmeleri, tema, profil (shadcn Button + DropdownMenu).
  */
-import { Link, NavLink, useLocation, type NavLinkRenderProps } from 'react-router-dom';
+import { useEffect, useRef, useState } from 'react';
+import { Link, NavLink, useLocation, useNavigate, type NavLinkRenderProps } from 'react-router-dom';
 import { User, Moon, Sun, Sparkles, Menu, KeyRound } from 'lucide-react';
 import { RusWalletLogoMark } from '@/components/brand/RusWalletLogoMark';
 import { useAuth } from '@/context/AuthContext';
@@ -15,6 +16,8 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { cn } from '@/lib/utils';
 import { formatFullName } from '@/lib/formatDisplayName';
+import { OnboardingSparkleCoachmark } from '@/components/onboarding/OnboardingSparkleCoachmark';
+import { dismissOnboardingCoach, isOnboardingCoachDismissed } from '@/lib/onboardingCoachmark';
 
 function initials(first?: string | null, last?: string | null, email?: string | null) {
   const a = first?.trim().charAt(0);
@@ -40,11 +43,68 @@ const mobileNavClass = (props: NavLinkRenderProps) =>
     'flex min-h-10 min-w-0 flex-1 basis-0 items-center justify-center px-1 text-center text-xs font-medium leading-tight',
   );
 
+function sparkleNavClass(active: boolean, highlight: boolean) {
+  return cn(
+    'relative border-0 shadow-none text-foreground hover:bg-accent hover:text-foreground',
+    active && 'bg-primary/12',
+    highlight && 'bg-primary/10 ring-1 ring-primary/35 animate-pulse',
+  );
+}
+
 export function Navbar() {
-  const { user, logout } = useAuth();
+  const { user, logout, authHydrated } = useAuth();
   const { theme, toggleTheme } = useTheme();
   const loc = useLocation();
+  const navigate = useNavigate();
   const onboardingActive = loc.pathname === '/onboarding';
+  const profileIncomplete = Boolean(user && !user.onboardingCompleted);
+  const sparkleDesktopRef = useRef<HTMLAnchorElement>(null);
+  const sparkleMobileRef = useRef<HTMLAnchorElement>(null);
+  const [coachOpen, setCoachOpen] = useState(false);
+  const [coachAnchorEl, setCoachAnchorEl] = useState<HTMLElement | null>(null);
+
+  useEffect(() => {
+    if (!authHydrated || !user?.userId || user.onboardingCompleted) {
+      setCoachOpen(false);
+      return;
+    }
+    if (loc.pathname === '/onboarding') {
+      setCoachOpen(false);
+      return;
+    }
+    if (isOnboardingCoachDismissed(user.userId)) {
+      setCoachOpen(false);
+      return;
+    }
+    const timer = window.setTimeout(() => setCoachOpen(true), 450);
+    return () => window.clearTimeout(timer);
+  }, [authHydrated, user?.userId, user?.onboardingCompleted, loc.pathname]);
+
+  useEffect(() => {
+    if (!coachOpen) {
+      setCoachAnchorEl(null);
+      return;
+    }
+    const desktop = sparkleDesktopRef.current;
+    const mobile = sparkleMobileRef.current;
+    const pick =
+      desktop && desktop.offsetParent !== null
+        ? desktop
+        : mobile && mobile.offsetParent !== null
+          ? mobile
+          : desktop ?? mobile;
+    setCoachAnchorEl(pick ?? null);
+  }, [coachOpen, loc.pathname]);
+
+  function closeCoach(dismissPermanent: boolean) {
+    if (dismissPermanent && user?.userId) dismissOnboardingCoach(user.userId);
+    setCoachOpen(false);
+  }
+
+  function startOnboarding() {
+    setCoachOpen(false);
+    navigate('/onboarding', { state: { background: loc } });
+  }
 
   const accountMenuContentClass =
     'z-50 min-w-[16rem] overflow-hidden rounded-lg border border-border bg-popover p-0 text-popover-foreground shadow-elevation-lg dark:border-2 dark:border-muted-foreground/40 dark:shadow-xl';
@@ -100,6 +160,17 @@ export function Navbar() {
         {/* Sağ: mobilde tek DropdownMenu; md+ ayrı ikonlar */}
         <div className="flex shrink-0 items-center gap-1 sm:gap-2">
           <div className="flex items-center gap-1 sm:gap-2 md:hidden">
+            <Button variant="outline" size="icon" asChild className={sparkleNavClass(onboardingActive, profileIncomplete)}>
+              <NavLink
+                ref={sparkleMobileRef}
+                to="/onboarding"
+                state={{ background: loc }}
+                aria-label="Akıllı tanıtım — seni tanıyalım"
+                title="Seni tanıyalım"
+              >
+                <Sparkles className="h-5 w-5" strokeWidth={2} />
+              </NavLink>
+            </Button>
             <Button
               type="button"
               variant="outline"
@@ -171,17 +242,14 @@ export function Navbar() {
           </div>
 
           <div className="hidden items-center gap-1 sm:gap-2 md:flex">
-            <Button
-              variant="outline"
-              size="icon"
-              asChild
-              className={cn(
-                'relative border-0 shadow-none text-foreground hover:bg-accent hover:text-foreground',
-                onboardingActive && 'bg-primary/12'
-              )}
-              title="Seni tanıyalım — profilini güncelle"
-            >
-              <NavLink to="/onboarding" state={{ background: loc }} aria-label="Akıllı tanıtım — bilgilerini güncelle">
+            <Button variant="outline" size="icon" asChild className={sparkleNavClass(onboardingActive, profileIncomplete)}>
+              <NavLink
+                ref={sparkleDesktopRef}
+                to="/onboarding"
+                state={{ background: loc }}
+                aria-label="Akıllı tanıtım — seni tanıyalım"
+                title="Seni tanıyalım — profilini güncelle"
+              >
                 <Sparkles className="h-5 w-5" strokeWidth={2} />
               </NavLink>
             </Button>
@@ -239,6 +307,12 @@ export function Navbar() {
           </div>
         </div>
       </div>
+      <OnboardingSparkleCoachmark
+        anchorEl={coachAnchorEl}
+        open={coachOpen && coachAnchorEl != null}
+        onDismiss={() => closeCoach(true)}
+        onStart={startOnboarding}
+      />
     </header>
   );
 }

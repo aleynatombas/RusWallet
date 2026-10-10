@@ -1,0 +1,36 @@
+name: CI
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+
+jobs:
+  backend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "10.0.x"
+      - run: dotnet restore backend/RusWallet.API/RusWallet.API.csproj
+      - run: dotnet build backend/RusWallet.API/RusWallet.API.csproj -c Release --no-restore
+      - run: dotnet publish backend/RusWallet.API/RusWallet.API.csproj -c Release -o ./api-publish --no-build
+
+  frontend-web:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend/web
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: yarn
+          cache-dependency-path: frontend/web/yarn.lock
+      - run: yarn install --frozen-lockfile
+      - run: yarn build
+        env:
+          VITE_API_BASE_URL: https://example.com

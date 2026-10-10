@@ -52,20 +52,10 @@ namespace RusWallet.Infrastructure.Services
                 PhoneNumber = phoneE164,
                 Email = email,
                 PasswordHash = hashedPassword,
-                CreatedAt = DateTime.UtcNow
+                CreatedAt = DateTime.UtcNow,
             };
             await _userRepository.AddAsync(user);
-            var token = _jwtService.GenerateToken(user);
-
-            return new AuthResponseDto
-            {
-                UserId = user.UserId,
-                Email = user.Email,
-                FirstName = user.FirstName,
-                LastName = user.LastName,
-                Token = token,
-                OnboardingCompleted = user.OnboardingCompletedAt != null,
-            };
+            return await IssueAuthResponseAsync(user);
         }
 
         public async Task<AuthResponseDto> LoginAsync(LoginRequestDto dto)
@@ -84,17 +74,33 @@ namespace RusWallet.Infrastructure.Services
             if (user.OnboardingCompletedAt != null)
                 _ = Task.Run(() => _onboardingService.SyncProfileBaselinesAsync(user.UserId));
 
-            var token = _jwtService.GenerateToken(user);
+            return await IssueAuthResponseAsync(user);
+        }
 
-            return new AuthResponseDto
-            {
-                UserId = user.UserId,
-                FirstName = user.FirstName,
-                LastName = user.LastName,
-                Email = user.Email,
-                Token = token,
-                OnboardingCompleted = user.OnboardingCompletedAt != null,
-            };
+        public async Task<AuthResponseDto> RefreshAsync(RefreshTokenRequestDto dto)
+        {
+            var plain = (dto.RefreshToken ?? "").Trim();
+            if (!RefreshTokenService.TryParseUserId(plain, out var userId))
+                throw new Exception("Geçersiz oturum. Lütfen tekrar giriş yapın.");
+
+            var user = await _userRepository.GetByIdAsync(userId)
+                ?? throw new Exception("Geçersiz oturum. Lütfen tekrar giriş yapın.");
+
+            if (user.RefreshTokenExpiresUtc == null || user.RefreshTokenExpiresUtc < DateTime.UtcNow)
+                throw new Exception("Oturum süresi doldu. Lütfen tekrar giriş yapın.");
+
+            if (!RefreshTokenService.TokensMatch(plain, user.RefreshTokenHash))
+                throw new Exception("Geçersiz oturum. Lütfen tekrar giriş yapın.");
+
+            return await IssueAuthResponseAsync(user);
+        }
+
+        public async Task LogoutAsync(int userId)
+        {
+            var user = await _userRepository.GetByIdAsync(userId);
+            if (user == null) return;
+            _jwtService.ClearRefreshToken(user);
+            await _userRepository.UpdateAsync(user);
         }
 
         public async Task ResetPasswordByEmailAsync(ResetPasswordByEmailRequestDto dto)
@@ -184,6 +190,7 @@ namespace RusWallet.Infrastructure.Services
             user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(dto.NewPassword, workFactor: 10);
             user.PasswordResetToken = null;
             user.PasswordResetTokenExpires = null;
+            _jwtService.ClearRefreshToken(user);
             await _userRepository.UpdateAsync(user);
         }
 
@@ -211,17 +218,7 @@ namespace RusWallet.Infrastructure.Services
             user.LastName = last;
             user.Email = email;
             await _userRepository.UpdateAsync(user);
-            var token = _jwtService.GenerateToken(user);
-
-            return new AuthResponseDto
-            {
-                UserId = user.UserId,
-                FirstName = user.FirstName,
-                LastName = user.LastName,
-                Email = user.Email,
-                Token = token,
-                OnboardingCompleted = user.OnboardingCompletedAt != null,
-            };
+            return await IssueAuthResponseAsync(user);
         }
 
         public async Task ChangePasswordAsync(int userId, ChangePasswordRequestDto dto)
@@ -237,6 +234,7 @@ namespace RusWallet.Infrastructure.Services
                 throw new Exception(pwdError);
 
             user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(dto.NewPassword, workFactor: 10);
+            _jwtService.ClearRefreshToken(user);
             await _userRepository.UpdateAsync(user);
         }
 
@@ -245,8 +243,26 @@ namespace RusWallet.Infrastructure.Services
             var user = await _userRepository.GetByIdAsync(userId)
                 ?? throw new Exception("Kullanıcı bulunamadı.");
 
-            // Cascade ilişkiler DB tarafında silinir (Transactions/Categories/Predictions vb.)
             await _userRepository.DeleteAsync(user.UserId);
+        }
+
+        private async Task<AuthResponseDto> IssueAuthResponseAsync(User user)
+        {
+            var access = _jwtService.GenerateToken(user);
+            _jwtService.AssignNewRefreshToken(user, out var refreshPlain);
+            await _userRepository.UpdateAsync(user);
+
+            return new AuthResponseDto
+            {
+                UserId = user.UserId,
+                Email = user.Email,
+                FirstName = user.FirstName,
+                LastName = user.LastName,
+                Token = access,
+                RefreshToken = refreshPlain,
+                ExpiresIn = _jwtService.GetAccessTokenLifetimeSeconds(),
+                OnboardingCompleted = user.OnboardingCompletedAt != null,
+            };
         }
     }
 }

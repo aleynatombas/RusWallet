@@ -87,6 +87,7 @@ namespace RusWallet.Infrastructure.Data
             modelBuilder.Entity<User>(e =>
             {
                 e.Property(u => u.PasswordResetToken).HasMaxLength(128);
+                e.Property(u => u.RefreshTokenHash).HasMaxLength(128);
 
                 // Aylık gelir / sabit gider tahmini — şifreli NVARCHAR
                 e.Property(u => u.MonthlyIncomeNet)

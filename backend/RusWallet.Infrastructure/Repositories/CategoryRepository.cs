@@ -25,7 +25,7 @@ namespace RusWallet.Infrastructure.Repositories
             return await _context.Categories.Where(c => c.UserId == userId).ToListAsync();
         }
 
-        public async Task<Category> GetByIdAsync(int categoryId)
+        public async Task<Category?> GetByIdAsync(int categoryId)
         {
             return await _context.Categories.FirstOrDefaultAsync(c => c.CategoryId == categoryId);
         }

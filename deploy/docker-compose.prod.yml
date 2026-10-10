@@ -1,0 +1,36 @@
+# Linux VPS — Docker Compose (opsiyonel). Önce deploy/.env.production doldur.
+services:
+  sql:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    environment:
+      ACCEPT_EULA: "Y"
+      MSSQL_PID: Express
+      MSSQL_SA_PASSWORD: ${MSSQL_SA_PASSWORD}
+    volumes:
+      - ruswallet-sql:/var/opt/mssql
+      - ./backup:/var/opt/mssql/backup
+    restart: unless-stopped
+
+  api:
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile.api
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      ASPNETCORE_URLS: http://+:8080
+      ConnectionStrings__DefaultConnection: ${API_CONNECTION_STRING}
+      Jwt__Key: ${JWT_KEY}
+      Jwt__Issuer: RusWalletAPI
+      Jwt__Audience: RusWalletUsers
+      Cors__AllowedOrigins__0: ${WEB_ORIGIN}
+      Features__EnableSwagger: "false"
+      Database__ApplyMigrationsOnStartup: "false"
+      App__PublicWebBaseUrl: ${WEB_ORIGIN}
+    depends_on:
+      - sql
+    ports:
+      - "8080:8080"
+    restart: unless-stopped
+
+volumes:
+  ruswallet-sql:

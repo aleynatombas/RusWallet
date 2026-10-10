@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react';
-import { Navigate, Outlet, useLocation } from 'react-router-dom';
+import { Outlet, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { api } from '../services/api';
 
@@ -19,7 +19,6 @@ function VoluntaryOnboardingLeaveSync() {
           await api.post('/Onboarding/abort-reopen');
           setOnboardingCompletedLocal(true);
         } catch {
-          /* yine de ana uygulamada kalsın */
           setOnboardingCompletedLocal(true);
         } finally {
           setVoluntaryProfileUpdate(false);
@@ -31,19 +30,8 @@ function VoluntaryOnboardingLeaveSync() {
   return null;
 }
 
-/** Onboarding bitmeden ana uygulamaya sokmaz; gönüllü güncelleme turunda navbar ile gezmeye izin verir. */
+/** Onboarding artık zorunlu değil; ana uygulama her zaman erişilebilir. */
 export function OnboardingGuard() {
-  const { user, voluntaryProfileUpdate } = useAuth();
-  const loc = useLocation();
-
-  if (!user) {
-    return <Outlet />;
-  }
-
-  if (!user.onboardingCompleted && !voluntaryProfileUpdate && loc.pathname !== '/onboarding') {
-    return <Navigate to="/onboarding" replace />;
-  }
-
   return (
     <>
       <VoluntaryOnboardingLeaveSync />

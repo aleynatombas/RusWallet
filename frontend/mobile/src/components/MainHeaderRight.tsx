@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { View, StyleSheet, Modal, Pressable, Text } from 'react-native';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { View, StyleSheet, Modal, Pressable, Text, type LayoutRectangle } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import type { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
 import { IconButton, Menu, useTheme, Card, Button } from 'react-native-paper';
@@ -8,6 +8,8 @@ import { useAuth } from '../context/AuthContext';
 import { useAppTheme } from '../context/ThemeContext';
 import type { MainTabParamList } from '../navigation/types';
 import { navigateToAppSettings, navigateToOnboardingRevisit } from '../navigation/navigateApp';
+import { OnboardingIntroCoachmark } from './OnboardingIntroCoachmark';
+import { dismissOnboardingCoach, isOnboardingCoachDismissed } from '../lib/onboardingCoachmark';
 
 type MainHeaderRightProps = {
   /** Mockup: yalnızca tema + hamburger menü */
@@ -17,11 +19,46 @@ type MainHeaderRightProps = {
 export function MainHeaderRight({ variant = 'default' }: MainHeaderRightProps) {
   const theme = useTheme();
   const { toggleTheme, mode } = useAppTheme();
-  const { logout } = useAuth();
+  const { logout, user } = useAuth();
   const navigation = useNavigation<BottomTabNavigationProp<MainTabParamList>>();
   const [menuOpen, setMenuOpen] = useState(false);
   const [notifOpen, setNotifOpen] = useState(false);
   const [showUnreadDot, setShowUnreadDot] = useState(true);
+  const [coachOpen, setCoachOpen] = useState(false);
+  const [anchorLayout, setAnchorLayout] = useState<LayoutRectangle | null>(null);
+  const sparkleRef = useRef<View>(null);
+
+  const profileIncomplete = Boolean(user && !user.onboardingCompleted);
+
+  const measureSparkle = useCallback(() => {
+    sparkleRef.current?.measureInWindow((x, y, width, height) => {
+      if (width > 0 && height > 0) setAnchorLayout({ x, y, width, height });
+    });
+  }, []);
+
+  useEffect(() => {
+    if (!user?.userId || user.onboardingCompleted) {
+      setCoachOpen(false);
+      return;
+    }
+    let cancelled = false;
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    void isOnboardingCoachDismissed(user.userId).then((dismissed) => {
+      if (cancelled || dismissed) return;
+      timer = setTimeout(() => {
+        setCoachOpen(true);
+        requestAnimationFrame(measureSparkle);
+      }, 500);
+    });
+    return () => {
+      cancelled = true;
+      if (timer) clearTimeout(timer);
+    };
+  }, [user?.userId, user?.onboardingCompleted, measureSparkle]);
+
+  useEffect(() => {
+    if (coachOpen) measureSparkle();
+  }, [coachOpen, measureSparkle]);
 
   function goSettings() {
     setMenuOpen(false);
@@ -39,7 +76,13 @@ export function MainHeaderRight({ variant = 'default' }: MainHeaderRightProps) {
   }
 
   function openOnboardingHub() {
+    setCoachOpen(false);
     navigateToOnboardingRevisit(navigation);
+  }
+
+  function closeCoach(dismissPermanent: boolean) {
+    if (dismissPermanent && user?.userId) void dismissOnboardingCoach(user.userId);
+    setCoachOpen(false);
   }
 
   const minimal = variant === 'minimal';
@@ -49,10 +92,22 @@ export function MainHeaderRight({ variant = 'default' }: MainHeaderRightProps) {
       {!minimal ? (
         <>
           <Pressable
+            ref={sparkleRef}
             onPress={openOnboardingHub}
-            style={styles.sparkleWrap}
+            onLayout={() => {
+              if (coachOpen) measureSparkle();
+            }}
+            style={[
+              styles.sparkleWrap,
+              profileIncomplete && {
+                backgroundColor: `${theme.colors.primary}22`,
+                borderRadius: 10,
+                borderWidth: 1,
+                borderColor: `${theme.colors.primary}55`,
+              },
+            ]}
             accessibilityRole="button"
-            accessibilityLabel="Akıllı tanıtım — bilgilerini güncelle"
+            accessibilityLabel="Akıllı tanıtım — seni tanıyalım"
             hitSlop={8}
           >
             <MaterialCommunityIcons name="star-four-points-outline" size={22} color={theme.colors.primary} />
@@ -66,8 +121,8 @@ export function MainHeaderRight({ variant = 'default' }: MainHeaderRightProps) {
           >
             <MaterialCommunityIcons name="bell-outline" size={22} color={theme.colors.onSurface} />
             {showUnreadDot ? (
-      <View style={[styles.dot, { borderColor: theme.colors.surface, backgroundColor: theme.colors.error }]} />
-    ) : null}
+              <View style={[styles.dot, { borderColor: theme.colors.surface, backgroundColor: theme.colors.error }]} />
+            ) : null}
           </Pressable>
         </>
       ) : null}
@@ -93,6 +148,16 @@ export function MainHeaderRight({ variant = 'default' }: MainHeaderRightProps) {
         <Menu.Item onPress={goSettings} title="Ayarlar" />
         <Menu.Item onPress={handleLogout} title="Çıkış yap" />
       </Menu>
+
+      <OnboardingIntroCoachmark
+        visible={coachOpen}
+        anchorLayout={anchorLayout}
+        onDismiss={() => closeCoach(true)}
+        onStart={() => {
+          setCoachOpen(false);
+          navigateToOnboardingRevisit(navigation);
+        }}
+      />
 
       <Modal visible={notifOpen} transparent animationType="fade" onRequestClose={() => setNotifOpen(false)}>
         <Pressable style={styles.modalBackdrop} onPress={() => setNotifOpen(false)}>

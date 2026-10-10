@@ -36,10 +36,8 @@ function AuthScreens() {
 
 function AppScreens() {
   const theme = useTheme();
-  const { user, voluntaryProfileUpdate } = useAuth();
-  /** Gönüllü güncelleme turunda ana sekmelerde kal; tam zorunlu ilk onboarding’de Onboarding ile başla. */
-  const initialRouteName =
-    user?.onboardingCompleted || voluntaryProfileUpdate ? 'MainTabs' : 'Onboarding';
+  /** Kayıt sonrası ana sekmeler; tanıtım navbar sparkles + coachmark ile isteğe bağlı. */
+  const initialRouteName = 'MainTabs';
 
   return (
     <AppStack.Navigator

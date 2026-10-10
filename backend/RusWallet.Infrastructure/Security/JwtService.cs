@@ -16,11 +16,21 @@ namespace RusWallet.Infrastructure.Security
             _configuration = configuration;
         }
 
+        public int GetAccessTokenLifetimeSeconds()
+        {
+            var minutes = _configuration.GetValue("Jwt:AccessTokenMinutes", 120);
+            if (minutes < 5) minutes = 5;
+            if (minutes > 24 * 60) minutes = 24 * 60;
+            return minutes * 60;
+        }
+
+        public int GetRefreshTokenLifetimeDays() =>
+            Math.Clamp(_configuration.GetValue("Jwt:RefreshTokenDays", 14), 1, 90);
+
         public string GenerateToken(User user)
         {
-            // 🔹 Null kontrolleri
             if (user == null)
-                throw new ArgumentNullException(nameof(user), "User null geldi");
+                throw new ArgumentNullException(nameof(user));
 
             if (string.IsNullOrEmpty(user.Email))
                 throw new ArgumentNullException(nameof(user.Email), "User email boş");
@@ -30,33 +40,44 @@ namespace RusWallet.Infrastructure.Security
             var jwtAudience = _configuration["Jwt:Audience"];
 
             if (string.IsNullOrEmpty(jwtKey))
-                throw new Exception("JWT Key configuration boş");
+                throw new InvalidOperationException("JWT Key configuration boş");
             if (string.IsNullOrEmpty(jwtIssuer))
-                throw new Exception("JWT Issuer configuration boş");
+                throw new InvalidOperationException("JWT Issuer configuration boş");
             if (string.IsNullOrEmpty(jwtAudience))
-                throw new Exception("JWT Audience configuration boş");
+                throw new InvalidOperationException("JWT Audience configuration boş");
+
             var claims = new[]
             {
                 new Claim("id", user.UserId.ToString()),
                 new Claim(ClaimTypes.Email, user.Email),
-                new Claim(ClaimTypes.Name, user.FirstName)
+                new Claim(ClaimTypes.Name, user.FirstName),
             };
 
-            var key = new SymmetricSecurityKey(
-                Encoding.UTF8.GetBytes(jwtKey)
-            );
-
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey));
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+            var expires = DateTime.UtcNow.AddSeconds(GetAccessTokenLifetimeSeconds());
 
             var token = new JwtSecurityToken(
-                issuer: _configuration["Jwt:Issuer"],
-                audience: _configuration["Jwt:Audience"],
+                issuer: jwtIssuer,
+                audience: jwtAudience,
                 claims: claims,
-                expires: DateTime.Now.AddHours(2),
-                signingCredentials: creds
-            );
+                expires: expires,
+                signingCredentials: creds);
 
             return new JwtSecurityTokenHandler().WriteToken(token);
+        }
+
+        public void AssignNewRefreshToken(User user, out string plainRefreshToken)
+        {
+            plainRefreshToken = RefreshTokenService.CreatePlainToken(user.UserId);
+            user.RefreshTokenHash = RefreshTokenService.HashToken(plainRefreshToken);
+            user.RefreshTokenExpiresUtc = DateTime.UtcNow.AddDays(GetRefreshTokenLifetimeDays());
+        }
+
+        public void ClearRefreshToken(User user)
+        {
+            user.RefreshTokenHash = null;
+            user.RefreshTokenExpiresUtc = null;
         }
     }
 }

@@ -101,6 +101,22 @@ export function OnboardingScreen() {
   const isRevisitEntry = route.params?.mode === 'revisit';
   const first = 'Aleyna';
 
+  /** Web `VoluntaryOnboardingLeaveSync` karşılığı: geri tuşu / backdrop ile ekrandan nasıl çıkılırsa çıkılsın,
+   *  gönüllü güncelleme yarım kalmışsa sunucu tarafını iptal et. */
+  const voluntaryLeaveRef = useRef(voluntaryProfileUpdate);
+  useEffect(() => {
+    voluntaryLeaveRef.current = voluntaryProfileUpdate;
+  }, [voluntaryProfileUpdate]);
+  useEffect(() => {
+    return () => {
+      if (voluntaryLeaveRef.current) {
+        setVoluntaryProfileUpdate(false);
+        setOnboardingCompletedLocal(true);
+        api.post('/Onboarding/abort-reopen').catch(() => {});
+      }
+    };
+  }, [setVoluntaryProfileUpdate, setOnboardingCompletedLocal]);
+
   const pushA = useCallback((t: string) => setLines((p) => [...p, { role: 'assistant', text: t }]), []);
   const pushU = useCallback((t: string) => setLines((p) => [...p, { role: 'user', text: t }]), []);
 

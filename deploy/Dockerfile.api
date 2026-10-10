@@ -1,0 +1,16 @@
+FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
+WORKDIR /src
+COPY backend/RusWallet.Core/RusWallet.Core.csproj backend/RusWallet.Core/
+COPY backend/RusWallet.Infrastructure/RusWallet.Infrastructure.csproj backend/RusWallet.Infrastructure/
+COPY backend/RusWallet.API/RusWallet.API.csproj backend/RusWallet.API/
+RUN dotnet restore backend/RusWallet.API/RusWallet.API.csproj
+COPY backend/ backend/
+RUN dotnet publish backend/RusWallet.API/RusWallet.API.csproj -c Release -o /app/publish
+
+FROM mcr.microsoft.com/dotnet/aspnet:10.0
+WORKDIR /app
+COPY --from=build /app/publish .
+COPY backend/RusWallet.API/tessdata ./tessdata
+ENV ASPNETCORE_URLS=http://+:8080
+EXPOSE 8080
+ENTRYPOINT ["dotnet", "RusWallet.API.dll"]

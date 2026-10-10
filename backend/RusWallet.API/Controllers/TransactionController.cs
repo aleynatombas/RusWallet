@@ -165,5 +165,22 @@ public class TransactionController : ControllerBase
             return BadRequest(ex.Message);
         }
     }
+
+    [HttpDelete("{id:int}")]
+    public async Task<IActionResult> Delete(int id)
+    {
+        var idClaim = User.FindFirst("id")?.Value;
+        if (string.IsNullOrEmpty(idClaim)) return Unauthorized();
+        int userId = int.Parse(idClaim);
+        try
+        {
+            await _transactionService.DeleteTransactionAsync(userId, id);
+            return Ok();
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
+    }
 }
 }

@@ -25,6 +25,8 @@ export interface AuthResponse {
   lastName: string;
   email: string;
   token?: string | null;
+  refreshToken?: string | null;
+  expiresIn?: number;
   onboardingCompleted?: boolean;
 }
 

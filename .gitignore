@@ -399,3 +399,10 @@ FodyWeavers.xsd
 
 # JetBrains Rider
 *.sln.iml
+
+# Environment / secrets
+.env
+.env.*
+!.env.example
+!.env.production.example
+deploy/backup/

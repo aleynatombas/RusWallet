@@ -31,5 +31,10 @@ namespace RusWallet.Core.Entities
 
         /// <summary>Tanıtımdan gelen tahmini sabit gider (TL/ay); JSON ile birlikte güncellenir.</summary>
         public decimal? MonthlyFixedCostsApprox { get; set; }
+
+        /// <summary>Refresh token SHA-256 (hex).</summary>
+        public string? RefreshTokenHash { get; set; }
+
+        public DateTime? RefreshTokenExpiresUtc { get; set; }
     }
 }

@@ -1,7 +1,8 @@
 import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from 'react';
-import { api } from '../services/api';
+import { api, setAuthTokens } from '../services/api';
 import type { AuthUser, AuthResponse, LoginRequest, RegisterRequest } from '../types/auth';
 import type { OnboardingStateDto } from '../types/onboarding';
+import { dismissOnboardingCoach } from '../lib/onboardingCoachmark';
 
 const AUTH_USER_KEY = 'ruswallet_user';
 /** Gönüllü profil güncelleme sohbeti (yeniden aç) — sayfa yenilense bile hatırlansın. */
@@ -101,7 +102,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setState((s) => ({ ...s, isLoading: true }));
     try {
       const { data: res } = await api.post<
-        AuthUser & { token: string; onboardingCompleted?: boolean }
+        AuthUser & { token: string; refreshToken?: string; onboardingCompleted?: boolean }
       >('/auth/login', data);
       if (!res?.token) throw new Error('No token');
       const user: AuthUser = {
@@ -111,7 +112,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         email: res.email,
         onboardingCompleted: res.onboardingCompleted ?? false,
       };
-      localStorage.setItem('token', res.token);
+      setAuthTokens(res.token, res.refreshToken ?? null);
       localStorage.setItem(AUTH_USER_KEY, JSON.stringify(user));
       try {
         sessionStorage.removeItem(VOLUNTARY_PROFILE_UPDATE_KEY);
@@ -134,7 +135,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setState((s) => ({ ...s, isLoading: true }));
     try {
       const { data: res } = await api.post<
-        AuthUser & { token: string; onboardingCompleted?: boolean }
+        AuthUser & { token: string; refreshToken?: string; onboardingCompleted?: boolean }
       >('/auth/register', data);
       if (!res?.token) throw new Error('No token');
       const user: AuthUser = {
@@ -144,7 +145,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         email: res.email,
         onboardingCompleted: res.onboardingCompleted ?? false,
       };
-      localStorage.setItem('token', res.token);
+      setAuthTokens(res.token, res.refreshToken ?? null);
       localStorage.setItem(AUTH_USER_KEY, JSON.stringify(user));
       try {
         sessionStorage.removeItem(VOLUNTARY_PROFILE_UPDATE_KEY);
@@ -164,7 +165,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const logout = useCallback(() => {
-    localStorage.removeItem('token');
+    void api.post('/auth/logout').catch(() => undefined);
+    setAuthTokens(null, null);
     localStorage.removeItem(AUTH_USER_KEY);
     try {
       sessionStorage.removeItem(VOLUNTARY_PROFILE_UPDATE_KEY);
@@ -199,7 +201,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         email: res.email,
         onboardingCompleted: res.onboardingCompleted ?? s.user?.onboardingCompleted ?? true,
       };
-      if (res.token) localStorage.setItem('token', res.token);
+      if (res.token) setAuthTokens(res.token, res.refreshToken ?? null);
       localStorage.setItem(AUTH_USER_KEY, JSON.stringify(user));
       return { ...s, user, token: res.token ?? s.token };
     });
@@ -210,6 +212,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (!s.user) return s;
       const user: AuthUser = { ...s.user, onboardingCompleted: completed };
       localStorage.setItem(AUTH_USER_KEY, JSON.stringify(user));
+      if (completed) {
+        dismissOnboardingCoach(user.userId);
+        /** Tanıtım tamamlanınca açık sayfalar (Dashboard/Analiz) verilerini otomatik yeniler. */
+        window.dispatchEvent(new CustomEvent('ruswallet-onboarding-completed'));
+      }
       return { ...s, user };
     });
   }, []);

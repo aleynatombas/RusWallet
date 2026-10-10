@@ -1,8 +1,16 @@
-import React, { createContext, useCallback, useContext, useEffect, useState } from 'react';
+import React, { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { api, setTokenGetter, setUnauthorizedHandler } from '../services/api';
+import {
+  api,
+  REFRESH_TOKEN_KEY,
+  setTokenGetter,
+  setRefreshTokenGetter,
+  setTokenSetter,
+  setUnauthorizedHandler,
+} from '../services/api';
 import type { AuthUser, AuthResponse, LoginRequest, RegisterRequest } from '../types/auth';
 import type { OnboardingStateDto } from '../types/onboarding';
+import { dismissOnboardingCoach } from '../lib/onboardingCoachmark';
 
 const TOKEN_KEY = 'token';
 const USER_KEY = 'ruswallet_user';
@@ -27,6 +35,7 @@ function parseStoredUser(raw: string | null): AuthUser | null {
 
 interface AuthState {
   token: string | null;
+  refreshToken: string | null;
   user: AuthUser | null;
   isLoading: boolean;
   voluntaryProfileUpdate: boolean;
@@ -46,14 +55,18 @@ const AuthContext = createContext<AuthContextValue | null>(null);
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [state, setState] = useState<AuthState>({
     token: null,
+    refreshToken: null,
     user: null,
     isLoading: true,
     voluntaryProfileUpdate: false,
   });
+  const stateRef = useRef(state);
+  stateRef.current = state;
 
   const logout = useCallback(() => {
-    AsyncStorage.multiRemove([TOKEN_KEY, USER_KEY, VOLUNTARY_PROFILE_UPDATE_KEY]);
-    setState({ token: null, user: null, isLoading: false, voluntaryProfileUpdate: false });
+    void api.post('/auth/logout').catch(() => undefined);
+    AsyncStorage.multiRemove([TOKEN_KEY, REFRESH_TOKEN_KEY, USER_KEY, VOLUNTARY_PROFILE_UPDATE_KEY]);
+    setState({ token: null, refreshToken: null, user: null, isLoading: false, voluntaryProfileUpdate: false });
   }, []);
 
   const setVoluntaryProfileUpdate = useCallback((active: boolean) => {
@@ -67,22 +80,36 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     let cancelled = false;
     (async () => {
       try {
-        const [tokEntry, userEntry, volEntry] = await AsyncStorage.multiGet([
+        const stored = await AsyncStorage.multiGet([
           TOKEN_KEY,
           USER_KEY,
           VOLUNTARY_PROFILE_UPDATE_KEY,
+          REFRESH_TOKEN_KEY,
         ]);
-        const t = tokEntry[1];
+        const t = stored[0]?.[1];
+        const refresh = stored[3]?.[1] ?? null;
         if (!t) {
           if (!cancelled)
-            setState({ token: null, user: null, isLoading: false, voluntaryProfileUpdate: false });
+            setState({
+              token: null,
+              refreshToken: null,
+              user: null,
+              isLoading: false,
+              voluntaryProfileUpdate: false,
+            });
           return;
         }
-        const parsed = parseStoredUser(userEntry[1]);
+        const parsed = parseStoredUser(stored[1]?.[1] ?? null);
         if (!parsed) {
-          await AsyncStorage.multiRemove([TOKEN_KEY, USER_KEY, VOLUNTARY_PROFILE_UPDATE_KEY]);
+          await AsyncStorage.multiRemove([TOKEN_KEY, REFRESH_TOKEN_KEY, USER_KEY, VOLUNTARY_PROFILE_UPDATE_KEY]);
           if (!cancelled)
-            setState({ token: null, user: null, isLoading: false, voluntaryProfileUpdate: false });
+            setState({
+              token: null,
+              refreshToken: null,
+              user: null,
+              isLoading: false,
+              voluntaryProfileUpdate: false,
+            });
           return;
         }
         let completed = parsed.onboardingCompleted;
@@ -96,11 +123,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }
         const user: AuthUser = { ...parsed, onboardingCompleted: completed };
         await AsyncStorage.setItem(USER_KEY, JSON.stringify(user));
-        const voluntaryProfileUpdate = volEntry[1] === '1';
-        if (!cancelled) setState({ token: t, user, isLoading: false, voluntaryProfileUpdate });
+        const voluntaryProfileUpdate = stored[2]?.[1] === '1';
+        if (!cancelled)
+          setState({ token: t, refreshToken: refresh, user, isLoading: false, voluntaryProfileUpdate });
       } catch {
         if (!cancelled)
-          setState({ token: null, user: null, isLoading: false, voluntaryProfileUpdate: false });
+          setState({
+            token: null,
+            refreshToken: null,
+            user: null,
+            isLoading: false,
+            voluntaryProfileUpdate: false,
+          });
       }
     })();
     return () => {
@@ -109,20 +143,34 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   useEffect(() => {
-    setTokenGetter(() => state.token);
-  }, [state.token]);
-
-  useEffect(() => {
+    setTokenGetter(() => stateRef.current.token);
+    setRefreshTokenGetter(() => stateRef.current.refreshToken);
+    setTokenSetter((access, refresh) => {
+      if (access === null) {
+        void AsyncStorage.multiRemove([TOKEN_KEY, REFRESH_TOKEN_KEY]);
+        setState((s) => ({ ...s, token: null, refreshToken: null }));
+        return;
+      }
+      setState((s) => {
+        const nextRefresh = refresh !== undefined ? refresh : s.refreshToken;
+        const pairs: [string, string][] = [[TOKEN_KEY, access]];
+        if (refresh !== undefined) {
+          if (refresh) pairs.push([REFRESH_TOKEN_KEY, refresh]);
+          else void AsyncStorage.removeItem(REFRESH_TOKEN_KEY);
+        }
+        void AsyncStorage.multiSet(pairs);
+        return { ...s, token: access, refreshToken: nextRefresh };
+      });
+    });
     setUnauthorizedHandler(logout);
   }, [logout]);
 
   const login = useCallback(async (data: LoginRequest) => {
     setState((s) => ({ ...s, isLoading: true }));
     try {
-      const { data: res } = await api.post<AuthUser & { token: string; onboardingCompleted?: boolean }>(
-        '/auth/login',
-        data
-      );
+      const { data: res } = await api.post<
+        AuthUser & { token: string; refreshToken?: string; onboardingCompleted?: boolean }
+      >('/auth/login', data);
       if (!res?.token) throw new Error('No token');
       const user: AuthUser = {
         userId: res.userId,
@@ -131,12 +179,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         email: res.email,
         onboardingCompleted: res.onboardingCompleted ?? false,
       };
-      await AsyncStorage.multiSet([
+      const pairs: [string, string][] = [
         [TOKEN_KEY, res.token],
         [USER_KEY, JSON.stringify(user)],
-      ]);
+      ];
+      if (res.refreshToken) pairs.push([REFRESH_TOKEN_KEY, res.refreshToken]);
+      await AsyncStorage.multiSet(pairs);
       await AsyncStorage.removeItem(VOLUNTARY_PROFILE_UPDATE_KEY);
-      setState({ token: res.token, user, isLoading: false, voluntaryProfileUpdate: false });
+      setState({
+        token: res.token,
+        refreshToken: res.refreshToken ?? null,
+        user,
+        isLoading: false,
+        voluntaryProfileUpdate: false,
+      });
     } finally {
       setState((s) => ({ ...s, isLoading: false }));
     }
@@ -145,10 +201,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const register = useCallback(async (data: RegisterRequest) => {
     setState((s) => ({ ...s, isLoading: true }));
     try {
-      const { data: res } = await api.post<AuthUser & { token: string; onboardingCompleted?: boolean }>(
-        '/auth/register',
-        data
-      );
+      const { data: res } = await api.post<
+        AuthUser & { token: string; refreshToken?: string; onboardingCompleted?: boolean }
+      >('/auth/register', data);
       if (!res?.token) throw new Error('No token');
       const user: AuthUser = {
         userId: res.userId,
@@ -157,12 +212,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         email: res.email,
         onboardingCompleted: res.onboardingCompleted ?? false,
       };
-      await AsyncStorage.multiSet([
+      const pairs: [string, string][] = [
         [TOKEN_KEY, res.token],
         [USER_KEY, JSON.stringify(user)],
-      ]);
+      ];
+      if (res.refreshToken) pairs.push([REFRESH_TOKEN_KEY, res.refreshToken]);
+      await AsyncStorage.multiSet(pairs);
       await AsyncStorage.removeItem(VOLUNTARY_PROFILE_UPDATE_KEY);
-      setState({ token: res.token, user, isLoading: false, voluntaryProfileUpdate: false });
+      setState({
+        token: res.token,
+        refreshToken: res.refreshToken ?? null,
+        user,
+        isLoading: false,
+        voluntaryProfileUpdate: false,
+      });
     } finally {
       setState((s) => ({ ...s, isLoading: false }));
     }
@@ -194,6 +257,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (!s.user) return s;
       const user: AuthUser = { ...s.user, onboardingCompleted: completed };
       void AsyncStorage.setItem(USER_KEY, JSON.stringify(user));
+      if (completed) void dismissOnboardingCoach(user.userId);
       return { ...s, user };
     });
   }, []);

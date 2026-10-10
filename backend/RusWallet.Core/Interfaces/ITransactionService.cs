@@ -19,5 +19,7 @@ namespace RusWallet.Core.Interfaces
             int? take = null);
 
         Task UpdateTransactionAsync(int userId, int transactionId, TransactionUpdateDto dto);
+
+        Task DeleteTransactionAsync(int userId, int transactionId);
     }
 }

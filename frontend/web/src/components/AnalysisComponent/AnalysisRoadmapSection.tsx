@@ -129,7 +129,7 @@ export function YasamTarziCard({
             <div className="w-full min-w-0">
               <LifestyleShareChart lifestyle={lifestyle} />
             </div>
-            <p className="min-w-0 text-[10px] leading-snug text-muted-foreground sm:text-[11px]">
+            <p className="line-clamp-2 min-w-0 break-words text-[10px] leading-snug text-muted-foreground sm:text-[11px]">
               {lifestyle.summary}
             </p>
           </>

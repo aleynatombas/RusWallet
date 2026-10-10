@@ -84,7 +84,11 @@ export function DashboardComponent() {
   useEffect(() => {
     const onTx = () => void loadDashboard({ silent: true });
     window.addEventListener('ruswallet-transactions-changed', onTx);
-    return () => window.removeEventListener('ruswallet-transactions-changed', onTx);
+    window.addEventListener('ruswallet-onboarding-completed', onTx);
+    return () => {
+      window.removeEventListener('ruswallet-transactions-changed', onTx);
+      window.removeEventListener('ruswallet-onboarding-completed', onTx);
+    };
   }, [loadDashboard]);
 
   const { monthlyIncome, monthlyExpense, donutSlices } = useMemo(() => {

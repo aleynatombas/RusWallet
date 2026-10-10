@@ -30,6 +30,33 @@ public class AuthController : ControllerBase
         }
     }
 
+    [HttpPost("refresh")]
+    [AllowAnonymous]
+    public async Task<IActionResult> Refresh([FromBody] RefreshTokenRequestDto dto)
+    {
+        if (dto == null || string.IsNullOrWhiteSpace(dto.RefreshToken))
+            return BadRequest(new { message = "Refresh token gerekli." });
+        try
+        {
+            var result = await _authService.RefreshAsync(dto);
+            return Ok(result);
+        }
+        catch (Exception ex)
+        {
+            return Unauthorized(new { message = ex.Message });
+        }
+    }
+
+    [HttpPost("logout")]
+    [Authorize]
+    public async Task<IActionResult> Logout()
+    {
+        var idClaim = User.FindFirst("id")?.Value;
+        if (string.IsNullOrEmpty(idClaim)) return Unauthorized();
+        await _authService.LogoutAsync(int.Parse(idClaim));
+        return Ok(new { message = "Çıkış yapıldı." });
+    }
+
     [HttpPost("login")]
     [AllowAnonymous]
     public async Task<IActionResult> Login(LoginRequestDto dto)

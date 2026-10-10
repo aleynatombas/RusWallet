@@ -1,4 +1,4 @@
-import { AlertTriangle, Radar } from 'lucide-react';
+import { AlertTriangle, Info, Radar } from 'lucide-react';
 import 'bootstrap-icons/font/bootstrap-icons.css';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
@@ -16,6 +16,24 @@ function CockpitSkeletonLines() {
       <div className="h-3 w-[88%] animate-pulse rounded-md bg-muted" />
       <div className="h-3 w-[72%] animate-pulse rounded-md bg-muted" />
     </div>
+  );
+}
+
+/** Kokpit kartlarının sağ üstündeki minik "veri arttıkça anlamlı olur" uyarısı. */
+function LowDataHint() {
+  return (
+    <span
+      tabIndex={0}
+      className="group absolute right-2 top-2 inline-flex h-5 w-5 shrink-0 cursor-help items-center justify-center rounded-full text-muted-foreground/60 outline-none hover:text-muted-foreground focus-visible:text-muted-foreground"
+    >
+      <Info className="h-3.5 w-3.5" aria-hidden />
+      <span
+        role="tooltip"
+        className="pointer-events-none absolute right-0 top-full z-20 mt-1.5 w-48 scale-95 rounded-md border border-border bg-popover px-2.5 py-1.5 text-[10px] font-normal leading-snug text-popover-foreground opacity-0 shadow-elevation-lg transition-all duration-100 group-hover:scale-100 group-hover:opacity-100 group-focus-visible:scale-100 group-focus-visible:opacity-100"
+      >
+        Gelir/gider kayıtların arttıkça sonuçlar daha anlamlı hale gelecektir.
+      </span>
+    </span>
   );
 }
 
@@ -43,10 +61,11 @@ export function CockpitAySonuCard({ cockpit, className }: SliceProps) {
 
   return (
     <Card className={cn(cockpitSliceCardClass, className)}>
-      <CardHeader className="shrink-0 px-3 pb-0 pt-2 sm:px-3.5 sm:pt-2.5">
-        <CardTitle className={ANALYSIS_CARD_TITLE_CLASS}>
+      <CardHeader className="relative shrink-0 px-3 pb-0 pt-2 sm:px-3.5 sm:pt-2.5">
+        <CardTitle className={cn(ANALYSIS_CARD_TITLE_CLASS, 'pr-5')}>
           {formatPageTitleDisplay('Gelecek ay tahmini')}
         </CardTitle>
+        <LowDataHint />
       </CardHeader>
       <CardContent className="flex min-h-0 flex-1 flex-col gap-1.5 overflow-hidden px-3 pb-3 pt-2 sm:px-3.5">
         {hasAnalytics ? (
@@ -132,8 +151,9 @@ export function CockpitRadarCard({ cockpit, className }: SliceProps) {
 
   return (
     <Card className={cn(cockpitSliceCardClass, className)}>
-      <CardHeader className="shrink-0 px-3 pb-0 pt-2 sm:px-3.5 sm:pt-2.5">
-        <CardTitle className={ANALYSIS_CARD_TITLE_CLASS}>Anomali Tespiti</CardTitle>
+      <CardHeader className="relative shrink-0 px-3 pb-0 pt-2 sm:px-3.5 sm:pt-2.5">
+        <CardTitle className={cn(ANALYSIS_CARD_TITLE_CLASS, 'pr-5')}>Anomali Tespiti</CardTitle>
+        <LowDataHint />
       </CardHeader>
       <CardContent className="flex min-h-0 flex-1 flex-col overflow-hidden px-3 pb-2 pt-2 sm:px-3.5 sm:pt-2.5">
         <div className={cn('flex min-h-0 flex-1 flex-col gap-2 overflow-hidden', r.isLowData && 'opacity-[0.55]')}>
@@ -195,8 +215,9 @@ export function CockpitFirsatCard({ cockpit, className }: SliceProps) {
 
   return (
     <Card className={cn(cockpitSliceCardClass, className)}>
-      <CardHeader className="shrink-0 px-3 pb-0 pt-2 sm:px-3.5 sm:pt-2.5">
-        <CardTitle className={ANALYSIS_CARD_TITLE_CLASS}>Tasarruf Fırsatları</CardTitle>
+      <CardHeader className="relative shrink-0 px-3 pb-0 pt-2 sm:px-3.5 sm:pt-2.5">
+        <CardTitle className={cn(ANALYSIS_CARD_TITLE_CLASS, 'pr-5')}>Tasarruf Fırsatları</CardTitle>
+        <LowDataHint />
       </CardHeader>
       <CardContent className="flex min-h-0 flex-1 flex-col overflow-hidden px-3 pb-2 pt-2 sm:px-3.5 sm:pt-2.5">
         <div className="flex min-h-0 flex-1 flex-col gap-2 overflow-hidden">

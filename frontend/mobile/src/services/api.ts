@@ -3,10 +3,11 @@ import { API_BASE_URL } from '../config/api';
 
 type ApiErrorBody = { message?: string; title?: string };
 
+export const REFRESH_TOKEN_KEY = 'refreshToken';
+
 export const api = axios.create({
   baseURL: `${API_BASE_URL}/api`,
   headers: { 'Content-Type': 'application/json' },
-  /** Mobil / yavaş ağ ve soğuk API: 15s sık yetmez; analiz ve fiş uçları uzun sürebilir */
   timeout: 60000,
 });
 
@@ -30,10 +31,20 @@ export function getApiErrorMessage(err: unknown, fallback: string): string {
 }
 
 let tokenGetter: () => string | null = () => null;
+let refreshTokenGetter: () => string | null = () => null;
+let tokenSetter: (access: string | null, refresh?: string | null) => void = () => {};
 let unauthorizedHandler: () => void = () => {};
 
 export function setTokenGetter(fn: () => string | null) {
   tokenGetter = fn;
+}
+
+export function setRefreshTokenGetter(fn: () => string | null) {
+  refreshTokenGetter = fn;
+}
+
+export function setTokenSetter(fn: (access: string | null, refresh?: string | null) => void) {
+  tokenSetter = fn;
 }
 
 export function setUnauthorizedHandler(fn: () => void) {
@@ -49,12 +60,52 @@ api.interceptors.request.use((config: InternalAxiosRequestConfig) => {
   return config;
 });
 
+let refreshInFlight: Promise<string | null> | null = null;
+
+async function refreshAccessToken(): Promise<string | null> {
+  const refresh = refreshTokenGetter();
+  if (!refresh) return null;
+  try {
+    const { data } = await axios.post<{ token?: string; refreshToken?: string }>(
+      `${API_BASE_URL}/api/auth/refresh`,
+      { refreshToken: refresh },
+    );
+    if (!data?.token) return null;
+    tokenSetter(data.token, data.refreshToken ?? refresh);
+    return data.token;
+  } catch {
+    tokenSetter(null, null);
+    return null;
+  }
+}
+
 api.interceptors.response.use(
   (res) => res,
-  (err: AxiosError<ApiErrorBody | string>) => {
+  async (err: AxiosError<ApiErrorBody | string>) => {
     const requestUrl = String(err.config?.url ?? '').toLowerCase();
     const isAuthLoginRequest = requestUrl.includes('/auth/login');
-    if (err.response?.status === 401 && !isAuthLoginRequest) unauthorizedHandler();
+    const isAuthRefreshRequest = requestUrl.includes('/auth/refresh');
+    const original = err.config;
+
+    if (
+      err.response?.status === 401 &&
+      !isAuthLoginRequest &&
+      !isAuthRefreshRequest &&
+      original &&
+      !(original as InternalAxiosRequestConfig & { _retry?: boolean })._retry
+    ) {
+      if (!refreshInFlight) refreshInFlight = refreshAccessToken().finally(() => { refreshInFlight = null; });
+      const newToken = await refreshInFlight;
+      if (newToken) {
+        (original as InternalAxiosRequestConfig & { _retry?: boolean })._retry = true;
+        original.headers.Authorization = `Bearer ${newToken}`;
+        return api.request(original);
+      }
+      unauthorizedHandler();
+    } else if (err.response?.status === 401 && !isAuthLoginRequest) {
+      unauthorizedHandler();
+    }
+
     const data = err.response?.data;
     const detail =
       typeof data === 'string'
@@ -68,5 +119,5 @@ api.interceptors.response.use(
       err.message = detail;
     }
     return Promise.reject(err);
-  }
+  },
 );

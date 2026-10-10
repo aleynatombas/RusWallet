@@ -1,5 +1,5 @@
 import { useState, useRef, type ComponentType } from 'react';
-import { View, Text, StyleSheet, Alert, Pressable } from 'react-native';
+import { View, Text, Image, StyleSheet, Alert, Pressable } from 'react-native';
 import type { NavigationProp } from '@react-navigation/native';
 import PhoneInput from 'react-native-phone-number-input';
 import { useAppTheme } from '../../context/ThemeContext';
@@ -109,6 +109,16 @@ export function MobileRegisterForm({ navigation }: { navigation: AuthNav }) {
           textInputStyle={{ color: v.text, fontSize: 14, height: FIELD_HEIGHT - 4 }}
           codeTextStyle={{ color: v.text, fontSize: 14, fontWeight: '600' }}
           flagButtonStyle={{ width: 52 }}
+          countryPickerProps={{
+            renderFlagButton: (p: { countryCode?: string }) =>
+              p.countryCode ? (
+                <Image
+                  source={{ uri: `https://flagcdn.com/48x36/${p.countryCode.toLowerCase()}.png` }}
+                  style={styles.flagImage}
+                  resizeMode="cover"
+                />
+              ) : null,
+          }}
         />
       </View>
 
@@ -173,6 +183,11 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     height: FIELD_HEIGHT,
     overflow: 'hidden',
+  },
+  flagImage: {
+    width: 26,
+    height: 18,
+    borderRadius: 2,
   },
   hint: { fontSize: 11, lineHeight: 16, marginTop: 6, textAlign: 'left' },
   ctaBlock: { marginTop: 6, marginBottom: 8 },

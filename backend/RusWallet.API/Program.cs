@@ -7,11 +7,14 @@ using RusWallet.Infrastructure.Data;
 using RusWallet.Core.Interfaces;
 using RusWallet.Infrastructure.Services;
 using RusWallet.Infrastructure.Security;
-using RusWallet.Infrastructure.Repositories; // <- JwtService için using eklendi
+using RusWallet.Infrastructure.Repositories;
 using RusWallet.Infrastructure.Services.Email;
 using Microsoft.Extensions.Logging;
+using RusWallet.API.Middleware;
 
 var builder = WebApplication.CreateBuilder(args);
+
+ValidateProductionConfiguration(builder.Configuration, builder.Environment);
 
 // ── Finansal alan şifreleme — AES-256 servisi başlatılıyor ──────────────────
 var encryptionKey = builder.Configuration["Encryption:Key"]
@@ -32,7 +35,7 @@ builder.Services.AddScoped<IEmailSender>(sp =>
         return new SmtpEmailSender(config, sp.GetRequiredService<ILogger<SmtpEmailSender>>());
     return new LoggingEmailSender(sp.GetRequiredService<ILogger<LoggingEmailSender>>(), config);
 });
-builder.Services.AddScoped<JwtService>(); // artık doğru namespace ile referanslanıyor
+builder.Services.AddScoped<JwtService>();
 builder.Services.AddControllers();
 builder.Services.AddScoped<IFinanceAnalysisService, FinanceAnalysisService>();
 builder.Services.AddScoped<IFinanceMLService, FinanceMLService>();
@@ -55,7 +58,6 @@ builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 builder.Services.AddScoped<IFinanceSummaryRepository, FinanceSummaryRepository>();
 builder.Services.AddScoped<IPredictionRepository, PredictionRepository>();
 
-// Yapay zeka: OpenAI ApiKey doluysa OpenAI, değilse kelime tabanlı (ücretsiz)
 builder.Services.AddScoped<KeywordCategoryService>();
 builder.Services.AddScoped<IAIService>(sp =>
 {
@@ -64,7 +66,6 @@ builder.Services.AddScoped<IAIService>(sp =>
         return new RusWallet.API.Services.OpenAICategoryService(config, sp.GetRequiredService<KeywordCategoryService>());
     return sp.GetRequiredService<KeywordCategoryService>();
 });
-// Chatbot: önce kişisel veri yanıtları; sonra OpenAI ApiKey doluysa OpenAI, değilse FAQ
 builder.Services.AddScoped<IPersonalizedChatAnswerService, PersonalizedChatAnswerService>();
 builder.Services.AddScoped<IChatUserFinancialContext, ChatUserFinancialContext>();
 builder.Services.AddScoped<FAQChatbotService>();
@@ -82,40 +83,44 @@ builder.Services.AddScoped<IChatbotService>(sp =>
         inner);
 });
 
-// Fiş tarama (OCR)
 builder.Services.AddScoped<IReceiptAnalysisService, ReceiptAnalysisService>();
 builder.Services.AddScoped<IVoiceTransactionParser, VoiceTransactionParser>();
 
-// --- Swagger ---
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen(options =>
+var enableSwagger = builder.Configuration.GetValue("Features:EnableSwagger", builder.Environment.IsDevelopment());
+if (enableSwagger)
 {
-    options.SwaggerDoc("v1", new OpenApiInfo { Title = "RusWallet API", Version = "v1" });
-    options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    builder.Services.AddEndpointsApiExplorer();
+    builder.Services.AddSwaggerGen(options =>
     {
-        Description = "JWT ile yetkilendirme. Önce Login ile token alın, buraya yapıştırın (Bearer öneki otomatik eklenir).",
-        Name = "Authorization",
-        In = ParameterLocation.Header,
-        Type = SecuritySchemeType.Http,
-        Scheme = "bearer",
-        BearerFormat = "JWT"
+        options.SwaggerDoc("v1", new OpenApiInfo { Title = "RusWallet API", Version = "v1" });
+        options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+        {
+            Description = "JWT ile yetkilendirme.",
+            Name = "Authorization",
+            In = ParameterLocation.Header,
+            Type = SecuritySchemeType.Http,
+            Scheme = "bearer",
+            BearerFormat = "JWT",
+        });
+        options.AddSecurityRequirement(document =>
+        {
+            var schemeRef = new OpenApiSecuritySchemeReference("Bearer", document, null);
+            return new OpenApiSecurityRequirement { [schemeRef] = [] };
+        });
     });
-    options.AddSecurityRequirement(document =>
-    {
-        var schemeRef = new OpenApiSecuritySchemeReference("Bearer", document, null);
-        var requirement = new OpenApiSecurityRequirement { [schemeRef] = [] };
-        return requirement;
-    });
-});
+}
 
-// --- DbContext ---
 builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"))
-);
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-// --- JWT Authentication ---
+builder.Services.AddHealthChecks()
+    .AddDbContextCheck<AppDbContext>("database");
+
 var jwtKey = builder.Configuration["Jwt:Key"] ?? throw new InvalidOperationException("Jwt:Key yapılandırması eksik.");
-var key = Encoding.ASCII.GetBytes(jwtKey);
+var jwtIssuer = builder.Configuration["Jwt:Issuer"] ?? throw new InvalidOperationException("Jwt:Issuer yapılandırması eksik.");
+var jwtAudience = builder.Configuration["Jwt:Audience"] ?? throw new InvalidOperationException("Jwt:Audience yapılandırması eksik.");
+var signingKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey));
+
 builder.Services.AddAuthentication(options =>
 {
     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -126,39 +131,85 @@ builder.Services.AddAuthentication(options =>
     options.TokenValidationParameters = new TokenValidationParameters
     {
         ValidateIssuerSigningKey = true,
-        IssuerSigningKey = new SymmetricSecurityKey(key),
-        ValidateIssuer = false,
-        ValidateAudience = false,
-        ClockSkew = TimeSpan.Zero
+        IssuerSigningKey = signingKey,
+        ValidateIssuer = true,
+        ValidIssuer = jwtIssuer,
+        ValidateAudience = true,
+        ValidAudience = jwtAudience,
+        ValidateLifetime = true,
+        ClockSkew = TimeSpan.Zero,
     };
 });
 
 builder.Services.AddAuthorization();
 
-// CORS: Mobil / farklı cihazdan API çağrısı için (geliştirme)
+var corsOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>() ?? [];
 builder.Services.AddCors(options =>
 {
     options.AddDefaultPolicy(policy =>
     {
-        policy.AllowAnyOrigin()
-              .AllowAnyMethod()
-              .AllowAnyHeader();
+        if (corsOrigins.Length > 0)
+        {
+            policy.WithOrigins(corsOrigins)
+                .AllowAnyMethod()
+                .AllowAnyHeader()
+                .AllowCredentials();
+        }
+        else if (builder.Environment.IsDevelopment())
+        {
+            policy.SetIsOriginAllowed(_ => true)
+                .AllowAnyMethod()
+                .AllowAnyHeader()
+                .AllowCredentials();
+        }
     });
 });
 
 var app = builder.Build();
 
-// --- Middleware ---
+app.UseMiddleware<GlobalExceptionMiddleware>();
+
+if (enableSwagger)
+{
+    app.UseSwagger();
+    app.UseSwaggerUI();
+}
+
 app.UseCors();
 
-app.UseSwagger();
-app.UseSwaggerUI();
+if (!app.Environment.IsDevelopment())
+    app.UseHttpsRedirection();
 
-app.UseHttpsRedirection();
-
-app.UseAuthentication();  // JWT auth middleware
+app.UseAuthentication();
 app.UseAuthorization();
 
+app.MapHealthChecks("/health");
 app.MapControllers();
 
+if (builder.Configuration.GetValue("Database:ApplyMigrationsOnStartup", false))
+{
+    using var scope = app.Services.CreateScope();
+    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    db.Database.Migrate();
+}
+
 app.Run();
+
+static void ValidateProductionConfiguration(IConfiguration config, IHostEnvironment env)
+{
+    if (!env.IsProduction()) return;
+
+    var key = config["Jwt:Key"] ?? "";
+    const string devKeyMarker = "BuCokGizliVeUzunBirKey";
+    if (key.Contains(devKeyMarker, StringComparison.Ordinal) || key.Length < 32)
+        throw new InvalidOperationException(
+            "Production ortamında Jwt:Key en az 32 karakter olmalı ve geliştirme anahtarı kullanılmamalı. Ortam değişkeni veya User Secrets kullanın.");
+
+    var origins = config.GetSection("Cors:AllowedOrigins").Get<string[]>() ?? [];
+    if (origins.Length == 0 || origins.All(string.IsNullOrWhiteSpace))
+        throw new InvalidOperationException(
+            "Production ortamında Cors:AllowedOrigins en az bir web origin içermeli (örn. https://app.alanadiniz.com).");
+
+    if (string.IsNullOrWhiteSpace(config.GetConnectionString("DefaultConnection")))
+        throw new InvalidOperationException("Production ortamında ConnectionStrings:DefaultConnection zorunludur.");
+}

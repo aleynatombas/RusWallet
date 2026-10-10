@@ -8,6 +8,11 @@ namespace RusWallet.Core.DTOs.Auth
         public string Email { get; set; } = null!;
         public string? Token { get; set; }
 
+        public string? RefreshToken { get; set; }
+
+        /// <summary>Access token süresi (saniye).</summary>
+        public int ExpiresIn { get; set; }
+
         /// <summary>Finans sohbet onboarding tamamlandı mı (veya atlandı mı).</summary>
         public bool OnboardingCompleted { get; set; }
     }

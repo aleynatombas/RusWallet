@@ -242,7 +242,7 @@ export function EmailPasswordUpdatePanel({
         )}
         <Button
           type="button"
-          variant="ghost"
+          variant="outline"
           size="sm"
           disabled={loading}
           onClick={() => { setStep(1); setError(''); setMessage(''); }}

@@ -51,7 +51,6 @@ export function GoalHourglassSimulator({
   monthlyDisposableCap,
   disposableSource,
   defaultAllocation,
-  forecastNextMonthSpending,
   className,
 }: GoalHourglassSimulatorProps) {
   const [allocation, setAllocation] = useState(defaultAllocation);

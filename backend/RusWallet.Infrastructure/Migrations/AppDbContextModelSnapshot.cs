@@ -204,6 +204,13 @@ namespace RusWallet.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("RefreshTokenHash")
+                        .HasMaxLength(128)
+                        .HasColumnType("nvarchar(128)");
+
+                    b.Property<DateTime?>("RefreshTokenExpiresUtc")
+                        .HasColumnType("datetime2");
+
                     b.HasKey("UserId");
 
                     b.ToTable("Users");

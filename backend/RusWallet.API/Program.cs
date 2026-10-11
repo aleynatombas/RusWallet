@@ -11,6 +11,9 @@ using RusWallet.Infrastructure.Repositories;
 using RusWallet.Infrastructure.Services.Email;
 using Microsoft.Extensions.Logging;
 using RusWallet.API.Middleware;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
+using Microsoft.Data.SqlClient;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -183,7 +186,29 @@ if (!app.Environment.IsDevelopment())
 app.UseAuthentication();
 app.UseAuthorization();
 
-app.MapHealthChecks("/health");
+app.MapHealthChecks("/health", new HealthCheckOptions
+{
+    ResponseWriter = async (context, report) =>
+    {
+        if (report.Status != HealthStatus.Healthy)
+        {
+            var logger = context.RequestServices.GetRequiredService<ILogger<Program>>();
+            foreach (var entry in report.Entries)
+            {
+                if (entry.Value.Status == HealthStatus.Healthy) continue;
+                var ex = entry.Value.Exception;
+                var sqlNumber = (ex as SqlException)?.Number ?? (ex?.InnerException as SqlException)?.Number;
+                // Yalnızca istisna türü ve SQL hata numarası loglanır; bağlantı dizesi,
+                // şifre veya ham exception mesajı (parola içerebilir) kesinlikle yazılmaz.
+                logger.LogError(
+                    "Health check {Name} durumu {Status}. İstisna türü: {ExceptionType}. SqlException.Number: {SqlErrorNumber}",
+                    entry.Key, entry.Value.Status, ex?.GetType().Name ?? "yok", sqlNumber?.ToString() ?? "yok");
+            }
+        }
+        context.Response.ContentType = "text/plain";
+        await context.Response.WriteAsync(report.Status.ToString());
+    },
+});
 app.MapControllers();
 
 if (builder.Configuration.GetValue("Database:ApplyMigrationsOnStartup", false))

@@ -12,15 +12,18 @@ namespace RusWallet.API.Controllers
         private readonly IFinanceAnalysisService _financeAnalysisService;
         private readonly IFinanceMLService _financeMLService;
         private readonly IAnalysisRoadmapService _roadmapService;
+        private readonly ISmartInsightsService _smartInsights;
 
         public AnalysisController(
             IFinanceAnalysisService financeAnalysisService,
             IFinanceMLService financeMLService,
-            IAnalysisRoadmapService roadmapService)
+            IAnalysisRoadmapService roadmapService,
+            ISmartInsightsService smartInsights)
         {
             _financeAnalysisService = financeAnalysisService;
             _financeMLService = financeMLService;
             _roadmapService = roadmapService;
+            _smartInsights = smartInsights;
         }
 
         /// <summary>Giriş yapmış kullanıcının finansal özeti. userId JWT'den alınır.</summary>
@@ -62,6 +65,43 @@ namespace RusWallet.API.Controllers
 
             var result = await _financeMLService.GetAnomaliesAsync(userId, month, historicalMonths);
             return Ok(result);
+        }
+
+        /// <summary>
+        /// Analizlerim sol sütunu: gelecek ay tahmini (ML.NET SSA), anomali tespiti (ML.NET Randomized PCA + istatistik)
+        /// ve tasarruf fırsatları (hesaplanan tutarlar + AI açıklaması). Sonuç veri değişene kadar önbellekte tutulur.
+        /// </summary>
+        [HttpGet("insights")]
+        public async Task<IActionResult> GetInsights(CancellationToken cancellationToken)
+        {
+            var idClaim = User.FindFirst("id")?.Value;
+            if (string.IsNullOrEmpty(idClaim)) return Unauthorized();
+            return Ok(await _smartInsights.GetInsightsAsync(int.Parse(idClaim), cancellationToken));
+        }
+
+        /// <summary>Bir anomaliyi "normal" olarak işaretler; tekrar gösterilmez.</summary>
+        [HttpPost("insights/anomalies/feedback")]
+        public async Task<IActionResult> MarkAnomalyNormal([FromBody] AnomalyFeedbackRequest request)
+        {
+            var idClaim = User.FindFirst("id")?.Value;
+            if (string.IsNullOrEmpty(idClaim)) return Unauthorized();
+            var ok = await _smartInsights.MarkAnomalyAsNormalAsync(int.Parse(idClaim), request.Key ?? "");
+            return ok ? NoContent() : NotFound(new { message = "Anomali bulunamadı." });
+        }
+
+        /// <summary>"Normal" işaretini geri alır.</summary>
+        [HttpDelete("insights/anomalies/feedback")]
+        public async Task<IActionResult> UnmarkAnomalyNormal([FromQuery] string key)
+        {
+            var idClaim = User.FindFirst("id")?.Value;
+            if (string.IsNullOrEmpty(idClaim)) return Unauthorized();
+            await _smartInsights.UnmarkAnomalyAsync(int.Parse(idClaim), key ?? "");
+            return NoContent();
+        }
+
+        public sealed class AnomalyFeedbackRequest
+        {
+            public string? Key { get; set; }
         }
 
         /// <summary>Finansal yol haritası: öngörü kartları, yaşam tarzı skoru, nakit akışı tahmini, soru modülü (ML/istatistik).</summary>

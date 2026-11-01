@@ -8,8 +8,11 @@ import type { FinanceSummary, TransactionRow } from '@/types/dashboard';
 import type { FinancialRoadmapResponseDto } from '@/types/financialRoadmap';
 import type { OnboardingStateDto, UserFinancialProfilePayload } from '@/types/onboarding';
 import { KisaSoruCard, YasamTarziCard } from './AnalysisRoadmapSection';
-import { CockpitAySonuCard, CockpitFirsatCard, CockpitRadarCard } from './FinancialCockpitCards';
 import { MonthSpendSparklineCard } from './MonthSpendSparklineCard';
+import { ForecastInsightCard } from './insights/ForecastInsightCard';
+import { AnomalyInsightCard } from './insights/AnomalyInsightCard';
+import { SavingsInsightCard } from './insights/SavingsInsightCard';
+import type { SmartInsightsResponseDto } from '@/types/smartInsights';
 import { formatGoalTitleDisplay } from '@/lib/formatDisplayName';
 import { parseSavingsTargetFromGoalText } from '@/lib/parseSavingsTargetFromGoalText';
 import { GoalHourglassSimulator } from './GoalHourglassSimulator';
@@ -34,8 +37,54 @@ export function AnalysisComponent() {
   const [roadmapError, setRoadmapError] = useState('');
   const [onboardingProfile, setOnboardingProfile] = useState<UserFinancialProfilePayload | null>(null);
   const [monthTransactions, setMonthTransactions] = useState<TransactionRow[]>([]);
+  const [insights, setInsights] = useState<SmartInsightsResponseDto | null>(null);
+  const [insightsLoading, setInsightsLoading] = useState(true);
+  const [insightsError, setInsightsError] = useState('');
+
+  /** Sol sütun ML/AI modülleri — tek istek; backend veri değişmedikçe önbellekten döner. */
+  const loadInsights = useCallback(async () => {
+    setInsightsLoading(true);
+    setInsightsError('');
+    try {
+      const res = await api.get<SmartInsightsResponseDto>('/Analysis/insights');
+      setInsights(res.data ?? null);
+    } catch {
+      setInsights(null);
+      setInsightsError('Analizler şu an yüklenemedi.');
+    } finally {
+      setInsightsLoading(false);
+    }
+  }, []);
+
+  const markAnomalyNormal = useCallback(async (key: string) => {
+    await api.post('/Analysis/insights/anomalies/feedback', { key });
+    setInsights((prev) =>
+      prev
+        ? {
+            ...prev,
+            anomalies: {
+              ...prev.anomalies,
+              items: prev.anomalies.items.filter((i) => i.key !== key),
+              totalCount: Math.max(0, prev.anomalies.totalCount - 1),
+              dismissedCount: prev.anomalies.dismissedCount + 1,
+            },
+          }
+        : prev
+    );
+    void api
+      .get<SmartInsightsResponseDto>('/Analysis/insights')
+      .then((r) => setInsights(r.data ?? null))
+      .catch(() => undefined);
+  }, []);
+
+  const undoAnomaly = useCallback(async (key: string) => {
+    await api.delete('/Analysis/insights/anomalies/feedback', { params: { key } });
+    const r = await api.get<SmartInsightsResponseDto>('/Analysis/insights');
+    setInsights(r.data ?? null);
+  }, []);
 
   const load = useCallback(async () => {
+    void loadInsights();
     setError('');
     setRoadmapError('');
     setLoading(true);
@@ -85,7 +134,7 @@ export function AnalysisComponent() {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [loadInsights]);
 
   useEffect(() => {
     void load();
@@ -197,8 +246,34 @@ export function AnalysisComponent() {
               'lg:h-full lg:min-h-0 lg:overflow-hidden'
             )}
           >
+            {/* Sol sütun — ML/AI modülleri (roadmap'ten bağımsız yüklenir) */}
+            <ForecastInsightCard
+              data={insights?.forecast ?? null}
+              loading={insightsLoading && !insights}
+              error={insightsError}
+              onRetry={() => void loadInsights()}
+              className="max-lg:order-1 min-h-[15rem] w-full min-w-0 lg:col-start-1 lg:row-start-1 lg:min-h-0 lg:h-full"
+            />
+            <AnomalyInsightCard
+              data={insights?.anomalies ?? null}
+              loading={insightsLoading && !insights}
+              error={insightsError}
+              onRetry={() => void loadInsights()}
+              onMarkNormal={markAnomalyNormal}
+              onUndo={undoAnomaly}
+              className="max-lg:order-3 min-h-[13rem] w-full min-w-0 lg:col-start-1 lg:row-start-2 lg:min-h-0 lg:h-full"
+            />
+            <SavingsInsightCard
+              data={insights?.savings ?? null}
+              loading={insightsLoading && !insights}
+              error={insightsError}
+              onRetry={() => void loadInsights()}
+              className="max-lg:order-5 min-h-[13rem] w-full min-w-0 lg:col-start-1 lg:row-start-3 lg:min-h-0 lg:h-full"
+            />
+
+            {/* Sağ sütun — hedef, yaşam tarzı, gider eğrisi (değişmedi) */}
             {roadmapError ? (
-              <div className={cn(gridCellClass, 'lg:col-span-2 lg:row-span-3')}>
+              <div className={cn(gridCellClass, 'max-lg:order-2 lg:col-start-2 lg:row-start-1 lg:row-span-3')}>
                 <Card className="border-primary/30 bg-primary/5">
                   <CardContent className="px-3 py-6 sm:px-3.5">
                     <p className="text-center text-sm text-muted-foreground" role="alert">
@@ -208,33 +283,19 @@ export function AnalysisComponent() {
                 </Card>
               </div>
             ) : !roadmap ? (
-              <div className={cn(gridCellClass, 'lg:col-span-2 lg:row-span-3')}>
+              <div className={cn(gridCellClass, 'max-lg:order-2 lg:col-start-2 lg:row-start-1 lg:row-span-3')}>
                 <Card>
                   <CardContent className="flex min-h-[10rem] items-center justify-center px-3 py-6">
                     <p className="text-center text-xs text-muted-foreground">{formatPageTitleDisplay('Veri yok')}</p>
                   </CardContent>
                 </Card>
               </div>
-            ) : !roadmap.cockpit ? (
-              <div className={cn(gridCellClass, 'lg:col-span-2 lg:row-span-3')}>
-                <Card>
-                  <CardContent className="flex min-h-[10rem] items-center justify-center px-3 py-6">
-                    <p className="text-center text-xs text-muted-foreground">
-                      {formatPageTitleDisplay('Kokpit verisi şu an yüklenemiyor.')}
-                    </p>
-                  </CardContent>
-                </Card>
-              </div>
             ) : (
               <>
-                <CockpitAySonuCard
-                  cockpit={roadmap.cockpit}
-                  className="min-h-[10rem] w-full min-w-0 lg:col-start-1 lg:row-start-1 lg:min-h-0 lg:h-full"
-                />
                 <Card
                   className={cn(
                     goalPanelClass,
-                    'flex min-h-[10rem] w-full min-w-0 flex-col lg:col-start-2 lg:row-start-1 lg:min-h-0 lg:h-full'
+                    'max-lg:order-2 flex min-h-[10rem] w-full min-w-0 flex-col lg:col-start-2 lg:row-start-1 lg:min-h-0 lg:h-full'
                   )}
                 >
                   <CardHeader className="shrink-0 bg-transparent px-3 pb-0 pt-2 sm:px-3.5 sm:pt-2.5">
@@ -277,21 +338,13 @@ export function AnalysisComponent() {
                   </CardContent>
                 </Card>
 
-                <CockpitRadarCard
-                  cockpit={roadmap.cockpit}
-                  className="min-h-[10rem] w-full min-w-0 lg:col-start-1 lg:row-start-2 lg:min-h-0 lg:h-full"
-                />
                 <YasamTarziCard
                   lifestyle={roadmap?.lifestyle}
-                  className="min-h-0 w-full min-w-0 lg:col-start-2 lg:row-start-2 lg:h-full"
-                />
-                <CockpitFirsatCard
-                  cockpit={roadmap.cockpit}
-                  className="min-h-[10rem] w-full min-w-0 lg:col-start-1 lg:row-start-3 lg:min-h-0 lg:h-full"
+                  className="max-lg:order-4 min-h-0 w-full min-w-0 lg:col-start-2 lg:row-start-2 lg:h-full"
                 />
                 <MonthSpendSparklineCard
                   sparkline={roadmap?.monthSpendSparkline}
-                  className="min-h-[10rem] w-full min-w-0 lg:col-start-2 lg:row-start-3 lg:min-h-0 lg:h-full"
+                  className="max-lg:order-6 min-h-[10rem] w-full min-w-0 lg:col-start-2 lg:row-start-3 lg:min-h-0 lg:h-full"
                 />
               </>
             )}

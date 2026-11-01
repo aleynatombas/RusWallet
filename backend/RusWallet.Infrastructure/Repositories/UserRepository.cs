@@ -54,6 +54,7 @@ namespace RusWallet.Infrastructure.Repositories
                 await _context.FinanceSummaries.Where(x => x.UserId == userId).ExecuteDeleteAsync();
                 await _context.Predictions.Where(x => x.UserId == userId).ExecuteDeleteAsync();
                 await _context.Categories.Where(x => x.UserId == userId).ExecuteDeleteAsync();
+                await _context.AnomalyFeedbacks.Where(x => x.UserId == userId).ExecuteDeleteAsync();
 
                 // En son kullanıcı
                 await _context.Users.Where(x => x.UserId == userId).ExecuteDeleteAsync();

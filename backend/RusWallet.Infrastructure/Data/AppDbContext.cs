@@ -17,6 +17,7 @@ namespace RusWallet.Infrastructure.Data
         public DbSet<Category> Categories { get; set; }
         public DbSet<FinanceSummary> FinanceSummaries { get; set; }
         public DbSet<Prediction> Predictions { get; set; }
+        public DbSet<AnomalyFeedback> AnomalyFeedbacks { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -102,6 +103,14 @@ namespace RusWallet.Infrastructure.Data
                 e.Property(u => u.FinancialProfileJson)
                  .HasConversion(nullableStringConv)
                  .HasColumnType("text");
+            });
+
+            // ── ANOMALY_FEEDBACKS ("normal olarak işaretle") ─────────────────
+            modelBuilder.Entity<AnomalyFeedback>(e =>
+            {
+                e.Property(f => f.AnomalyKey).HasMaxLength(100).IsRequired();
+                e.HasIndex(f => new { f.UserId, f.AnomalyKey }).IsUnique();
+                e.HasOne(f => f.User).WithMany().HasForeignKey(f => f.UserId).OnDelete(DeleteBehavior.Cascade);
             });
         }
     }

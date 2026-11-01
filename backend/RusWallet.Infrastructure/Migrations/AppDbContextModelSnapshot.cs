@@ -22,6 +22,33 @@ namespace RusWallet.Infrastructure.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
+            modelBuilder.Entity("RusWallet.Core.Entities.AnomalyFeedback", b =>
+                {
+                    b.Property<int>("AnomalyFeedbackId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("AnomalyFeedbackId"));
+
+                    b.Property<string>("AnomalyKey")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<DateTime>("CreatedAtUtc")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("AnomalyFeedbackId");
+
+                    b.HasIndex("UserId", "AnomalyKey")
+                        .IsUnique();
+
+                    b.ToTable("AnomalyFeedbacks");
+                });
+
             modelBuilder.Entity("RusWallet.Core.Entities.Category", b =>
                 {
                     b.Property<int>("CategoryId")
@@ -223,6 +250,17 @@ namespace RusWallet.Infrastructure.Migrations
                     b.HasKey("UserId");
 
                     b.ToTable("Users");
+                });
+
+            modelBuilder.Entity("RusWallet.Core.Entities.AnomalyFeedback", b =>
+                {
+                    b.HasOne("RusWallet.Core.Entities.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("RusWallet.Core.Entities.Category", b =>

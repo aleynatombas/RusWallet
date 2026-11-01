@@ -58,6 +58,21 @@ builder.Services.AddScoped<ICockpitMonthEndInsightService>(sp =>
 });
 builder.Services.AddScoped<IAnalysisRoadmapService, AnalysisRoadmapService>();
 
+// Analizlerim sol sütunu: ML tahmin, anomali, tasarruf (+ OpenAI açıklama, kural tabanlı yedek)
+builder.Services.AddMemoryCache();
+builder.Services.AddScoped<IAnomalyFeedbackRepository, AnomalyFeedbackRepository>();
+builder.Services.AddScoped<RusWallet.Infrastructure.Services.Insights.RuleBasedFinanceNarrativeService>();
+builder.Services.AddScoped<IFinanceNarrativeService>(sp =>
+{
+    var config = sp.GetRequiredService<IConfiguration>();
+    var fallback = sp.GetRequiredService<RusWallet.Infrastructure.Services.Insights.RuleBasedFinanceNarrativeService>();
+    if (!string.IsNullOrWhiteSpace(config["OpenAI:ApiKey"]?.Trim()))
+        return new RusWallet.API.Services.OpenAIFinanceNarrativeService(
+            config, fallback, sp.GetRequiredService<ILogger<RusWallet.API.Services.OpenAIFinanceNarrativeService>>());
+    return fallback;
+});
+builder.Services.AddScoped<ISmartInsightsService, RusWallet.Infrastructure.Services.Insights.SmartInsightsService>();
+
 builder.Services.AddScoped<IPredictionService, PredictionService>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<ITransactionRepository, TransactionRepository>();

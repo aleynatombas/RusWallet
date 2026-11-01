@@ -21,7 +21,7 @@ namespace RusWallet.Infrastructure.Data
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             // ── AES-256 Value Converter'lar ──────────────────────────────────
-            // Veritabanında şifreli NVARCHAR(1024) olarak saklanır;
+            // Veritabanında şifreli varchar(1024) olarak saklanır;
             // EF Core okurken otomatik çözer, yazarken otomatik şifreler.
 
             var decimalConv = new ValueConverter<decimal, string>(
@@ -43,20 +43,20 @@ namespace RusWallet.Infrastructure.Data
             // ── TRANSACTIONS ─────────────────────────────────────────────────
             modelBuilder.Entity<Transaction>(e =>
             {
-                // Amount: işlem tutarı — şifreli NVARCHAR
+                // Amount: işlem tutarı — şifreli metin
                 e.Property(t => t.Amount)
                  .HasConversion(decimalConv)
-                 .HasColumnType("nvarchar(1024)");
+                 .HasMaxLength(1024);
 
-                // Description: açıklama / mağaza adı — şifreli NVARCHAR
+                // Description: açıklama / mağaza adı — şifreli metin
                 e.Property(t => t.Description)
                  .HasConversion(stringConv)
-                 .HasColumnType("nvarchar(1024)");
+                 .HasMaxLength(1024);
 
-                // PaymentMethod: kart/banka adı — şifreli NVARCHAR
+                // PaymentMethod: kart/banka adı — şifreli metin
                 e.Property(t => t.PaymentMethod)
                  .HasConversion(nullableStringConv)
-                 .HasColumnType("nvarchar(1024)");
+                 .HasMaxLength(1024);
             });
 
             // ── FINANCE_SUMMARIES ────────────────────────────────────────────
@@ -64,15 +64,15 @@ namespace RusWallet.Infrastructure.Data
             {
                 e.Property(x => x.TotalIncome)
                  .HasConversion(decimalConv)
-                 .HasColumnType("nvarchar(1024)");
+                 .HasMaxLength(1024);
 
                 e.Property(x => x.TotalExpense)
                  .HasConversion(decimalConv)
-                 .HasColumnType("nvarchar(1024)");
+                 .HasMaxLength(1024);
 
                 e.Property(x => x.Balance)
                  .HasConversion(decimalConv)
-                 .HasColumnType("nvarchar(1024)");
+                 .HasMaxLength(1024);
             });
 
             // ── PREDICTIONS ──────────────────────────────────────────────────
@@ -80,7 +80,7 @@ namespace RusWallet.Infrastructure.Data
             {
                 e.Property(x => x.PredictedAmount)
                  .HasConversion(decimalConv)
-                 .HasColumnType("nvarchar(1024)");
+                 .HasMaxLength(1024);
             });
 
             // ── USERS ────────────────────────────────────────────────────────
@@ -89,19 +89,19 @@ namespace RusWallet.Infrastructure.Data
                 e.Property(u => u.PasswordResetToken).HasMaxLength(128);
                 e.Property(u => u.RefreshTokenHash).HasMaxLength(128);
 
-                // Aylık gelir / sabit gider tahmini — şifreli NVARCHAR
+                // Aylık gelir / sabit gider tahmini — şifreli metin
                 e.Property(u => u.MonthlyIncomeNet)
                  .HasConversion(nullableDecimalConv)
-                 .HasColumnType("nvarchar(1024)");
+                 .HasMaxLength(1024);
 
                 e.Property(u => u.MonthlyFixedCostsApprox)
                  .HasConversion(nullableDecimalConv)
-                 .HasColumnType("nvarchar(1024)");
+                 .HasMaxLength(1024);
 
-                // Finansal profil JSON — şifreli NVARCHAR
+                // Finansal profil JSON — şifreli metin
                 e.Property(u => u.FinancialProfileJson)
                  .HasConversion(nullableStringConv)
-                 .HasColumnType("nvarchar(max)");
+                 .HasColumnType("text");
             });
         }
     }

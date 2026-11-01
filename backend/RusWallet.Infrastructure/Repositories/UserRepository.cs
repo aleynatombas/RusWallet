@@ -50,13 +50,13 @@ namespace RusWallet.Infrastructure.Repositories
             try
             {
                 // Çocuk tabloları önce
-                await _context.Database.ExecuteSqlRawAsync("DELETE FROM [Transactions] WHERE [UserId] = {0}", userId);
-                await _context.Database.ExecuteSqlRawAsync("DELETE FROM [FinanceSummaries] WHERE [UserId] = {0}", userId);
-                await _context.Database.ExecuteSqlRawAsync("DELETE FROM [Predictions] WHERE [UserId] = {0}", userId);
-                await _context.Database.ExecuteSqlRawAsync("DELETE FROM [Categories] WHERE [UserId] = {0}", userId);
+                await _context.Transactions.Where(x => x.UserId == userId).ExecuteDeleteAsync();
+                await _context.FinanceSummaries.Where(x => x.UserId == userId).ExecuteDeleteAsync();
+                await _context.Predictions.Where(x => x.UserId == userId).ExecuteDeleteAsync();
+                await _context.Categories.Where(x => x.UserId == userId).ExecuteDeleteAsync();
 
                 // En son kullanıcı
-                await _context.Database.ExecuteSqlRawAsync("DELETE FROM [Users] WHERE [UserId] = {0}", userId);
+                await _context.Users.Where(x => x.UserId == userId).ExecuteDeleteAsync();
 
                 await tx.CommitAsync();
             }

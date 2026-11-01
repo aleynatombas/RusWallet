@@ -1,0 +1,34 @@
+# RusWallet API — Vercel container image
+# Vercel bu dosyayı (Root Directory = backend) otomatik algılar ve imajı Function olarak çalıştırır.
+
+FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
+WORKDIR /src
+COPY RusWallet.Core/RusWallet.Core.csproj RusWallet.Core/
+COPY RusWallet.Infrastructure/RusWallet.Infrastructure.csproj RusWallet.Infrastructure/
+COPY RusWallet.API/RusWallet.API.csproj RusWallet.API/
+RUN dotnet restore RusWallet.API/RusWallet.API.csproj
+COPY . .
+RUN dotnet publish RusWallet.API/RusWallet.API.csproj -c Release -o /app --no-restore
+
+FROM mcr.microsoft.com/dotnet/aspnet:10.0
+WORKDIR /app
+
+# Fiş okuma (Tesseract OCR) için Linux yerel kütüphaneleri.
+# Tesseract NuGet paketi x64/ altında belirli dosya adlarını arar; sistem kütüphanelerine sembolik bağ veriyoruz.
+RUN apt-get update \
+ && apt-get install -y --no-install-recommends libtesseract5 libc6-dev \
+ && rm -rf /var/lib/apt/lists/*
+
+COPY --from=build /app .
+
+RUN mkdir -p /app/x64 \
+ && LEPT=$(find /usr/lib -name 'libleptonica.so*' -o -name 'liblept.so*' | head -n1) \
+ && TESS=$(find /usr/lib -name 'libtesseract.so*' | head -n1) \
+ && ln -sf "$LEPT" /app/x64/libleptonica-1.82.0.so \
+ && ln -sf "$TESS" /app/x64/libtesseract50.so
+
+ENV ASPNETCORE_ENVIRONMENT=Production \
+    DOTNET_RUNNING_IN_CONTAINER=true
+
+# Vercel trafiği PORT ortam değişkenindeki porta (varsayılan 80) gönderir.
+CMD ["sh", "-c", "ASPNETCORE_URLS=http://+:${PORT:-80} exec dotnet RusWallet.API.dll"]

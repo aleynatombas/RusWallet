@@ -13,7 +13,11 @@ using Microsoft.Extensions.Logging;
 using RusWallet.API.Middleware;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
-using Microsoft.Data.SqlClient;
+using Npgsql;
+
+// SQL Server datetime2 davranışını korumak için: DateTime değerleri "timestamp without time zone" olarak saklanır
+// (aksi halde Npgsql, Kind=Utc olmayan DateTime değerlerini yazarken hata verir).
+AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -114,7 +118,7 @@ if (enableSwagger)
 }
 
 builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 builder.Services.AddHealthChecks()
     .AddDbContextCheck<AppDbContext>("database");
@@ -197,12 +201,12 @@ app.MapHealthChecks("/health", new HealthCheckOptions
             {
                 if (entry.Value.Status == HealthStatus.Healthy) continue;
                 var ex = entry.Value.Exception;
-                var sqlNumber = (ex as SqlException)?.Number ?? (ex?.InnerException as SqlException)?.Number;
+                var sqlNumber = (ex as PostgresException)?.SqlState ?? (ex?.InnerException as PostgresException)?.SqlState;
                 // Yalnızca istisna türü ve SQL hata numarası loglanır; bağlantı dizesi,
                 // şifre veya ham exception mesajı (parola içerebilir) kesinlikle yazılmaz.
                 logger.LogError(
-                    "Health check {Name} durumu {Status}. İstisna türü: {ExceptionType}. SqlException.Number: {SqlErrorNumber}",
-                    entry.Key, entry.Value.Status, ex?.GetType().Name ?? "yok", sqlNumber?.ToString() ?? "yok");
+                    "Health check {Name} durumu {Status}. İstisna türü: {ExceptionType}. SqlState: {SqlErrorNumber}",
+                    entry.Key, entry.Value.Status, ex?.GetType().Name ?? "yok", sqlNumber ?? "yok");
             }
         }
         context.Response.ContentType = "text/plain";

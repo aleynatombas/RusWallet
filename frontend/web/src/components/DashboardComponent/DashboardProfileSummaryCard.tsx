@@ -109,7 +109,7 @@ export function DashboardProfileSummaryCard() {
 
         {goal ? (
           <Link
-            to="/analysis#finans-hedef"
+            to="/analysis/finance/goals"
             className={cn(
               'flex gap-3 rounded-xl border border-primary/20 bg-primary/[0.05] px-4 py-3 outline-none transition-colors dark:bg-primary/10',
               'hover:border-primary/40 hover:bg-primary/10 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 dark:hover:bg-primary/[0.14]'

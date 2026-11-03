@@ -50,6 +50,8 @@ public sealed class OpenAIFinanceNarrativeService : IFinanceNarrativeService
                 - Sadece aşağıdaki JSON şemasıyla yanıt ver:
                 {
                   "forecastCommentary": "1-2 cümle, en fazla 220 karakter (tahmin yoksa null)",
+                  "habitsCommentary": "bu ayın kategori dağılımı hakkında 1-2 cümle, en fazla 220 karakter (habits yoksa null)",
+                  "trendCommentary": "son altı ayın gelir-gider eğilimi hakkında 1-2 cümle, en fazla 220 karakter (trend yoksa null)",
                   "savings": [ { "id": "girdideki id", "title": "en fazla 60 karakter",
                                  "explanation": "neden bu öneri, 1 cümle", "action": "somut tek adım, 1 cümle" } ]
                 }
@@ -57,6 +59,9 @@ public sealed class OpenAIFinanceNarrativeService : IFinanceNarrativeService
                 Neden kodları: trend_up = son aylarda artış, above_typical = geçen ay tipik aydan yüksek,
                 high_volatility = aylar arası dalgalı, large_share = esnek harcamada büyük pay,
                 subscription_price_increase = abonelik fiyatı arttı, overlapping_subscriptions = aynı kategoride birden fazla abonelik.
+                habits: TopCategoryWeight dominant = tek kategori harcamanın büyük kısmı; TotalDirection = geçen ayın aynı dönemine göre;
+                FixedShareBand high = giderin çoğu zorunlu kalemler (kira, fatura, abonelik), low = isteğe bağlı harcama payı yüksek.
+                trend: MonthsExpenseAboveIncome = giderin geliri aştığı ay sayısı (sayıyı yazma); IncomeRecorded false ise kullanıcı hiç gelir kaydetmemiştir: gelirden kaydedilmiş gibi söz etme, yalnızca gelirini de kaydetmesini öner.
                 """;
 
             var payload = JsonSerializer.Serialize(request, JsonOpts);
@@ -76,7 +81,13 @@ public sealed class OpenAIFinanceNarrativeService : IFinanceNarrativeService
                 return await _fallback.GenerateAsync(request, cancellationToken);
 
             var parsed = JsonSerializer.Deserialize<AiResponse>(text, JsonOpts);
-            var result = new FinanceNarrativeResult { Source = "openai", ForecastCommentary = parsed?.ForecastCommentary?.Trim() };
+            var result = new FinanceNarrativeResult
+            {
+                Source = "openai",
+                ForecastCommentary = parsed?.ForecastCommentary?.Trim(),
+                HabitsCommentary = parsed?.HabitsCommentary?.Trim(),
+                TrendCommentary = parsed?.TrendCommentary?.Trim(),
+            };
             foreach (var s in parsed?.Savings ?? new())
             {
                 if (string.IsNullOrWhiteSpace(s.Id)) continue;
@@ -99,6 +110,8 @@ public sealed class OpenAIFinanceNarrativeService : IFinanceNarrativeService
     private sealed class AiResponse
     {
         public string? ForecastCommentary { get; set; }
+        public string? HabitsCommentary { get; set; }
+        public string? TrendCommentary { get; set; }
         public List<AiSaving>? Savings { get; set; }
     }
 

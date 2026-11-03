@@ -309,6 +309,12 @@ public class OnboardingService : IOnboardingService
             profile.SavingsTargetAmount = v <= 0 ? null : Math.Round(v, 2);
         }
 
+        if (patch.MonthlyGoalContribution.HasValue)
+        {
+            var v = patch.MonthlyGoalContribution.Value;
+            profile.MonthlyGoalContribution = v <= 0 ? null : Math.Round(Math.Min(v, 100_000_000m), 2);
+        }
+
         FinancialProfileUserMapper.Assign(user, profile);
         await _users.UpdateAsync(user);
 

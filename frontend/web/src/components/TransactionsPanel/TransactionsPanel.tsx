@@ -97,6 +97,17 @@ export function TransactionsPanel({ onTransactionChange }: TransactionsPanelProp
     void loadCategories();
   }, [loadCategories, location.pathname]);
 
+  /** Analizlerim'deki "İşlem ekle" bağlantısı (#yeni-islem): hızlı ekleme formundaki tutar alanına odaklan. */
+  useEffect(() => {
+    if (location.hash !== '#yeni-islem') return;
+    const t = window.setTimeout(() => {
+      const el = document.getElementById('quick-amount');
+      el?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      el?.focus({ preventScroll: true });
+    }, 150);
+    return () => window.clearTimeout(t);
+  }, [location.hash]);
+
   useEffect(() => {
     const onGlobal = () => {
       void loadMonth();

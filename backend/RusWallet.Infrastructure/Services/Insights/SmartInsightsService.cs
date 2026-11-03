@@ -47,18 +47,25 @@ public sealed partial class SmartInsightsService : ISmartInsightsService
         var today = DateTime.Today;
         var raw = await _transactions.GetByUserAndDateRangeAsync(userId, today.AddDays(-400), today.AddDays(1), isIncome: false);
         var expenses = raw.Where(t => t.Amount > 0).Select(ExpenseRecord.From).OrderBy(e => e.Date).ToList();
+        // Gelirler yalnızca 6 aylık trend kartı için gerekir.
+        var trendStart = new DateTime(today.Year, today.Month, 1).AddMonths(-(FinancialTrendEngine.MonthsShown - 1));
+        var rawIncome = await _transactions.GetByUserAndDateRangeAsync(userId, trendStart, today.AddDays(1), isIncome: true);
+        var incomes = rawIncome.Where(t => t.Amount > 0).Select(ExpenseRecord.From).OrderBy(e => e.Date).ToList();
 
         var fingerprint = string.Join('|',
             today.ToString("yyyyMMdd", CultureInfo.InvariantCulture),
             expenses.Count,
             expenses.Count == 0 ? 0 : expenses.Max(e => e.TransactionId),
             expenses.Sum(e => e.Amount).ToString(CultureInfo.InvariantCulture),
-            expenses.Aggregate(17, (h, e) => HashCode.Combine(h, e.CategoryId, e.Date, e.Description)));
+            expenses.Aggregate(17, (h, e) => HashCode.Combine(h, e.CategoryId, e.Date, e.Description)),
+            incomes.Count,
+            incomes.Sum(e => e.Amount).ToString(CultureInfo.InvariantCulture),
+            incomes.Aggregate(17, (h, e) => HashCode.Combine(h, e.TransactionId, e.Date)));
         var cacheKey = $"smart-insights:{userId}:{fingerprint}";
 
         if (!_cache.TryGetValue(cacheKey, out SmartInsightsResponseDto? computed) || computed == null)
         {
-            computed = await ComputeAsync(expenses, today, cancellationToken);
+            computed = await ComputeAsync(expenses, incomes, today, cancellationToken);
             _cache.Set(cacheKey, computed, CacheDuration);
         }
 
@@ -66,7 +73,8 @@ public sealed partial class SmartInsightsService : ISmartInsightsService
         return ApplyDismissals(computed, dismissed);
     }
 
-    private async Task<SmartInsightsResponseDto> ComputeAsync(List<ExpenseRecord> expenses, DateTime today, CancellationToken ct)
+    private async Task<SmartInsightsResponseDto> ComputeAsync(
+        List<ExpenseRecord> expenses, List<ExpenseRecord> incomes, DateTime today, CancellationToken ct)
     {
         var recurring = RecurringPaymentDetector.Detect(expenses, today);
 
@@ -90,9 +98,15 @@ public sealed partial class SmartInsightsService : ISmartInsightsService
             forecast.Message += $" Tek seferlik {outlierIds.Count} uç işlem model girdisinden çıkarıldı.";
         }
 
-        var request = BuildNarrativeRequest(forecast, savings);
+        // Sağ sütun kartları gerçekleşen tutarları gösterir (uç işlemler dahil); tahmin, sol kartla aynı sayıdır.
+        var habits = Safe(() => SpendingHabitsEngine.Build(expenses, today), "habits",
+            () => new SpendingHabitsInsightDto { Status = "error", Message = "Harcama dağılımı şu an hesaplanamadı." });
+        var trend = Safe(() => FinancialTrendEngine.Build(expenses, incomes, forecast, today), "trend",
+            () => new FinancialTrendInsightDto { Status = "error", Message = "Finansal trend şu an hesaplanamadı." });
+
+        var request = BuildNarrativeRequest(forecast, savings, habits, trend);
         var narrativeSource = "rule_based";
-        if (request.Forecast != null || request.Savings.Count > 0)
+        if (request.Forecast != null || request.Savings.Count > 0 || request.Habits != null || request.Trend != null)
         {
             FinanceNarrativeResult ai;
             try
@@ -123,6 +137,20 @@ public sealed partial class SmartInsightsService : ISmartInsightsService
                 o.Action = n.Action;
                 o.NarrativeSource = aiOk ? ai.Source : "rule_based";
             }
+
+            if (request.Habits != null)
+            {
+                var aiOk = IsClean(ai.HabitsCommentary);
+                habits.Commentary = aiOk ? ai.HabitsCommentary : rules.HabitsCommentary;
+                habits.CommentarySource = aiOk ? ai.Source : "rule_based";
+            }
+
+            if (request.Trend != null)
+            {
+                var aiOk = IsClean(ai.TrendCommentary);
+                trend.Commentary = aiOk ? ai.TrendCommentary : rules.TrendCommentary;
+                trend.CommentarySource = aiOk ? ai.Source : "rule_based";
+            }
         }
 
         return new SmartInsightsResponseDto
@@ -131,11 +159,22 @@ public sealed partial class SmartInsightsService : ISmartInsightsService
             Forecast = forecast,
             Anomalies = anomalies,
             Savings = savings,
+            SpendingHabits = habits,
+            Trend = trend,
             NarrativeSource = narrativeSource,
         };
     }
 
-    private static FinanceNarrativeRequest BuildNarrativeRequest(ForecastInsightDto forecast, SavingsInsightDto savings)
+    private static string? Direction(double? pct) => pct switch
+    {
+        null => null,
+        >= 5 => "up",
+        <= -5 => "down",
+        _ => "flat",
+    };
+
+    private static FinanceNarrativeRequest BuildNarrativeRequest(
+        ForecastInsightDto forecast, SavingsInsightDto savings, SpendingHabitsInsightDto habits, FinancialTrendInsightDto trend)
     {
         var req = new FinanceNarrativeRequest();
         if (forecast.Status == "ready" && forecast.PredictedTotal is { } p)
@@ -167,6 +206,46 @@ public sealed partial class SmartInsightsService : ISmartInsightsService
             ReasonCodes = o.ReasonCodes,
             SubscriptionNames = o.RelatedSubscriptions.Select(s => s.Name).ToList(),
         }).ToList();
+
+        if (habits.Status == "ready" && habits.Categories.Count > 0)
+        {
+            var real = habits.Categories.Where(c => !c.IsOther).ToList();
+            var top = real.Count > 0 ? real[0] : habits.Categories[0];
+            req.Habits = new HabitsNarrativeFacts
+            {
+                MonthName = habits.MonthLabel,
+                TopCategory = top.CategoryName,
+                TopCategoryWeight = top.SharePercent >= 40 ? "dominant" : "leading",
+                TotalDirection = Direction(habits.ChangeVsPreviousPercent),
+                RisingCategories = real.Where(c => c.ChangePercent >= 20 && c.SharePercent >= 5).Select(c => c.CategoryName).ToList(),
+                FallingCategories = real.Where(c => c.ChangePercent <= -20 && c.SharePercent >= 5).Select(c => c.CategoryName).ToList(),
+                FixedShareBand = habits.FixedSharePercent >= 60 ? "high" : habits.FixedSharePercent <= 25 ? "low" : "balanced",
+            };
+        }
+
+        if (trend.Status == "ready")
+        {
+            var complete = trend.Months.Where(m => !m.IsPartial && m.HasData).ToList();
+            var incomeRecorded = complete.Any(m => m.Income > 0);
+            string? vsAvg = null;
+            if (trend.Forecast != null && trend.AverageMonthlyExpense is > 0)
+                vsAvg = Direction((double)((trend.Forecast.Expense - trend.AverageMonthlyExpense.Value) / trend.AverageMonthlyExpense.Value) * 100) switch
+                {
+                    "up" => "above",
+                    "down" => "below",
+                    _ => "similar",
+                };
+            req.Trend = new TrendNarrativeFacts
+            {
+                LastMonthDirection = Direction(trend.LastCompleteMonthChangePercent),
+                HighestExpenseMonthName = trend.HighestExpenseMonthLabel?.Split(' ')[0],
+                IncomeRecorded = incomeRecorded,
+                MonthsExpenseAboveIncome = incomeRecorded ? complete.Count(m => m.Expense > m.Income) : 0,
+                CompleteMonthsWithData = complete.Count,
+                MonthsWithoutData = trend.MonthsWithoutData,
+                ForecastVsAverage = vsAvg,
+            };
+        }
         return req;
     }
 
@@ -210,6 +289,8 @@ public sealed partial class SmartInsightsService : ISmartInsightsService
             Forecast = computed.Forecast,
             Anomalies = anomalies,
             Savings = computed.Savings,
+            SpendingHabits = computed.SpendingHabits,
+            Trend = computed.Trend,
             NarrativeSource = computed.NarrativeSource,
         };
     }

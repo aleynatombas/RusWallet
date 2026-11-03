@@ -10,7 +10,7 @@ import {
   InsightCardShell,
   InsightError,
   InsightSkeleton,
-  InsufficientData,
+  DataCollectionState,
 } from './InsightCardShell';
 
 interface Props {
@@ -20,10 +20,12 @@ interface Props {
   onRetry: () => void;
   onMarkNormal: (key: string) => Promise<void>;
   onUndo: (key: string) => Promise<void>;
+  /** Odak ekranı: bütün anomaliler pencere yerine sayfada listelenir. */
+  expanded?: boolean;
   className?: string;
 }
 
-export function AnomalyInsightCard({ data, loading, error, onRetry, onMarkNormal, onUndo, className }: Props) {
+export function AnomalyInsightCard({ data, loading, error, onRetry, onMarkNormal, onUndo, expanded = false, className }: Props) {
   const [open, setOpen] = useState(false);
   const [busyKey, setBusyKey] = useState<string | null>(null);
   const [lastDismissed, setLastDismissed] = useState<string | null>(null);
@@ -78,8 +80,9 @@ export function AnomalyInsightCard({ data, loading, error, onRetry, onMarkNormal
       <InsightCardShell
         title="Anomali tespiti"
         icon={<ScanSearch className="h-4 w-4" aria-hidden />}
-        badge={data?.status === 'ready' ? 'ML' : undefined}
+        badge={data?.status === 'ready' ? 'AI' : undefined}
         onOpenDetail={data?.status === 'ready' && items.length > 0 ? () => setOpen(true) : undefined}
+        expanded={expanded}
         className={className}
       >
         {loading ? (
@@ -89,10 +92,18 @@ export function AnomalyInsightCard({ data, loading, error, onRetry, onMarkNormal
         ) : !data || data.status === 'error' ? (
           <InsightError message={data?.message || 'Anomali analizi yapılamadı.'} onRetry={onRetry} />
         ) : data.status === 'insufficient_data' ? (
-          <InsufficientData dq={data.dataQuality} hint="Normal davranışı öğrenmek için daha fazla işlem gerekiyor." />
+          <DataCollectionState
+            purpose="Alışkanlıklarının dışında kalan harcamaları, örneğin beklenmedik büyük bir ödemeyi, otomatik olarak fark eder."
+            requirements={[
+              { label: "Kayıt geçmişi", current: data.dataQuality.historyDays, required: data.dataQuality.requiredHistoryDays, unit: "gün" },
+              { label: "30 günden eski gider kaydı", current: data.dataQuality.expenseTransactionCount, required: data.dataQuality.requiredTransactions, unit: "kayıt" },
+            ]}
+            why="Son 30 günün, daha önceki kayıtlarından öğrenilen normal düzeninle karşılaştırılır; bu yüzden eski kayıtlar sayılır. Kira, fatura ve abonelikler bu sayıma girmez."
+            tip="Normal harcama alışkanlıklarını öğrenmek için farklı kategorilerde daha fazla işlem kaydet."
+          />
         ) : items.length === 0 ? (
           <>
-            <div className="flex flex-1 flex-col items-center justify-center gap-1.5 text-center">
+            <div className={cn('flex flex-1 flex-col items-center justify-center gap-1.5 text-center', expanded && 'py-8')}>
               <span className="flex h-10 w-10 items-center justify-center rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-300">
                 <ShieldCheck className="h-5 w-5" aria-hidden />
               </span>
@@ -111,20 +122,42 @@ export function AnomalyInsightCard({ data, loading, error, onRetry, onMarkNormal
               <Stat label="Öne çıkan" value={data.topCategoryName ?? '—'} />
               <Stat label="Sapma" value={`+%${Math.round(top.deviationPercent)}`} tone="warn" />
             </div>
-            <AnomalyRow item={top} busy={busyKey === top.key} onMark={() => mark(top.key)} compact />
-            {undoBar}
+            {expanded ? (
+              <>
+                <p className="text-[11px] leading-snug text-muted-foreground">
+                  Son {data.evaluatedWindowDays} gündeki {data.evaluatedTransactionCount} işlem, senin normal harcama alışkanlıklarınla
+                  karşılaştırıldı. Senin için olağan olan bir durumu “Normal” ile işaretlersen tekrar gösterilmez.
+                </p>
+                <div className="flex flex-wrap items-center gap-2 text-[10px] text-muted-foreground">
+                  <DataQualityChip dq={data.dataQuality} />
+                  {data.excludedRecurringCount > 0 ? <span>{data.excludedRecurringCount} düzenli ödeme hariç</span> : null}
+                  {data.dismissedCount > 0 ? <span>{data.dismissedCount} kayıt normal olarak işaretli</span> : null}
+                </div>
+                {undoBar}
+                <div className="space-y-2">
+                  {items.map((it) => (
+                    <AnomalyRow key={it.key} item={it} busy={busyKey === it.key} onMark={() => mark(it.key)} />
+                  ))}
+                </div>
+              </>
+            ) : (
+              <>
+                <AnomalyRow item={top} busy={busyKey === top.key} onMark={() => mark(top.key)} compact />
+                {undoBar}
+              </>
+            )}
             {actionError ? <p className="text-[10px] text-destructive">{actionError}</p> : null}
           </>
         )}
       </InsightCardShell>
 
-      {data?.status === 'ready' ? (
+      {data?.status === 'ready' && !expanded ? (
         <Dialog open={open} onOpenChange={setOpen}>
           <DialogContent className="max-h-[90vh] max-w-xl overflow-y-auto">
             <DialogHeader>
               <DialogTitle>Anomali tespiti</DialogTitle>
               <DialogDescription className="text-xs text-muted-foreground">
-                Son {data.evaluatedWindowDays} gün · {data.evaluatedTransactionCount} işlem · {data.modelName}
+                Son {data.evaluatedWindowDays} gündeki {data.evaluatedTransactionCount} işlem, senin normal harcama alışkanlıklarınla karşılaştırıldı.
               </DialogDescription>
             </DialogHeader>
             <div className="space-y-2 px-4 py-4">
@@ -212,14 +245,10 @@ function AnomalyRow({
           <p className={cn('mt-0.5 text-[10px] leading-snug text-muted-foreground', compact && 'line-clamp-2')}>
             {item.explanation}
           </p>
-          {!compact ? (
-            <div className="mt-1 flex flex-wrap gap-1">
-              {item.detectionMethods.map((m) => (
-                <span key={m} className="rounded-full bg-muted px-1.5 py-0.5 text-[9px] text-muted-foreground">
-                  {m}
-                </span>
-              ))}
-            </div>
+          {!compact && item.detectionMethods.length > 1 ? (
+            <p className="mt-1 text-[9px] text-muted-foreground" title={item.detectionMethods.join(", ")}>
+              {item.detectionMethods.length} ayrı kontrol bu işlemi olağan dışı buldu.
+            </p>
           ) : null}
         </div>
         <Button

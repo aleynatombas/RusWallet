@@ -60,7 +60,7 @@ public static class AnomalyDetectionEngine
         {
             var needs = new List<string>();
             if (historyDays < MinHistoryDays) needs.Add($"{MinHistoryDays - historyDays} gün daha geçmiş");
-            if (training.Count < MinTrainingTransactions) needs.Add($"{MinTrainingTransactions - training.Count} değişken gider kaydı daha");
+            if (training.Count < MinTrainingTransactions) needs.Add($"{MinTrainingTransactions - training.Count} gider kaydı daha (kira, fatura ve abonelikler hariç)");
             dto.DataQuality.Level = "insufficient";
             dto.DataQuality.Message = $"Normal harcama davranışını öğrenmek için {string.Join(" ve ", needs)} gerekiyor.";
             dto.Status = "insufficient_data";

@@ -72,7 +72,12 @@ namespace RusWallet.Infrastructure.Services
                 throw new Exception("Şifreniz yanlış, tekrar deneyin.");
 
             if (user.OnboardingCompletedAt != null)
-                _ = Task.Run(() => _onboardingService.SyncProfileBaselinesAsync(user.UserId));
+            {
+                // Aynı (scoped) DbContext'i kullandığı için arka planda değil, sırayla çalışmalı.
+                // Senkronizasyon hatası girişi engellemesin.
+                try { await _onboardingService.SyncProfileBaselinesAsync(user.UserId); }
+                catch { /* bir sonraki analiz/işlem isteğinde tekrar senkronize edilir */ }
+            }
 
             return await IssueAuthResponseAsync(user);
         }

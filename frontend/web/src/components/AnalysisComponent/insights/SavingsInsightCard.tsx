@@ -10,7 +10,7 @@ import {
   InsightCardShell,
   InsightError,
   InsightSkeleton,
-  InsufficientData,
+  DataCollectionState,
 } from './InsightCardShell';
 
 interface Props {
@@ -18,16 +18,20 @@ interface Props {
   loading: boolean;
   error: string;
   onRetry: () => void;
+  /** Odak ekranı: bütün fırsatlar listelenir, seçilen fırsatın detayı sayfada gösterilir. */
+  expanded?: boolean;
   className?: string;
 }
 
 const confidenceLabel = { high: 'Yüksek güven', medium: 'Orta güven', low: 'Düşük güven' } as const;
 
-export function SavingsInsightCard({ data, loading, error, onRetry, className }: Props) {
+export function SavingsInsightCard({ data, loading, error, onRetry, expanded = false, className }: Props) {
   const [selected, setSelected] = useState<SavingsOpportunityDto | null>(null);
   const opps = data?.opportunities ?? [];
-  const top3 = opps.slice(0, 3);
+  const top3 = expanded ? opps : opps.slice(0, 3);
   const maxSaving = Math.max(1, ...top3.map((o) => o.monthlySaving));
+  /** Odak ekranında her zaman bir fırsat seçili olur (varsayılan: en yüksek etkili). */
+  const current = expanded ? (opps.find((o) => o.id === selected?.id) ?? opps[0] ?? null) : selected;
 
   return (
     <>
@@ -36,6 +40,7 @@ export function SavingsInsightCard({ data, loading, error, onRetry, className }:
         icon={<PiggyBank className="h-4 w-4" aria-hidden />}
         badge={data?.status === 'ready' && opps.length > 0 ? 'AI' : undefined}
         onOpenDetail={opps.length > 0 ? () => setSelected(opps[0]) : undefined}
+        expanded={expanded}
         className={className}
       >
         {loading ? (
@@ -45,7 +50,15 @@ export function SavingsInsightCard({ data, loading, error, onRetry, className }:
         ) : !data || data.status === 'error' ? (
           <InsightError message={data?.message || 'Tasarruf analizi yapılamadı.'} onRetry={onRetry} />
         ) : data.status === 'insufficient_data' ? (
-          <InsufficientData dq={data.dataQuality} hint="Kişisel hedef seviyesi için birkaç aylık geçmiş gerekiyor." />
+          <DataCollectionState
+            purpose="Harcamalarını kendi en iyi aylarınla karşılaştırıp aylık ne kadar tasarruf edebileceğini hesaplar."
+            requirements={[
+              { label: "Tamamlanmış ay", current: data.dataQuality.completeMonths, required: 3, unit: "ay" },
+              { label: "Gider kaydı", current: data.dataQuality.expenseTransactionCount, required: data.dataQuality.requiredTransactions, unit: "kayıt" },
+            ]}
+            why="Gerçekçi bir hedef için en az üç ayını karşılaştırıp daha az harcadığın ayları bulmamız gerekiyor."
+            tip="Her ay giderlerini doğru kategorilerle kaydetmeye devam et; abonelik ve faturaları da eklemeyi unutma."
+          />
         ) : opps.length === 0 ? (
           <div className="flex flex-1 flex-col items-center justify-center gap-1.5 text-center">
             <span className="flex h-10 w-10 items-center justify-center rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-300">
@@ -70,13 +83,18 @@ export function SavingsInsightCard({ data, loading, error, onRetry, className }:
               </p>
             </div>
 
-            <ul className="flex min-h-0 flex-1 flex-col gap-1 overflow-hidden">
+            <ul className={cn('flex min-h-0 flex-col gap-1', expanded ? '' : 'flex-1 overflow-hidden')}>
               {top3.map((o, i) => (
                 <li key={o.id}>
                   <button
                     type="button"
                     onClick={() => setSelected(o)}
-                    className="group flex w-full items-center gap-2 rounded-md border border-border/60 bg-background/60 px-2 py-1 text-left transition-colors hover:border-primary/40 hover:bg-primary/5 dark:bg-zinc-900/50"
+                    aria-pressed={expanded ? current?.id === o.id : undefined}
+                    className={cn(
+                      'group flex w-full items-center gap-2 rounded-md border border-border/60 bg-background/60 px-2 py-1 text-left transition-colors hover:border-primary/40 hover:bg-primary/5 dark:bg-zinc-900/50',
+                      expanded && 'py-1.5',
+                      expanded && current?.id === o.id && 'border-primary/60 bg-primary/5 ring-1 ring-primary/30'
+                    )}
                   >
                     <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-muted text-[10px] font-bold text-muted-foreground">
                       {i + 1}
@@ -98,22 +116,61 @@ export function SavingsInsightCard({ data, loading, error, onRetry, className }:
                 </li>
               ))}
             </ul>
+            {expanded && current ? (
+              <section className="rounded-lg border border-border bg-background/50 p-3 dark:bg-background/20" aria-label="Seçilen fırsatın detayı">
+                <OpportunityDetail selected={current} opps={opps} onSelect={setSelected} inline />
+              </section>
+            ) : null}
           </>
         )}
       </InsightCardShell>
 
-      <Dialog open={selected != null} onOpenChange={(o) => !o && setSelected(null)}>
-        <DialogContent className="max-h-[90vh] max-w-xl overflow-y-auto">
-          {selected ? (
-            <>
-              <DialogHeader>
-                <DialogTitle>{selected.title || selected.categoryName}</DialogTitle>
-                <DialogDescription className="text-xs text-muted-foreground">
-                  {selected.categoryName} · {confidenceLabel[selected.confidence]}
-                  {selected.usedMlForecast ? ' · ML.NET regresyon tahmini' : ''}
-                </DialogDescription>
-              </DialogHeader>
-              <div className="space-y-3 px-4 py-4">
+      {!expanded ? (
+        <Dialog open={selected != null} onOpenChange={(o) => !o && setSelected(null)}>
+          <DialogContent className="max-h-[90vh] max-w-xl overflow-y-auto">
+            {selected ? (
+              <>
+                <DialogHeader>
+                  <DialogTitle>{selected.title || selected.categoryName}</DialogTitle>
+                  <DialogDescription className="text-xs text-muted-foreground">
+                    {selected.categoryName} · {confidenceLabel[selected.confidence]}
+                    {selected.usedMlForecast ? ' · harcama eğilimin de hesaba katıldı' : ''}
+                  </DialogDescription>
+                </DialogHeader>
+                <div className="px-4 py-4">
+                  <OpportunityDetail selected={selected} opps={opps} onSelect={setSelected} />
+                </div>
+              </>
+            ) : null}
+          </DialogContent>
+        </Dialog>
+      ) : null}
+    </>
+  );
+}
+
+function OpportunityDetail({
+  selected,
+  opps,
+  onSelect,
+  inline = false,
+}: {
+  selected: SavingsOpportunityDto;
+  opps: SavingsOpportunityDto[];
+  onSelect: (o: SavingsOpportunityDto) => void;
+  inline?: boolean;
+}) {
+  return (
+              <div className="space-y-3">
+                {inline ? (
+                  <div>
+                    <p className="text-sm font-semibold text-foreground">{selected.title || selected.categoryName}</p>
+                    <p className="text-[11px] text-muted-foreground">
+                      {selected.categoryName} · {confidenceLabel[selected.confidence]}
+                      {selected.usedMlForecast ? ' · harcama eğilimin de hesaba katıldı' : ''}
+                    </p>
+                  </div>
+                ) : null}
                 <div className="grid grid-cols-3 gap-2">
                   <Metric label="Aylık tasarruf" value={fmtTry(selected.monthlySaving)} accent />
                   <Metric label="Yıllık" value={fmtTry(selected.yearlySaving)} />
@@ -121,7 +178,7 @@ export function SavingsInsightCard({ data, loading, error, onRetry, className }:
                 </div>
 
                 {selected.explanation ? (
-                  <AiNote text={`${selected.explanation} ${selected.action}`.trim()} source={selected.narrativeSource} />
+                  <AiNote text={`${selected.explanation} ${selected.action}`.trim()} source={selected.narrativeSource} clamp={false} />
                 ) : null}
 
                 {selected.monthlyHistory.length > 0 ? (
@@ -160,13 +217,13 @@ export function SavingsInsightCard({ data, loading, error, onRetry, className }:
                   </ul>
                 </div>
 
-                {opps.length > 1 ? (
+                {opps.length > 1 && !inline ? (
                   <div className="flex flex-wrap gap-1.5 border-t border-border pt-3">
                     {opps.map((o) => (
                       <button
                         key={o.id}
                         type="button"
-                        onClick={() => setSelected(o)}
+                        onClick={() => onSelect(o)}
                         className={cn(
                           'rounded-full border px-2 py-0.5 text-[10px]',
                           o.id === selected.id
@@ -180,14 +237,9 @@ export function SavingsInsightCard({ data, loading, error, onRetry, className }:
                   </div>
                 ) : null}
                 <p className="text-[9px] text-muted-foreground">
-                  Tutarlar backend'de kendi geçmiş verinden hesaplandı; AI yalnızca açıklamayı yazar.
+                  Tutarlar kendi geçmiş verinden hesaplandı; AI yalnızca açıklamayı yazar.
                 </p>
               </div>
-            </>
-          ) : null}
-        </DialogContent>
-      </Dialog>
-    </>
   );
 }
 

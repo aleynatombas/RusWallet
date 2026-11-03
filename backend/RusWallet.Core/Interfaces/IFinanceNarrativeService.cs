@@ -13,6 +13,38 @@ namespace RusWallet.Core.Interfaces
     {
         public ForecastNarrativeFacts? Forecast { get; set; }
         public List<SavingsNarrativeFacts> Savings { get; set; } = new();
+        public HabitsNarrativeFacts? Habits { get; set; }
+        public TrendNarrativeFacts? Trend { get; set; }
+    }
+
+    /// <summary>Bu ayın kategori dağılımından çıkarılan nitel bulgular (AI bunları rakamsız yorumlar).</summary>
+    public sealed class HabitsNarrativeFacts
+    {
+        public string MonthName { get; set; } = "";
+        public string TopCategory { get; set; } = "";
+        /// <summary>"dominant" (payı en az yüzde kırk) | "leading".</summary>
+        public string TopCategoryWeight { get; set; } = "leading";
+        /// <summary>Geçen ayın aynı dönemine göre toplam: "up" | "down" | "flat" | null (kıyas yok).</summary>
+        public string? TotalDirection { get; set; }
+        public List<string> RisingCategories { get; set; } = new();
+        public List<string> FallingCategories { get; set; } = new();
+        /// <summary>Zorunlu gider payı: "high" | "balanced" | "low".</summary>
+        public string FixedShareBand { get; set; } = "balanced";
+    }
+
+    /// <summary>Son altı ayın eğiliminden çıkarılan nitel bulgular.</summary>
+    public sealed class TrendNarrativeFacts
+    {
+        /// <summary>Son tamamlanmış ayın gider değişimi: "up" | "down" | "flat" | null.</summary>
+        public string? LastMonthDirection { get; set; }
+        public string? HighestExpenseMonthName { get; set; }
+        public bool IncomeRecorded { get; set; }
+        /// <summary>Giderin geliri aştığı tamamlanmış ay sayısı.</summary>
+        public int MonthsExpenseAboveIncome { get; set; }
+        public int CompleteMonthsWithData { get; set; }
+        public int MonthsWithoutData { get; set; }
+        /// <summary>Gelecek ay tahmini ortalamaya göre: "above" | "below" | "similar" | null.</summary>
+        public string? ForecastVsAverage { get; set; }
     }
 
     public sealed class ForecastNarrativeFacts
@@ -48,6 +80,8 @@ namespace RusWallet.Core.Interfaces
         public string Source { get; set; } = "rule_based";
         public string? ForecastCommentary { get; set; }
         public Dictionary<string, SavingsNarrative> Savings { get; set; } = new();
+        public string? HabitsCommentary { get; set; }
+        public string? TrendCommentary { get; set; }
     }
 
     public sealed class SavingsNarrative

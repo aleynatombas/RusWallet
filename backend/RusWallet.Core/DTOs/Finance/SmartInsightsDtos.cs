@@ -7,6 +7,10 @@ namespace RusWallet.Core.DTOs.Finance
         public ForecastInsightDto Forecast { get; set; } = new();
         public AnomalyInsightDto Anomalies { get; set; } = new();
         public SavingsInsightDto Savings { get; set; } = new();
+        /// <summary>Sağ sütun: bu ayın kategori dağılımı.</summary>
+        public SpendingHabitsInsightDto SpendingHabits { get; set; } = new();
+        /// <summary>Sağ sütun: son 6 ay gelir/gider eğilimi (+ gelecek ay tahmini, Forecast ile aynı sayı).</summary>
+        public FinancialTrendInsightDto Trend { get; set; } = new();
         /// <summary>Doğal dil açıklamalarının kaynağı: "openai" veya "rule_based".</summary>
         public string NarrativeSource { get; set; } = "rule_based";
     }

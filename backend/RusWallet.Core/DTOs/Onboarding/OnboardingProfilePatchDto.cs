@@ -7,4 +7,7 @@ public class OnboardingProfilePatchDto
 
     /// <summary>Birikim hedefi (TL). 0 veya negatif gönderilirse alan temizlenir.</summary>
     public decimal? SavingsTargetAmount { get; set; }
+
+    /// <summary>Hedef için aylık ayrılacak tutar (TL). 0 veya negatif gönderilirse alan temizlenir.</summary>
+    public decimal? MonthlyGoalContribution { get; set; }
 }

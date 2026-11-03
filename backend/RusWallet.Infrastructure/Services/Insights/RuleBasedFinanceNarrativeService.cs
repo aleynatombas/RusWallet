@@ -55,6 +55,59 @@ public sealed class RuleBasedFinanceNarrativeService : IFinanceNarrativeService
             };
         }
 
+        if (request.Habits is { } h)
+            result.HabitsCommentary = HabitsText(h);
+        if (request.Trend is { } t)
+            result.TrendCommentary = TrendText(t);
+
         return Task.FromResult(result);
+    }
+
+    private static string HabitsText(HabitsNarrativeFacts h)
+    {
+        var top = h.TopCategoryWeight == "dominant"
+            ? $"Bu ay harcamanın önemli bir kısmı {h.TopCategory} kategorisinde."
+            : $"Bu ay en çok {h.TopCategory} kategorisine harcadın.";
+        var change = h.TotalDirection switch
+        {
+            "up" when h.RisingCategories.Count > 0 =>
+                $" Geçen ayın aynı dönemine göre toplam gider arttı; artış en çok {string.Join(" ve ", h.RisingCategories.Take(2))} tarafında.",
+            "up" => " Geçen ayın aynı dönemine göre toplam gider arttı.",
+            "down" => " Geçen ayın aynı dönemine göre daha az harcıyorsun, bu tempoyu korumak iyi olur.",
+            "flat" => " Toplam gider geçen ayın aynı dönemiyle benzer.",
+            _ => "",
+        };
+        var fixedNote = h.FixedShareBand switch
+        {
+            "high" => " Giderlerin çoğu zorunlu kalemlerde; tasarruf için önce fatura ve aboneliklere bak.",
+            "low" => " İsteğe bağlı harcamaların payı yüksek; küçük limitlerle kolayca tasarruf edebilirsin.",
+            _ => "",
+        };
+        return top + change + fixedNote;
+    }
+
+    private static string TrendText(TrendNarrativeFacts t)
+    {
+        var parts = new List<string>();
+        parts.Add(t.LastMonthDirection switch
+        {
+            "up" => "Geçen ay giderlerin bir önceki aya göre arttı.",
+            "down" => "Geçen ay giderlerin bir önceki aya göre azaldı.",
+            "flat" => "Son iki ayda giderlerin benzer seviyede.",
+            _ => "Aylık giderlerin grafikte görünüyor.",
+        });
+        if (!t.IncomeRecorded)
+            parts.Add("Gelirlerini de kaydedersen gelir ve gider dengesini birlikte görebilirsin.");
+        else if (t.MonthsExpenseAboveIncome > 0)
+            parts.Add(t.MonthsExpenseAboveIncome == t.CompleteMonthsWithData
+                ? "Kayıtlı aylarda gider gelirin üzerinde kaldı; bütçeni gözden geçirmen faydalı olur."
+                : "Bazı aylarda gider gelirin üzerine çıktı.");
+        else
+            parts.Add("Kayıtlı aylarda gelirin giderini karşıladı.");
+        if (t.ForecastVsAverage == "above")
+            parts.Add("Gelecek ay için tahmin ortalamanın üzerinde.");
+        else if (t.ForecastVsAverage == "below")
+            parts.Add("Gelecek ay için tahmin ortalamanın altında.");
+        return string.Join(" ", parts);
     }
 }

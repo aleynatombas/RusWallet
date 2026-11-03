@@ -84,8 +84,8 @@ public class OnboardingController : ControllerBase
         if (userId == null) return Unauthorized();
         if (body == null)
             return BadRequest(new { message = "Gövde boş olamaz." });
-        if (body.MainGoal == null && !body.SavingsTargetAmount.HasValue)
-            return BadRequest(new { message = "En az bir alan gönderin (mainGoal veya savingsTargetAmount)." });
+        if (body.MainGoal == null && !body.SavingsTargetAmount.HasValue && !body.MonthlyGoalContribution.HasValue)
+            return BadRequest(new { message = "En az bir alan gönderin (mainGoal, savingsTargetAmount veya monthlyGoalContribution)." });
         var state = await _onboarding.PatchProfileAsync(userId.Value, body);
         return Ok(state);
     }

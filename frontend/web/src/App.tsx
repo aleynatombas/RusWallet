@@ -36,7 +36,7 @@ function AppRoutes() {
               <Route path="/onboarding" element={<OnboardingPage />} />
               <Route path="/" element={<DashboardPage />} />
               <Route path="/transactions" element={<TransactionsPage />} />
-              <Route path="/analysis" element={<AnalysisPage />} />
+              <Route path="/analysis/*" element={<AnalysisPage />} />
               <Route path="/budget" element={<BudgetPage />} />
               <Route path="/settings" element={<SettingsPage />} />
             </Route>

@@ -1,40 +1,44 @@
 /**
- * Analizlerim — lg: 3 satır × 2 sütun: sol kokpit üçlüsü | sağ hedef üçlüsü (eşit fr).
+ * Analizlerim — analiz merkezi. Veriler burada bir kez yüklenir; alt ekranlar (iç içe route) aynı veriyi kullanır,
+ * sekme değiştirince yeniden istek atılmaz.
+ *   /analysis                                Genel Bakış
+ *   /analysis/ai/{forecast,anomaly,savings}
+ *   /analysis/finance/{goals,spending,trends}
  */
-import { useCallback, useEffect, useMemo, useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { type ReactNode, useCallback, useEffect, useMemo, useState } from 'react';
+import { Navigate, Route, Routes, useLocation, useNavigate } from 'react-router-dom';
 import { api } from '@/services/api';
 import type { FinanceSummary, TransactionRow } from '@/types/dashboard';
 import type { FinancialRoadmapResponseDto } from '@/types/financialRoadmap';
 import type { OnboardingStateDto, UserFinancialProfilePayload } from '@/types/onboarding';
-import { KisaSoruCard, YasamTarziCard } from './AnalysisRoadmapSection';
-import { MonthSpendSparklineCard } from './MonthSpendSparklineCard';
+import { KisaSoruCard } from './AnalysisRoadmapSection';
+import { GoalRoadmapCard } from './dashboard/GoalRoadmapCard';
+import { SpendingHabitsCard } from './dashboard/SpendingHabitsCard';
+import { FinancialTrendCard } from './dashboard/FinancialTrendCard';
 import { ForecastInsightCard } from './insights/ForecastInsightCard';
 import { AnomalyInsightCard } from './insights/AnomalyInsightCard';
 import { SavingsInsightCard } from './insights/SavingsInsightCard';
 import type { SmartInsightsResponseDto } from '@/types/smartInsights';
-import { formatGoalTitleDisplay } from '@/lib/formatDisplayName';
 import { parseSavingsTargetFromGoalText } from '@/lib/parseSavingsTargetFromGoalText';
-import { GoalHourglassSimulator } from './GoalHourglassSimulator';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { cn } from '@/lib/utils';
-import { formatRoadmapLoadError } from '@/lib/formatRoadmapLoadError';
-import { ANALYSIS_CARD_TITLE_CLASS, formatPageTitleDisplay } from '@/lib/pageTitle';
+import { InsightSkeleton } from './insights/InsightCardShell';
+import { AnalysisOverview, getTileStates, heroStatsFrom } from './navigation/AnalysisOverview';
+import {
+  AI_ITEMS,
+  ANALYSIS_ROUTES,
+  AnalysisHero,
+  FINANCE_ITEMS,
+  ModuleChips,
+  type AnalysisNavItem,
+} from './navigation/AnalysisNav';
 import { getCurrentMonthRangeStrings } from '@/lib/monthRange';
-
-const goalPanelClass =
-  'flex h-full min-h-[11rem] flex-col overflow-hidden rounded-lg border border-border bg-muted/20 shadow-elevation-lg dark:bg-zinc-900/35 dark:shadow-lg dark:shadow-black/40 lg:min-h-0';
-
-const gridCellClass = 'min-h-0 min-w-0 flex flex-col lg:h-full lg:min-h-0';
 
 export function AnalysisComponent() {
   const location = useLocation();
+  const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [summary, setSummary] = useState<FinanceSummary | null>(null);
   const [roadmap, setRoadmap] = useState<FinancialRoadmapResponseDto | null>(null);
-  const [roadmapError, setRoadmapError] = useState('');
   const [onboardingProfile, setOnboardingProfile] = useState<UserFinancialProfilePayload | null>(null);
   const [monthTransactions, setMonthTransactions] = useState<TransactionRow[]>([]);
   const [insights, setInsights] = useState<SmartInsightsResponseDto | null>(null);
@@ -86,7 +90,6 @@ export function AnalysisComponent() {
   const load = useCallback(async () => {
     void loadInsights();
     setError('');
-    setRoadmapError('');
     setLoading(true);
     try {
       const { start, end } = getCurrentMonthRangeStrings();
@@ -111,7 +114,6 @@ export function AnalysisComponent() {
         setRoadmap(rmResult.value.data ?? null);
       } else {
         setRoadmap(null);
-        setRoadmapError(formatRoadmapLoadError(rmResult.reason));
       }
 
       const txResult = settled[2];
@@ -124,8 +126,7 @@ export function AnalysisComponent() {
       try {
         const onboardRes = await api.get<OnboardingStateDto>('/Onboarding/state');
         const prof = onboardRes.data?.profile;
-        const g = prof?.mainGoal?.trim();
-        setOnboardingProfile(g && g.length > 0 ? prof! : null);
+        setOnboardingProfile(prof ?? null);
       } catch {
         setOnboardingProfile(null);
       }
@@ -150,13 +151,10 @@ export function AnalysisComponent() {
     };
   }, [load]);
 
+  /** Eski bağlantı (/analysis#finans-hedef) yeni Hedeflerim ekranına yönlenir. */
   useEffect(() => {
-    if (loading || location.hash !== '#finans-hedef') return;
-    const t = window.setTimeout(() => {
-      document.getElementById('finans-hedef')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }, 120);
-    return () => window.clearTimeout(t);
-  }, [loading, location.hash]);
+    if (location.hash === '#finans-hedef') navigate(ANALYSIS_ROUTES.goals, { replace: true });
+  }, [location.hash, navigate]);
 
   const effectiveTarget = useMemo(() => {
     if (!onboardingProfile?.mainGoal?.trim()) return null;
@@ -216,143 +214,141 @@ export function AnalysisComponent() {
     return Math.min(raw, cap);
   }, [monthlyDisposableCap, monthTransactions.length]);
 
-  const hasGoalSimulator =
-    Boolean(onboardingProfile?.mainGoal?.trim()) && effectiveTarget != null && effectiveTarget > 0;
+  const retry = () => void loadInsights();
+  const insightsBusy = insightsLoading && !insights;
+  const goalName = onboardingProfile?.mainGoal?.trim() || '';
 
-  const hasGoalSection = Boolean(onboardingProfile?.mainGoal?.trim());
+  const goalScreen = loading ? (
+    <InsightSkeletonCard />
+  ) : (
+    <GoalRoadmapCard
+      profile={onboardingProfile}
+      targetAmount={effectiveTarget}
+      balance={Number(summary?.balance ?? 0)}
+      monthlyDisposableCap={monthlyDisposableCap}
+      disposableSource={disposableSource}
+      defaultAllocation={defaultAllocation}
+      onProfileUpdated={(p) => setOnboardingProfile(p)}
+      expanded
+    />
+  );
+
+  const tileStates = getTileStates(
+    insights,
+    insightsLoading,
+    insightsError,
+    goalName ? { name: goalName, target: effectiveTarget, saved: Number(summary?.balance ?? 0) } : null,
+    loading
+  );
 
   return (
-    <div
-      className={cn(
-        'flex w-full min-h-0 flex-1 flex-col items-stretch gap-3 pb-2 lg:h-full lg:min-h-0 lg:items-stretch lg:gap-4 lg:pb-0'
-      )}
-    >
+    <div className="flex w-full min-w-0 flex-1 flex-col gap-4 pb-6 lg:h-full lg:min-h-0 lg:pb-0">
+      <AnalysisHero stats={heroStatsFrom(tileStates)} />
+
       {error ? (
-        <p className="shrink-0 text-sm text-muted-foreground" role="alert">
+        <p className="text-sm text-muted-foreground" role="alert">
           {error}
         </p>
       ) : null}
 
-      {loading ? (
-        <div className="flex min-h-[10rem] flex-1 items-center justify-center text-sm text-muted-foreground">
-          Yükleniyor…
-        </div>
-      ) : (
-        <div className="flex min-h-0 w-full min-w-0 flex-1 flex-col gap-3 lg:min-h-0 lg:gap-4">
-          <div
-            className={cn(
-              'grid min-h-0 w-full min-w-0 flex-1 grid-cols-1 gap-3',
-              'lg:grid-cols-2 lg:grid-rows-[minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)] lg:items-stretch lg:gap-4',
-              'lg:h-full lg:min-h-0 lg:overflow-hidden'
-            )}
-          >
-            {/* Sol sütun — ML/AI modülleri (roadmap'ten bağımsız yüklenir) */}
-            <ForecastInsightCard
-              data={insights?.forecast ?? null}
-              loading={insightsLoading && !insights}
-              error={insightsError}
-              onRetry={() => void loadInsights()}
-              className="max-lg:order-1 min-h-[15rem] w-full min-w-0 lg:col-start-1 lg:row-start-1 lg:min-h-0 lg:h-full"
-            />
-            <AnomalyInsightCard
-              data={insights?.anomalies ?? null}
-              loading={insightsLoading && !insights}
-              error={insightsError}
-              onRetry={() => void loadInsights()}
-              onMarkNormal={markAnomalyNormal}
-              onUndo={undoAnomaly}
-              className="max-lg:order-3 min-h-[13rem] w-full min-w-0 lg:col-start-1 lg:row-start-2 lg:min-h-0 lg:h-full"
-            />
-            <SavingsInsightCard
-              data={insights?.savings ?? null}
-              loading={insightsLoading && !insights}
-              error={insightsError}
-              onRetry={() => void loadInsights()}
-              className="max-lg:order-5 min-h-[13rem] w-full min-w-0 lg:col-start-1 lg:row-start-3 lg:min-h-0 lg:h-full"
-            />
+      <div className="flex min-w-0 flex-col lg:min-h-0 lg:flex-1">
+      <Routes>
+        <Route
+          index
+          element={
+            <AnalysisOverview states={tileStates} footer={roadmap?.qaModule ? <KisaSoruCard qa={roadmap.qaModule} /> : null} />
+          }
+        />
 
-            {/* Sağ sütun — hedef, yaşam tarzı, gider eğrisi (değişmedi) */}
-            {roadmapError ? (
-              <div className={cn(gridCellClass, 'max-lg:order-2 lg:col-start-2 lg:row-start-1 lg:row-span-3')}>
-                <Card className="border-primary/30 bg-primary/5">
-                  <CardContent className="px-3 py-6 sm:px-3.5">
-                    <p className="text-center text-sm text-muted-foreground" role="alert">
-                      {roadmapError}
-                    </p>
-                  </CardContent>
-                </Card>
-              </div>
-            ) : !roadmap ? (
-              <div className={cn(gridCellClass, 'max-lg:order-2 lg:col-start-2 lg:row-start-1 lg:row-span-3')}>
-                <Card>
-                  <CardContent className="flex min-h-[10rem] items-center justify-center px-3 py-6">
-                    <p className="text-center text-xs text-muted-foreground">{formatPageTitleDisplay('Veri yok')}</p>
-                  </CardContent>
-                </Card>
-              </div>
-            ) : (
-              <>
-                <Card
-                  className={cn(
-                    goalPanelClass,
-                    'max-lg:order-2 flex min-h-[10rem] w-full min-w-0 flex-col lg:col-start-2 lg:row-start-1 lg:min-h-0 lg:h-full'
-                  )}
-                >
-                  <CardHeader className="shrink-0 bg-transparent px-3 pb-0 pt-2 sm:px-3.5 sm:pt-2.5">
-                    <CardTitle className={cn('min-w-0', ANALYSIS_CARD_TITLE_CLASS)}>
-                      {formatPageTitleDisplay('Hedef ve yol haritası')}
-                    </CardTitle>
-                  </CardHeader>
+        <Route path="ai" element={<Navigate to={ANALYSIS_ROUTES.forecast} replace />} />
+        <Route
+          path="ai/forecast"
+          element={
+            <DetailScreen items={AI_ITEMS} label="AI analizleri">
+              <ForecastInsightCard data={insights?.forecast ?? null} loading={insightsBusy} error={insightsError} onRetry={retry} expanded />
+            </DetailScreen>
+          }
+        />
+        <Route
+          path="ai/anomaly"
+          element={
+            <DetailScreen items={AI_ITEMS} label="AI analizleri">
+              <AnomalyInsightCard
+                data={insights?.anomalies ?? null}
+                loading={insightsBusy}
+                error={insightsError}
+                onRetry={retry}
+                onMarkNormal={markAnomalyNormal}
+                onUndo={undoAnomaly}
+                expanded
+              />
+            </DetailScreen>
+          }
+        />
+        <Route
+          path="ai/savings"
+          element={
+            <DetailScreen items={AI_ITEMS} label="AI analizleri">
+              <SavingsInsightCard data={insights?.savings ?? null} loading={insightsBusy} error={insightsError} onRetry={retry} expanded />
+            </DetailScreen>
+          }
+        />
 
-                  <CardContent className="flex min-h-0 flex-1 flex-col overflow-hidden p-0">
-                    {hasGoalSimulator && onboardingProfile?.mainGoal ? (
-                      <div className="px-3 pb-2 pt-2 sm:px-3.5 sm:pb-3 sm:pt-2.5">
-                        <GoalHourglassSimulator
-                          className="min-h-0 shrink-0"
-                          mainGoalShort={formatGoalTitleDisplay(onboardingProfile.mainGoal.trim().slice(0, 120))}
-                          targetAmount={effectiveTarget!}
-                          currentBalance={Number(summary?.balance ?? 0)}
-                          monthlyDisposableCap={monthlyDisposableCap}
-                          disposableSource={disposableSource}
-                          defaultAllocation={defaultAllocation}
-                          forecastNextMonthSpending={roadmap?.cockpit?.monthEnd?.forecastNextMonthTotal ?? null}
-                        />
-                      </div>
-                    ) : (
-                      <div
-                        id={hasGoalSection ? undefined : 'finans-hedef'}
-                        className="scroll-mt-16 flex min-h-0 flex-col justify-center px-3 pb-4 pt-2 text-center sm:px-3.5 sm:text-left"
-                      >
-                        <p className="text-[11px] leading-relaxed text-muted-foreground">
-                          Tanıtımda hedef ve tutar eklediğinde simülasyon burada görünür.
-                        </p>
-                        <div className="mt-4 flex justify-center sm:justify-start">
-                          <Button asChild variant="outline" size="sm">
-                            <Link to="/onboarding" state={{ background: location }}>
-                              Tanıtıma git
-                            </Link>
-                          </Button>
-                        </div>
-                      </div>
-                    )}
-                  </CardContent>
-                </Card>
+        <Route path="finance" element={<Navigate to={ANALYSIS_ROUTES.goals} replace />} />
+        <Route
+          path="finance/goals"
+          element={
+            <DetailScreen items={FINANCE_ITEMS} label="Finansal durum">
+              {goalScreen}
+            </DetailScreen>
+          }
+        />
+        <Route
+          path="finance/spending"
+          element={
+            <DetailScreen items={FINANCE_ITEMS} label="Finansal durum">
+              <SpendingHabitsCard data={insights?.spendingHabits ?? null} loading={insightsBusy} error={insightsError} onRetry={retry} expanded />
+            </DetailScreen>
+          }
+        />
+        <Route
+          path="finance/trends"
+          element={
+            <DetailScreen items={FINANCE_ITEMS} label="Finansal durum">
+              <FinancialTrendCard
+                data={insights?.trend ?? null}
+                forecast={insights?.forecast ?? null}
+                loading={insightsBusy}
+                error={insightsError}
+                onRetry={retry}
+                expanded
+              />
+            </DetailScreen>
+          }
+        />
 
-                <YasamTarziCard
-                  lifestyle={roadmap?.lifestyle}
-                  className="max-lg:order-4 min-h-0 w-full min-w-0 lg:col-start-2 lg:row-start-2 lg:h-full"
-                />
-                <MonthSpendSparklineCard
-                  sparkline={roadmap?.monthSpendSparkline}
-                  className="max-lg:order-6 min-h-[10rem] w-full min-w-0 lg:col-start-2 lg:row-start-3 lg:min-h-0 lg:h-full"
-                />
-              </>
-            )}
-          </div>
+        <Route path="*" element={<Navigate to={ANALYSIS_ROUTES.overview} replace />} />
+      </Routes>
+      </div>
+    </div>
+  );
+}
 
-          {roadmap?.qaModule ? <KisaSoruCard qa={roadmap.qaModule} /> : null}
-        </div>
-      )}
+/** Odak ekranı: bölüm içi alt sekmeler + seçilen tek modül. */
+function DetailScreen({ items, label, children }: { items: AnalysisNavItem[]; label: string; children: ReactNode }) {
+  return (
+    <div className="flex w-full flex-col gap-3 lg:min-h-0 lg:flex-1">
+      <ModuleChips items={items} label={label} />
+      {/* Masaüstünde sayfa kaymaz: kart kalan yüksekliği doldurur, uzun içerik kartın içinde kayar. */}
+      <div className="flex min-w-0 flex-col lg:min-h-0 lg:flex-1">{children}</div>
+    </div>
+  );
+}
+
+function InsightSkeletonCard() {
+  return (
+    <div className="rounded-lg border border-border bg-muted/20 p-4 dark:bg-zinc-900/40">
+      <InsightSkeleton />
     </div>
   );
 }

@@ -154,5 +154,70 @@ export interface SmartInsightsResponseDto {
   forecast: ForecastInsightDto;
   anomalies: AnomalyInsightDto;
   savings: SavingsInsightDto;
+  spendingHabits: SpendingHabitsInsightDto;
+  trend: FinancialTrendInsightDto;
   narrativeSource: 'openai' | 'rule_based';
+}
+
+export interface CategoryShareDto {
+  categoryName: string;
+  amount: number;
+  sharePercent: number;
+  previousAmount: number | null;
+  changePercent: number | null;
+  transactionCount: number;
+  isFixed: boolean;
+  isOther: boolean;
+}
+
+export interface SpendingHabitsInsightDto {
+  status: InsightStatus;
+  dataQuality: DataSufficiencyDto;
+  monthLabel: string;
+  totalExpense: number;
+  previousPeriodTotal: number | null;
+  changeVsPreviousPercent: number | null;
+  previousPeriodLabel: string;
+  transactionCount: number;
+  fixedSharePercent: number;
+  categories: CategoryShareDto[];
+  commentary: string | null;
+  commentarySource: 'openai' | 'rule_based';
+  message: string;
+}
+
+export interface TrendMonthDto {
+  year: number;
+  month: number;
+  label: string;
+  hasData: boolean;
+  isPartial: boolean;
+  income: number | null;
+  expense: number | null;
+  net: number | null;
+  expenseChangePercent: number | null;
+}
+
+export interface TrendForecastDto {
+  label: string;
+  expense: number;
+  lower: number | null;
+  upper: number | null;
+}
+
+export interface FinancialTrendInsightDto {
+  status: InsightStatus;
+  dataQuality: DataSufficiencyDto;
+  months: TrendMonthDto[];
+  forecast: TrendForecastDto | null;
+  highestExpenseMonthLabel: string | null;
+  highestExpenseMonthAmount: number | null;
+  averageMonthlyExpense: number | null;
+  averageMonthlyIncome: number | null;
+  lastCompleteMonthChangePercent: number | null;
+  monthsWithData: number;
+  monthsWithoutData: number;
+  commentary: string | null;
+  commentarySource: 'openai' | 'rule_based';
+  message: string;
 }

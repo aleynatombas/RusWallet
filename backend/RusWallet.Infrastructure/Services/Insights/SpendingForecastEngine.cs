@@ -46,7 +46,9 @@ public static class SpendingForecastEngine
         dto.Series = completeMonthTotals
             .Select(m => new ForecastSeriesPointDto
             {
-                Year = m.Start.Year, Month = m.Start.Month, Label = ShortLabel(m.Start), Actual = m.Total, Kind = "complete",
+                Year = m.Start.Year, Month = m.Start.Month, Label = ShortLabel(m.Start),
+                // Hiç gider kaydı olmayan ay 0 değil "veri yok" (null): grafik orada boşluk bırakır.
+                Actual = m.Total > 0 ? m.Total : null, Kind = "complete",
             })
             .ToList();
         dto.CategoryDrivers = BuildCategoryDrivers(expenses, monthStart);
@@ -172,7 +174,8 @@ public static class SpendingForecastEngine
         foreach (var p in dto.Series.Where(p => p.Kind == "complete"))
         {
             var s = new DateTime(p.Year, p.Month, 1);
-            p.Actual = Sum(s, s.AddMonths(1));
+            var total = Sum(s, s.AddMonths(1));
+            p.Actual = total > 0 ? total : null;
         }
 
         var fullMtd = Sum(monthStart, today.AddDays(1));
@@ -337,12 +340,18 @@ public static class SpendingForecastEngine
         var total = last3.Sum(e => e.Amount);
         if (total <= 0) return new();
 
+        // Ortalama yalnızca kaydı olan aylara bölünür: hiç kaydın olmadığı ay 0 TL harcama sayılmaz.
+        int ActiveMonths(DateTime from, DateTime to) =>
+            expenses.Where(e => e.Date >= from && e.Date < to).Select(e => (e.Date.Year, e.Date.Month)).Distinct().Count();
+        var recentMonths = Math.Max(1, ActiveMonths(last3Start, monthStart));
+        var prevMonths = ActiveMonths(prev3Start, last3Start);
+
         return last3
             .GroupBy(e => e.CategoryName)
             .Select(g =>
             {
-                var recentAvg = g.Sum(x => x.Amount) / 3m;
-                var prevAvg = expenses.Where(e => e.CategoryName == g.Key && e.Date >= prev3Start && e.Date < last3Start).Sum(e => e.Amount) / 3m;
+                var recentAvg = g.Sum(x => x.Amount) / recentMonths;
+                var prevAvg = prevMonths == 0 ? 0m : expenses.Where(e => e.CategoryName == g.Key && e.Date >= prev3Start && e.Date < last3Start).Sum(e => e.Amount) / prevMonths;
                 return new CategoryDriverDto
                 {
                     CategoryName = g.Key,

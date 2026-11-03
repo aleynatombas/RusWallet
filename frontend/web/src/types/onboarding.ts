@@ -7,6 +7,8 @@ export interface UserFinancialProfilePayload {
   mainGoal?: string | null;
   /** Birikim hedefi TL; POST /Onboarding/update-profile ile güncellenir */
   savingsTargetAmount?: number | null;
+  /** Hedef için aylık ayrılacak tutar (TL); Analizlerim hedef kartında kaydedilir. */
+  monthlyGoalContribution?: number | null;
 }
 
 export interface OnboardingStateDto {

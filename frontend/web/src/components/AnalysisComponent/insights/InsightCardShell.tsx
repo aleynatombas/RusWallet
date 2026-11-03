@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
-import { AlertCircle, Database, Maximize2, RefreshCw, Sparkles } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { AlertCircle, Database, Info, Lightbulb, ListChecks, Maximize2, Plus, RefreshCw, Sparkles } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ANALYSIS_CARD_TITLE_CLASS, formatPageTitleDisplay } from '@/lib/pageTitle';
@@ -7,7 +8,7 @@ import { cn } from '@/lib/utils';
 import type { DataSufficiencyDto } from '@/types/smartInsights';
 
 export const insightCardClass =
-  'flex h-full min-h-0 w-full min-w-0 flex-col overflow-hidden rounded-lg border border-border bg-muted/20 shadow-elevation dark:bg-zinc-900/40 dark:shadow-md dark:shadow-black/30';
+  'flex h-full min-h-0 w-full min-w-0 flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-elevation transition-shadow dark:bg-zinc-900/50 dark:shadow-md dark:shadow-black/30';
 
 export function fmtTry(n: number | null | undefined): string {
   if (n == null || Number.isNaN(n)) return '—';
@@ -27,23 +28,25 @@ interface ShellProps {
   /** Kartın ML/AI ile üretildiğini gösteren küçük etiket. */
   badge?: string;
   onOpenDetail?: () => void;
+  /** Odak (detay) ekranı: detay butonu gizlenir, içerik kesilmez. */
+  expanded?: boolean;
   className?: string;
   children: ReactNode;
 }
 
 /** Üç modül kartının ortak iskeleti: ikon, başlık, ML/AI etiketi ve detay butonu. */
-export function InsightCardShell({ title, icon, badge, onOpenDetail, className, children }: ShellProps) {
+export function InsightCardShell({ title, icon, badge, onOpenDetail, expanded = false, className, children }: ShellProps) {
   return (
     <Card className={cn(insightCardClass, className)}>
-      <CardHeader className="flex shrink-0 flex-row items-center gap-2 space-y-0 px-3 pb-0 pt-2 sm:px-3.5 sm:pt-2.5">
-        <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-primary/10 text-primary">
+      <CardHeader className={cn("flex shrink-0 flex-row items-center gap-2.5 space-y-0", expanded ? "border-b border-border/60 px-4 py-3 sm:px-5" : "px-3 pb-0 pt-2 sm:px-3.5 sm:pt-2.5")}>
+        <span className={cn("flex shrink-0 items-center justify-center bg-primary/10 text-primary", expanded ? "h-9 w-9 rounded-xl" : "h-7 w-7 rounded-md")}>
           {icon}
         </span>
         <CardTitle className={cn(ANALYSIS_CARD_TITLE_CLASS, 'min-w-0 flex-1 truncate')}>
           {formatPageTitleDisplay(title)}
         </CardTitle>
         {badge ? <AiBadge label={badge} /> : null}
-        {onOpenDetail ? (
+        {onOpenDetail && !expanded ? (
           <Button
             type="button"
             variant="outline"
@@ -56,7 +59,12 @@ export function InsightCardShell({ title, icon, badge, onOpenDetail, className, 
           </Button>
         ) : null}
       </CardHeader>
-      <CardContent className="flex min-h-0 flex-1 flex-col gap-2 overflow-hidden px-3 pb-3 pt-2 sm:px-3.5">
+      <CardContent
+        className={cn(
+          'flex min-h-0 flex-1 flex-col gap-2 px-3 pb-3 pt-2 sm:px-3.5',
+          expanded ? 'gap-3 px-4 pb-4 pt-3 sm:px-5 lg:overflow-y-auto' : 'overflow-hidden'
+        )}
+      >
         {children}
       </CardContent>
     </Card>
@@ -73,10 +81,10 @@ export function AiBadge({ label }: { label: string }) {
 }
 
 /** AI tarafından yazılan açıklama: sol kenar çizgisiyle görsel olarak ayrışır. */
-export function AiNote({ text, source }: { text: string; source?: 'openai' | 'rule_based' }) {
+export function AiNote({ text, source, clamp = true }: { text: string; source?: 'openai' | 'rule_based'; clamp?: boolean }) {
   return (
     <div className="rounded-md border-l-2 border-primary/60 bg-primary/5 px-2 py-1.5 dark:bg-primary/10">
-      <p className="line-clamp-2 text-[11px] leading-snug text-foreground/90">{text}</p>
+      <p className={cn('text-[11px] leading-snug text-foreground/90', clamp && 'line-clamp-2')}>{text}</p>
       {source ? (
         <p className="mt-0.5 text-[9px] text-muted-foreground">
           {source === 'openai' ? 'AI yorumu · OpenAI' : 'Otomatik yorum'}
@@ -112,34 +120,95 @@ export function InsightError({ message, onRetry }: { message: string; onRetry?: 
   );
 }
 
-/** Yetersiz veri: tahmin varmış gibi davranmaz, eksik miktarı ilerleme çubuğuyla gösterir. */
-export function InsufficientData({ dq, hint }: { dq: DataSufficiencyDto; hint: string }) {
-  const dayPct = dq.requiredHistoryDays > 0 ? Math.min(100, (dq.historyDays / dq.requiredHistoryDays) * 100) : 0;
-  const txPct = dq.requiredTransactions > 0 ? Math.min(100, (dq.expenseTransactionCount / dq.requiredTransactions) * 100) : 0;
+export interface DataRequirement {
+  label: string;
+  current: number;
+  required: number;
+  /** "gün", "kayıt", "ay" */
+  unit: string;
+}
+
+interface DataCollectionProps {
+  /** Analizin kullanıcıya ne kazandırdığı (tek cümle, teknik terim yok). */
+  purpose: string;
+  requirements: DataRequirement[];
+  /** Eksik verinin neden gerekli olduğu. */
+  why: string;
+  /** Kullanıcının şimdi yapabileceği somut adım. */
+  tip: string;
+}
+
+/**
+ * Veri toplama durumu: sahte sonuç göstermez. Analizin amacını, mevcut/gereken veriyi,
+ * neden gerektiğini ve kullanıcının şimdi ne yapabileceğini gösterir; işlem sayfasına yönlendirir.
+ */
+export function DataCollectionState({ purpose, requirements, why, tip }: DataCollectionProps) {
+  const open = requirements.filter((r) => r.required > 0);
   return (
-    <div className="flex flex-1 flex-col justify-center gap-2">
-      <div className="flex items-start gap-2">
-        <Database className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground" aria-hidden />
-        <div className="min-w-0">
-          <p className="text-xs font-semibold text-foreground">Daha fazla veri gerekiyor</p>
-          <p className="text-[11px] leading-snug text-muted-foreground">{dq.message || hint}</p>
-        </div>
+    <div className="flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto pr-0.5">
+      <p className="text-[11px] leading-snug text-foreground/85">{purpose}</p>
+
+      <div className="space-y-1.5 rounded-md border border-dashed border-border bg-background/40 p-2 dark:bg-background/20">
+        <p className="flex items-center gap-1 text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
+          <Database className="h-3 w-3" aria-hidden /> Veri durumu
+        </p>
+        {open.map((r) => (
+          <RequirementRow key={r.label} r={r} />
+        ))}
+        <p className="flex gap-1 pt-0.5 text-[10px] leading-snug text-muted-foreground">
+          <Info className="mt-px h-3 w-3 shrink-0" aria-hidden />
+          <span>{why}</span>
+        </p>
       </div>
-      <ProgressRow label="Geçmiş" value={`${dq.historyDays}/${dq.requiredHistoryDays} gün`} pct={dayPct} />
-      <ProgressRow label="Gider kaydı" value={`${dq.expenseTransactionCount}/${dq.requiredTransactions}`} pct={txPct} />
+
+      <p className="flex gap-1.5 text-[11px] leading-snug text-foreground/90">
+        <Lightbulb className="mt-px h-3.5 w-3.5 shrink-0 text-primary" aria-hidden />
+        <span>{tip}</span>
+      </p>
+
+      <div className="mt-auto flex flex-wrap gap-1.5 pt-0.5">
+        <Button asChild size="sm" className="h-7 gap-1 px-2.5 text-[11px]">
+          <Link to="/transactions#yeni-islem">
+            <Plus className="h-3 w-3" aria-hidden /> İşlem ekle
+          </Link>
+        </Button>
+        <Button asChild size="sm" variant="outline" className="h-7 gap-1 px-2.5 text-[11px]">
+          <Link to="/transactions">
+            <ListChecks className="h-3 w-3" aria-hidden /> İşlemlerime git
+          </Link>
+        </Button>
+      </div>
     </div>
   );
 }
 
-function ProgressRow({ label, value, pct }: { label: string; value: string; pct: number }) {
+function RequirementRow({ r }: { r: DataRequirement }) {
+  const pct = Math.min(100, Math.max(0, (r.current / r.required) * 100));
+  const done = r.current >= r.required;
+  const missing = Math.max(0, r.required - r.current);
   return (
     <div>
-      <div className="mb-0.5 flex justify-between text-[10px] text-muted-foreground">
-        <span>{label}</span>
-        <span className="tabular-nums">{value}</span>
+      <div className="mb-0.5 flex items-baseline justify-between gap-2 text-[10px]">
+        <span className="text-muted-foreground">{r.label}</span>
+        <span className="tabular-nums text-foreground">
+          {Math.min(r.current, r.required)}/{r.required} {r.unit}
+          <span className={cn('ml-1', done ? 'text-emerald-600 dark:text-emerald-400' : 'text-muted-foreground')}>
+            {done ? '· tamam' : `· ${missing} ${r.unit} daha`}
+          </span>
+        </span>
       </div>
-      <div className="h-1.5 overflow-hidden rounded-full bg-muted">
-        <div className="h-full rounded-full bg-primary/70 transition-all" style={{ width: `${pct}%` }} />
+      <div
+        className="h-1.5 overflow-hidden rounded-full bg-muted"
+        role="progressbar"
+        aria-label={r.label}
+        aria-valuemin={0}
+        aria-valuemax={r.required}
+        aria-valuenow={Math.min(r.current, r.required)}
+      >
+        <div
+          className={cn('h-full rounded-full transition-all', done ? 'bg-emerald-500/80' : 'bg-primary/75')}
+          style={{ width: `${pct}%` }}
+        />
       </div>
     </div>
   );

@@ -16,5 +16,8 @@ namespace RusWallet.Core.DTOs.Onboarding
 
         /// <summary>Birikim gibi sayısal hedef (TL); analiz ve sohbet bağlamı için.</summary>
         public decimal? SavingsTargetAmount { get; set; }
+
+        /// <summary>Kullanıcının hedef için her ay ayırmayı planladığı tutar (TL); Analizlerim hedef kartında seçilir.</summary>
+        public decimal? MonthlyGoalContribution { get; set; }
     }
 }

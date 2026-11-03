@@ -12,7 +12,7 @@ import {
   InsightCardShell,
   InsightError,
   InsightSkeleton,
-  InsufficientData,
+  DataCollectionState,
 } from './InsightCardShell';
 
 interface Props {
@@ -20,67 +20,20 @@ interface Props {
   loading: boolean;
   error: string;
   onRetry: () => void;
+  /** Odak ekranı: detaylar pencere yerine sayfada gösterilir. */
+  expanded?: boolean;
   className?: string;
 }
 
-export function ForecastInsightCard({ data, loading, error, onRetry, className }: Props) {
+export function ForecastInsightCard({ data, loading, error, onRetry, expanded = false, className }: Props) {
   const [open, setOpen] = useState(false);
   const ready = data?.status === 'ready' && data.predictedTotal != null;
 
-  return (
-    <>
-      <InsightCardShell
-        title="Gelecek ay tahmini"
-        icon={<LineChartIcon className="h-4 w-4" aria-hidden />}
-        badge={ready ? 'ML' : undefined}
-        onOpenDetail={ready ? () => setOpen(true) : undefined}
-        className={className}
-      >
-        {loading ? (
-          <InsightSkeleton />
-        ) : error ? (
-          <InsightError message={error} onRetry={onRetry} />
-        ) : !data || data.status === 'error' ? (
-          <InsightError message={data?.message || 'Tahmin hesaplanamadı.'} onRetry={onRetry} />
-        ) : !ready ? (
-          <InsufficientData dq={data.dataQuality} hint="Tahmin için daha fazla işlem verisi gerekiyor." />
-        ) : (
-          <>
-            <div className="flex flex-wrap items-end justify-between gap-x-2 gap-y-1">
-              <div className="min-w-0">
-                <p className="text-[10px] font-medium capitalize text-muted-foreground">{data.targetMonthLabel}</p>
-                <p className="text-2xl font-bold tabular-nums leading-none tracking-tight text-foreground sm:text-[1.65rem]">
-                  {fmtTry(data.predictedTotal)}
-                </p>
-                <p className="mt-0.5 text-[10px] tabular-nums text-muted-foreground">
-                  %90 aralık: {fmtTry(data.lowerBound)} – {fmtTry(data.upperBound)}
-                </p>
-              </div>
-              <div className="flex flex-col items-end gap-1">
-                <ChangeBadge value={data.changeVsLastMonthPercent} />
-                <DataQualityChip dq={data.dataQuality} />
-              </div>
-            </div>
-
-            <div className="min-h-[56px] flex-1">
-              <ForecastChart series={data.series} compact />
-            </div>
-
-            {data.aiCommentary ? <AiNote text={data.aiCommentary} source={data.aiCommentarySource} /> : null}
-          </>
-        )}
-      </InsightCardShell>
-
-      {ready && data ? (
-        <Dialog open={open} onOpenChange={setOpen}>
-          <DialogContent className="max-h-[90vh] max-w-2xl overflow-y-auto">
-            <DialogHeader>
-              <DialogTitle>Gelecek ay tahmini · <span className="capitalize">{data.targetMonthLabel}</span></DialogTitle>
-              <DialogDescription className="text-xs text-muted-foreground">{data.modelName}</DialogDescription>
-            </DialogHeader>
-            <div className="space-y-4 px-4 py-4">
-              <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
-                <Metric label="Tahmin" value={fmtTry(data.predictedTotal)} strong />
+  const detailBody =
+    ready && data ? (
+            <div className={cn('space-y-4', !expanded && 'px-4 py-4')}>
+              <div className={cn('grid grid-cols-2 gap-2', expanded ? 'sm:grid-cols-3' : 'sm:grid-cols-4')}>
+                {!expanded ? <Metric label="Tahmin" value={fmtTry(data.predictedTotal)} strong /> : null}
                 <Metric label="Geçen ay" value={fmtTry(data.lastMonthTotal)} />
                 <Metric label="Değişim" value={fmtPct(data.changeVsLastMonthPercent)} />
                 <Metric label="Bu ay sonu (tahmini)" value={fmtTry(data.currentMonthProjectedTotal)} />
@@ -99,24 +52,24 @@ export function ForecastInsightCard({ data, loading, error, onRetry, className }
                   <Row label="%90 tahmin aralığı" value={`${fmtTry(data.lowerBound)} – ${fmtTry(data.upperBound)}`} />
                 </div>
                 <div className="rounded-md border border-border p-2.5">
-                  <p className="text-[11px] font-semibold text-foreground">Model doğrulama</p>
+                  <p className="text-[11px] font-semibold text-foreground">Tahmin ne kadar güvenilir?</p>
                   {data.backtest ? (
                     <>
                       <p className="mb-1 text-[10px] text-muted-foreground">
                         Son {data.backtest.holdoutDays} gün saklanıp tahmin edildi (gerçek: {fmtTry(data.backtest.actualTotal)}).
                       </p>
                       <Row
-                        label="ML.NET SSA hatası"
+                        label="Akıllı tahmin modeli hatası"
                         value={data.backtest.ssaErrorPercent != null ? `%${data.backtest.ssaErrorPercent}` : '—'}
                         highlight={data.backtest.selectedModel === 'ssa'}
                       />
                       <Row
-                        label="Temel model hatası"
+                        label="Basit ortalama hatası"
                         value={`%${data.backtest.baselineErrorPercent}`}
                         highlight={data.backtest.selectedModel === 'seasonal_baseline'}
                       />
                       <p className="mt-1 text-[10px] text-muted-foreground">
-                        Hatası düşük olan model seçildi: <b>{data.method === 'ssa' ? 'ML.NET SSA' : 'Haftanın günü ortalaması'}</b>.
+                        Hatası düşük olan model seçildi: <b>{data.method === 'ssa' ? 'Akıllı tahmin modeli' : 'Haftanın günlerine göre ortalama'}</b>.
                       </p>
                     </>
                   ) : (
@@ -159,8 +112,76 @@ export function ForecastInsightCard({ data, loading, error, onRetry, className }
                 </div>
               ) : null}
 
-              {data.aiCommentary ? <AiNote text={data.aiCommentary} source={data.aiCommentarySource} /> : null}
+              {data.aiCommentary ? <AiNote text={data.aiCommentary} source={data.aiCommentarySource} clamp={!expanded} /> : null}
             </div>
+    ) : null;
+
+  return (
+    <>
+      <InsightCardShell
+        title="Gelecek ay tahmini"
+        icon={<LineChartIcon className="h-4 w-4" aria-hidden />}
+        badge={ready ? 'AI' : undefined}
+        onOpenDetail={ready ? () => setOpen(true) : undefined}
+        expanded={expanded}
+        className={className}
+      >
+        {loading ? (
+          <InsightSkeleton />
+        ) : error ? (
+          <InsightError message={error} onRetry={onRetry} />
+        ) : !data || data.status === 'error' ? (
+          <InsightError message={data?.message || 'Tahmin hesaplanamadı.'} onRetry={onRetry} />
+        ) : !ready ? (
+          <DataCollectionState
+            purpose="Geçmiş harcamalarına bakarak gelecek ay yaklaşık ne kadar harcayacağını önceden gösterir."
+            requirements={[
+              { label: "Kayıt geçmişi", current: data.dataQuality.historyDays, required: data.dataQuality.requiredHistoryDays, unit: "gün" },
+              { label: "Gider kaydı", current: data.dataQuality.expenseTransactionCount, required: data.dataQuality.requiredTransactions, unit: "kayıt" },
+            ]}
+            why="Tahmin, harcamalarının haftalar boyunca nasıl değiştiğine bakılarak yapılır; birkaç günlük veriyle güvenilir olmaz."
+            tip="Giderlerini her gün kaydet; market, ulaşım ve kahve gibi küçük harcamalar da tahmini iyileştirir."
+          />
+        ) : (
+          <>
+            <div className="flex flex-wrap items-end justify-between gap-x-2 gap-y-1">
+              <div className="min-w-0">
+                <p className="text-[10px] font-medium capitalize text-muted-foreground">{data.targetMonthLabel}</p>
+                <p className="text-2xl font-bold tabular-nums leading-none tracking-tight text-foreground sm:text-[1.65rem]">
+                  {fmtTry(data.predictedTotal)}
+                </p>
+                <p className="mt-0.5 text-[10px] tabular-nums text-muted-foreground">
+                  %90 aralık: {fmtTry(data.lowerBound)} – {fmtTry(data.upperBound)}
+                </p>
+              </div>
+              <div className="flex flex-col items-end gap-1">
+                <ChangeBadge value={data.changeVsLastMonthPercent} />
+                <DataQualityChip dq={data.dataQuality} />
+              </div>
+            </div>
+
+            {expanded ? (
+              detailBody
+            ) : (
+              <>
+                <div className="min-h-[56px] flex-1">
+                  <ForecastChart series={data.series} compact />
+                </div>
+                {data.aiCommentary ? <AiNote text={data.aiCommentary} source={data.aiCommentarySource} /> : null}
+              </>
+            )}
+          </>
+        )}
+      </InsightCardShell>
+
+      {ready && data && !expanded ? (
+        <Dialog open={open} onOpenChange={setOpen}>
+          <DialogContent className="max-h-[90vh] max-w-2xl overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle>Gelecek ay tahmini · <span className="capitalize">{data.targetMonthLabel}</span></DialogTitle>
+              <DialogDescription className="text-xs text-muted-foreground">Geçmiş harcamalarına ve düzenli ödemelerine göre hesaplandı.</DialogDescription>
+            </DialogHeader>
+            {detailBody}
           </DialogContent>
         </Dialog>
       ) : null}
